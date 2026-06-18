@@ -1,0 +1,42 @@
+[
+  {
+    "id": "trans-styling",
+    "category": "Hair Styling",
+    "before": "/images/before-after/styling-before.webp",
+    "after": "/images/before-after/styling-after.webp",
+    "title": "Luxury Volumizing Wave Blowout",
+    "details": "Transformed dry, lifeless hair into voluminous, bouncy, gold-glowing waves with deep hydration therapy."
+  },
+  {
+    "id": "trans-coloring",
+    "category": "Hair Coloring",
+    "before": "/images/before-after/color-before.webp",
+    "after": "/images/before-after/color-after.webp",
+    "title": "Seamless Champagne Balayage",
+    "details": "Fixed brassy, uneven tones with a hand-painted champagne gold balayage and color locking wash."
+  },
+  {
+    "id": "trans-botox",
+    "category": "Hair Botox",
+    "before": "/images/before-after/botox-before.webp",
+    "after": "/images/before-after/botox-after.webp",
+    "title": "Organic Hair Botox Restoration",
+    "details": "Reversed extensive heat damage and frizz, restoring 100% shine and silky texture without formaldehyde."
+  },
+  {
+    "id": "trans-bridal",
+    "category": "Bridal",
+    "before": "/images/before-after/bridal-before.webp",
+    "after": "/images/before-after/bridal-after.webp",
+    "title": "Royal Kerala Bridal Glow",
+    "details": "Prepped skin with deep hydration followed by an HD sweat-proof airbrush makeup base and traditional jasmine styling."
+  },
+  {
+    "id": "trans-grooming",
+    "category": "Grooming",
+    "before": "/images/before-after/grooming-before.webp",
+    "after": "/images/before-after/grooming-after.webp",
+    "title": "Executive Beard & Hair Fade",
+    "details": "Cleaned up overgrown, unkempt beard into a sharp contoured beard fade with hot steam oil treatment."
+  }
+]

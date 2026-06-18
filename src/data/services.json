@@ -1,0 +1,132 @@
+[
+  {
+    "id": "haircuts-styling",
+    "name": "Haircuts & Styling",
+    "category": "hair",
+    "description": "Transform your hair with custom cuts tailored to your face structure and lifestyle. Includes a luxury wash, signature blowout, and personalized styling.",
+    "icon": "Scissors",
+    "features": [
+      "Personalized Face-Shape Consultation",
+      "Signature Scalp Massage & Wash",
+      "Blow Dry & Styling Tutorial",
+      "Premium Finishing Oils & Sprays"
+    ]
+  },
+  {
+    "id": "hair-coloring",
+    "name": "Hair Coloring",
+    "category": "hair",
+    "description": "Express your individuality with multi-dimensional coloring. From subtle balayage to bold transformations, using ammonia-free luxury colors.",
+    "icon": "Sparkles",
+    "features": [
+      "Ammonia-Free Luxury Pigments",
+      "Color Correction & Balayage Specialists",
+      "Color-Protecting Treatment Lock",
+      "Post-Color Restorative Wash"
+    ]
+  },
+  {
+    "id": "hair-botox",
+    "name": "Hair Botox",
+    "category": "hair",
+    "description": "Rejuvenate damaged and frizzy hair with our ultra-restorative Botox treatment. Restores shine, elasticity, and softness using organic nutrients.",
+    "icon": "Layers",
+    "features": [
+      "Deep Intra-Cuticular Repair",
+      "100% Formaldehyde-Free Formula",
+      "Restores Shine, Volume & Elasticity",
+      "Long-Lasting Frizz Control (up to 4 months)"
+    ]
+  },
+  {
+    "id": "keratin-treatment",
+    "name": "Keratin Treatment",
+    "category": "hair",
+    "description": "Eliminate frizz and reduce styling time by up to 90%. Get silky, smooth, and manageable hair that lasts for months.",
+    "icon": "Flame",
+    "features": [
+      "Natural Keratin Infusion",
+      "Thermal Seal Protectant",
+      "Extreme Shine & Moisture Lock",
+      "Suitable for All Hair Types"
+    ]
+  },
+  {
+    "id": "beard-grooming",
+    "name": "Beard Grooming",
+    "category": "grooming",
+    "description": "Precision beard shaping, trimming, and hot towel treatment. Includes premium beard oil application and scalp-soothing massage.",
+    "icon": "UserCheck",
+    "features": [
+      "Precision Razor Edging",
+      "Soothing Hot Towel & Steam treatment",
+      "Hydrating Beard Balm & Oil Massage",
+      "Post-Shave Skin Calming Lotion"
+    ]
+  },
+  {
+    "id": "facials",
+    "name": "Facials",
+    "category": "skin",
+    "description": "Advanced skin-specific treatments designed to cleanse, exfoliate, and hydrate. Restores natural radiance and fights signs of aging.",
+    "icon": "Smile",
+    "features": [
+      "Deep-Pore Charcoal Cleansing",
+      "Gentle Steam Exfoliation",
+      "Targeted Nourishing Serums",
+      "Jade Roller Soothing Massage"
+    ]
+  },
+  {
+    "id": "skin-care",
+    "name": "Skin Care",
+    "category": "skin",
+    "description": "Tailored treatments using premium dermatological formulas. Solves congestion, pigmentation, and dryness for a flawless complexion.",
+    "icon": "Heart",
+    "features": [
+      "Dermatologically Approved Formulas",
+      "Pigmentation & Tan Removal Treatments",
+      "Ultra-Hydrating Gold Mask Infusion",
+      "Collagen-Boosting Micro-Treatment"
+    ]
+  },
+  {
+    "id": "bridal-makeup",
+    "name": "Bridal Makeup",
+    "category": "bridal",
+    "description": "Look breathtaking on your special day. Custom bridal packages including trial, HD makeup, hairstyling, and draping.",
+    "icon": "Crown",
+    "features": [
+      "HD & Airbrush Makeup Options",
+      "Full Hair Styling & Floral Draping",
+      "Long-Lasting Sweat-Proof Formulas",
+      "Pre-Wedding Beauty consultation"
+    ]
+  },
+  {
+    "id": "massage-therapy",
+    "name": "Massage Therapy",
+    "category": "therapy",
+    "description": "Relax and unwind with aromatherapy and deep tissue massage. Relieves tension, improves circulation, and restores peace of mind.",
+    "icon": "Wind",
+    "features": [
+      "Organic Essential Aromatherapy Oils",
+      "Deep Tissue & Pressure Point Therapy",
+      "Calming Luxury Ambient Setting",
+      "Warm Herbal Compression treatment"
+    ]
+  },
+  {
+    "id": "pedicure-manicure",
+    "name": "Pedicure & Manicure",
+    "category": "therapy",
+    "description": "Nail detailing, skin exfoliation, and relaxing massage. Complete with premium long-lasting organic polishes.",
+    "icon": "Sparkles",
+    "features": [
+      "Organic Dead Sea Salt Soak",
+      "Nourishing Sugar Scrub Exfoliation",
+      "Hydrating Paraffin Wax treatment",
+      "Precision Cuticle & Nail shaping"
+    ]
+  }
+]

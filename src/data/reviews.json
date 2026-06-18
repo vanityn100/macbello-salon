@@ -1,0 +1,47 @@
+[
+  {
+    "id": "review-1",
+    "name": "Sarah Varghese",
+    "location": "Kaduthuruthy",
+    "rating": 5,
+    "date": "2 weeks ago",
+    "text": "I had an amazing experience at this salon. The service was top-notch and the atmosphere was relaxing. Their Hair Botox is simply magic!",
+    "source": "Google Review"
+  },
+  {
+    "id": "review-2",
+    "name": "Midhun Manuel",
+    "location": "Kottayam",
+    "rating": 5,
+    "date": "1 month ago",
+    "text": "An absolute gem of a salon. Great style and wonderful experience. The beard grooming with the hot-towel steam is highly recommended.",
+    "source": "Google Review"
+  },
+  {
+    "id": "review-3",
+    "name": "Priya Nair",
+    "location": "Kaduthuruthy",
+    "rating": 5,
+    "date": "3 weeks ago",
+    "text": "Absolutely loved it here. Incredible skills and excellent service. They did my bridal makeover and I couldn't have asked for anything more perfect!",
+    "source": "Google Review"
+  },
+  {
+    "id": "review-4",
+    "name": "Deepak K. R.",
+    "location": "Ernakulam",
+    "rating": 5,
+    "date": "2 months ago",
+    "text": "The stylists are highly experienced. Extremely hygienic environment and warm hospitality. Hands down the best family salon in Kaduthuruthy.",
+    "source": "Google Review"
+  },
+  {
+    "id": "review-5",
+    "name": "Anjali Krishna",
+    "location": "Kaduthuruthy",
+    "rating": 5,
+    "date": "3 days ago",
+    "text": "Professional staff who understand hair types perfectly. Got a balayage done and the champagne-gold tone turned out stunning! Highly recommended.",
+    "source": "Google Review"
+  }
+]
