@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar, Clock, MessageSquare, Sparkles, User, Phone, X } from "lucide-react";
+import { Calendar, Clock, MessageSquare, Sparkles, User, Phone, X, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import servicesData from "@/data/services.json";
 
@@ -9,6 +9,7 @@ export default function Booking() {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
+    branch: "",
     service: "",
     date: "",
     time: "",
@@ -32,6 +33,7 @@ export default function Booking() {
       newErrors.phone = "Please enter a valid 10-digit mobile number.";
     }
 
+    if (!formData.branch) newErrors.branch = "Please select a branch.";
     if (!formData.service) newErrors.service = "Please select a service.";
     if (!formData.date) newErrors.date = "Please select a preferred date.";
     if (!formData.time) newErrors.time = "Please select a preferred time.";
@@ -57,18 +59,28 @@ export default function Booking() {
     e.preventDefault();
     if (!validate()) return;
 
+    // Map branch names to their specific WhatsApp numbers
+    const branchPhones: { [key: string]: string } = {
+      Kaduthuruthy: "919562514002",
+      Ettumanoor: "919746914003",
+      Peruva: "919544814003"
+    };
+
+    const targetPhone = branchPhones[formData.branch] || "919562514002";
+
     // Construct WhatsApp message
     const serviceName = servicesData.find((s) => s.id === formData.service)?.name || formData.service;
-    const formattedMessage = `Hello Macbello Family Salon, I'd like to book an appointment.
+    const formattedMessage = `Hello Macbello Family Salon (${formData.branch}), I'd like to book an appointment.
 *Name:* ${formData.name}
 *Phone:* ${formData.phone}
+*Branch:* ${formData.branch}
 *Service:* ${serviceName}
 *Date:* ${formData.date}
 *Time:* ${formData.time}
 ${formData.message ? `*Message:* ${formData.message}` : ""}`;
 
     const encodedText = encodeURIComponent(formattedMessage);
-    const whatsappUrl = `https://wa.me/919562514002?text=${encodedText}`;
+    const whatsappUrl = `https://wa.me/${targetPhone}?text=${encodedText}`;
 
     // Display elegant success modal
     setShowSuccessModal(true);
@@ -85,6 +97,7 @@ ${formData.message ? `*Message:* ${formData.message}` : ""}`;
     setFormData({
       name: "",
       phone: "",
+      branch: "",
       service: "",
       date: "",
       time: "",
@@ -164,6 +177,40 @@ ${formData.message ? `*Message:* ${formData.message}` : ""}`;
                 {errors.phone && (
                   <span className="text-[10px] text-red-400 mt-1.5 font-light tracking-wide">
                     {errors.phone}
+                  </span>
+                )}
+              </div>
+
+              {/* Branch Select field */}
+              <div className="flex flex-col">
+                <label className="text-[10px] uppercase tracking-[0.2em] text-gold-primary font-medium mb-2 flex items-center">
+                  <MapPin size={10} className="mr-1.5" />
+                  <span>Select Branch *</span>
+                </label>
+                <select
+                  name="branch"
+                  value={formData.branch}
+                  onChange={handleChange}
+                  className={`bg-luxury-black border ${
+                    errors.branch ? "border-red-500/70" : "border-white/10 focus:border-gold-primary/50"
+                  } px-4 py-3 text-xs tracking-wider text-white rounded-none focus:outline-none transition-colors duration-300 cursor-pointer appearance-none`}
+                >
+                  <option value="" disabled className="text-white/30 bg-luxury-black">
+                    Choose location...
+                  </option>
+                  <option value="Kaduthuruthy" className="text-white bg-luxury-black">
+                    Kaduthuruthy
+                  </option>
+                  <option value="Ettumanoor" className="text-white bg-luxury-black">
+                    Ettumanoor
+                  </option>
+                  <option value="Peruva" className="text-white bg-luxury-black">
+                    Peruva
+                  </option>
+                </select>
+                {errors.branch && (
+                  <span className="text-[10px] text-red-400 mt-1.5 font-light tracking-wide">
+                    {errors.branch}
                   </span>
                 )}
               </div>
