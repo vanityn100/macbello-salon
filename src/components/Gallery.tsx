@@ -303,23 +303,6 @@ export default function Gallery() {
                   className="w-full h-full object-contain focus:outline-none"
                 />
               </div>
-
-              {/* Action and Close controls */}
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between pt-4 border-t border-white/5 mt-3 gap-2">
-                <div>
-                  <span className="text-[9px] uppercase tracking-[0.25em] text-gold-primary font-semibold">
-                    {lightboxItem.category}
-                  </span>
-                </div>
-                
-                <a
-                  href="#booking"
-                  onClick={closeLightbox}
-                  className="text-center text-xs uppercase tracking-[0.2em] bg-gold-primary hover:bg-gold-dark text-luxury-black font-semibold px-6 py-3.5 rounded-none shrink-0 focus:outline-none focus:ring-1 focus:ring-white"
-                >
-                  Book Makeover
-                </a>
-              </div>
             </div>
           </motion.div>
         )}
