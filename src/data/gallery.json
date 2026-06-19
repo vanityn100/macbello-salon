@@ -97,16 +97,5 @@
     "featured": false,
     "sortOrder": 9,
     "description": "Seamless skin fade beard shaping with organic oils."
-  },
-  {
-    "id": "gallery-interior-2",
-    "type": "video",
-    "title": "VIP Lounge & Waiting Area",
-    "category": "interior",
-    "thumbnail": "/images/gallery/interior-2.webp",
-    "video": "/videos/interior-2.mp4",
-    "featured": false,
-    "sortOrder": 10,
-    "description": "Plush seating, ambient champagne lighting, and espresso bar."
   }
 ]
