@@ -1,101 +1,101 @@
 [
   {
-    "id": "gallery-styling-1",
+    "id": "portfolio-blowdry",
     "type": "video",
-    "title": "Avant-Garde Wave",
+    "title": "Luxury Blowdry",
     "category": "styling",
-    "thumbnail": "/images/gallery/styling-1.webp",
-    "video": "/videos/styling-1.mp4",
+    "thumbnail": "/images/gallery/blowdry2.jpg",
+    "video": "/videos/blowdry1.mp4",
     "featured": true,
     "sortOrder": 1,
-    "description": "High-end texturized waves with gold highlighting accents."
+    "description": "Premium blowout and precision hair styling."
   },
   {
-    "id": "gallery-coloring-1",
+    "id": "portfolio-botox",
     "type": "video",
-    "title": "Champagne Balayage",
-    "category": "coloring",
-    "thumbnail": "/images/gallery/coloring-1.webp",
-    "video": "/videos/coloring-1.mp4",
+    "title": "Hair Botox Treatment",
+    "category": "styling",
+    "thumbnail": "/images/gallery/botox2.jpg",
+    "video": "/videos/botox1.mp4",
     "featured": true,
     "sortOrder": 2,
-    "description": "Multi-dimensional blonde hand-painted highlights."
+    "description": "Restorative deep conditioning and hair botox treatment."
   },
   {
-    "id": "gallery-bridal-1",
+    "id": "portfolio-groom-makeover",
     "type": "video",
-    "title": "Royal Kerala Bride",
-    "category": "bridal",
-    "thumbnail": "/images/gallery/bridal-1.webp",
-    "video": "/videos/bridal-1.mp4",
+    "title": "Premium Grooming & Style",
+    "category": "grooming",
+    "thumbnail": "/images/gallery/groom-makeover2.jpg",
+    "video": "/videos/groom-makeover1.mp4",
     "featured": true,
     "sortOrder": 3,
-    "description": "Traditional gold ornamentation with modern HD dewy makeup."
+    "description": "Executive styling and complete groom makeover."
   },
   {
-    "id": "gallery-grooming-1",
+    "id": "portfolio-hair-colouring",
     "type": "video",
-    "title": "Classic Executive Contour",
-    "category": "grooming",
-    "thumbnail": "/images/gallery/grooming-1.webp",
-    "video": "/videos/grooming-1.mp4",
+    "title": "Dimensional Hair Colouring",
+    "category": "coloring",
+    "thumbnail": "/images/gallery/hair-colouring2.jpg",
+    "video": "/videos/hair-colouring1.mp4",
     "featured": true,
     "sortOrder": 4,
-    "description": "Sharp side-part contour with premium hot-towel beard finish."
+    "description": "High-end customized hair coloring and highlights."
   },
   {
-    "id": "gallery-interior-1",
+    "id": "portfolio-kids-haircut",
     "type": "video",
-    "title": "Macbello Main Suite",
-    "category": "interior",
-    "thumbnail": "/images/gallery/interior-1.webp",
-    "video": "/videos/interior-1.mp4",
+    "title": "Precision Kids Haircut",
+    "category": "styling",
+    "thumbnail": "/images/gallery/kids-haircut2.jpg",
+    "video": "/videos/kids-haircut1.mp4",
     "featured": true,
     "sortOrder": 5,
-    "description": "Luxe styling chairs with custom gold borders and black marble."
+    "description": "Gentle and stylish haircutting for children."
   },
   {
-    "id": "gallery-styling-2",
+    "id": "portfolio-makeup-transformation",
     "type": "video",
-    "title": "Luxury Sleek Blowout",
-    "category": "styling",
-    "thumbnail": "/images/gallery/styling-2.webp",
-    "video": "/videos/styling-2.mp4",
-    "featured": false,
-    "sortOrder": 6,
-    "description": "Ultra-smooth glass hair finish using thermal nourishing serums."
-  },
-  {
-    "id": "gallery-coloring-2",
-    "type": "video",
-    "title": "Midnight Obsidian & Gold",
-    "category": "coloring",
-    "thumbnail": "/images/gallery/coloring-2.webp",
-    "video": "/videos/coloring-2.mp4",
-    "featured": false,
-    "sortOrder": 7,
-    "description": "Deep black base with subtle golden-champagne underlights."
-  },
-  {
-    "id": "gallery-bridal-2",
-    "type": "video",
-    "title": "Contemporary Reception Glam",
+    "title": "Luxury Makeup Transformation",
     "category": "bridal",
-    "thumbnail": "/images/gallery/bridal-2.webp",
-    "video": "/videos/bridal-2.mp4",
-    "featured": false,
-    "sortOrder": 8,
-    "description": "Soft smoky eyes and bold lip styling for evening celebrations."
+    "thumbnail": "/images/gallery/makeup-transformation2.jpg",
+    "video": "/videos/makeup-transformation1.mp4",
+    "featured": true,
+    "sortOrder": 6,
+    "description": "Premium makeup makeover for special occasions and brides."
   },
   {
-    "id": "gallery-grooming-2",
+    "id": "portfolio-nailart",
     "type": "video",
-    "title": "Premium Beard Fade",
+    "title": "Exquisite Nail Art",
     "category": "grooming",
-    "thumbnail": "/images/gallery/grooming-2.webp",
-    "video": "/videos/grooming-2.mp4",
-    "featured": false,
+    "thumbnail": "/images/gallery/nailart2.jpg",
+    "video": "/videos/nailart1.mp4",
+    "featured": true,
+    "sortOrder": 7,
+    "description": "Bespoke nail art designs and detailing."
+  },
+  {
+    "id": "portfolio-pedicure",
+    "type": "video",
+    "title": "Relaxing Pedicure Spa",
+    "category": "grooming",
+    "thumbnail": "/images/gallery/pedicure2.jpg",
+    "video": "/videos/pedicure1.mp4",
+    "featured": true,
+    "sortOrder": 8,
+    "description": "Soothing foot treatment and complete nail grooming."
+  },
+  {
+    "id": "portfolio-proteinspa",
+    "type": "video",
+    "title": "Nutritive Protein Spa",
+    "category": "styling",
+    "thumbnail": "/images/gallery/proteinspa2.jpg",
+    "video": "/videos/proteinspa1.mp4",
+    "featured": true,
     "sortOrder": 9,
-    "description": "Seamless skin fade beard shaping with organic oils."
+    "description": "Nourishing therapy for healthy hair growth and shine."
   }
 ]
