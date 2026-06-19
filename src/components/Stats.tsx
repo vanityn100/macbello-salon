@@ -16,24 +16,24 @@ interface StatItem {
 const statsData: StatItem[] = [
   {
     id: "clients",
-    label: "Happy Clients",
-    targetValue: 781,
+    label: "Total Reviews",
+    targetValue: 1626,
     suffix: "+",
     icon: Users
   },
   {
     id: "rating",
-    label: "Google Rating",
+    label: "Avg. Google Rating",
     targetValue: 4.8,
     suffix: "★",
     isFloat: true,
     icon: Star
   },
   {
-    id: "specialists",
-    label: "Beauty Specialists",
-    targetValue: 20,
-    suffix: "+",
+    id: "branches",
+    label: "Salon Branches",
+    targetValue: 3,
+    suffix: "",
     icon: ShieldCheck
   },
   {

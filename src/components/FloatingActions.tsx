@@ -9,19 +9,20 @@ export default function FloatingActions() {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Show desktop booking button after scrolling past hero section
       setShowDesktopBtn(window.scrollY > 500);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Default to Kaduthuruthy branch for floating WhatsApp
   const whatsappUrl = `https://wa.me/919562514002?text=${encodeURIComponent(
     "Hi Macbello Family Salon, I'd like to book an appointment."
   )}`;
 
-  const directionsUrl = "https://www.google.com/maps/dir/?api=1&destination=Macbello+Family+Salon+Market+Junction+Kaduthuruthy+Kerala";
+  // Default directions to Kaduthuruthy (nearest / primary branch)
+  const directionsUrl =
+    "https://www.google.com/maps/dir/?api=1&destination=Macbello+Family+Salon+Market+Junction+Kaduthuruthy+Kerala+686604";
 
   return (
     <>
@@ -37,17 +38,15 @@ export default function FloatingActions() {
           >
             <a
               href="#booking"
-              className="relative flex items-center space-x-3 bg-luxury-dark/90 text-gold-primary border border-gold-primary/30 px-6 py-4 backdrop-blur-md rounded-none shadow-[0_10px_30px_rgba(0,0,0,0.5)] group overflow-hidden transition-all duration-300"
+              className="relative flex items-center space-x-3 bg-luxury-dark/90 text-gold-primary border border-gold-primary/30 px-6 py-4 backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.5)] group overflow-hidden transition-all duration-300 hover:border-gold-primary/60"
             >
-              {/* Animated Inner Shine */}
+              {/* Inner shine sweep */}
               <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-              
-              {/* Pulse Indicator Dot */}
+              {/* Pulse dot */}
               <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-gold-primary"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold-primary opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-gold-primary" />
               </span>
-
               <Calendar size={16} className="group-hover:rotate-12 transition-transform" />
               <span className="text-xs uppercase tracking-[0.2em] font-medium">Book Appointment</span>
             </a>
@@ -55,7 +54,7 @@ export default function FloatingActions() {
         )}
       </AnimatePresence>
 
-      {/* Floating Mobile WhatsApp Button (Pulse action above the bottom bar) */}
+      {/* Floating Mobile WhatsApp Bubble */}
       <div className="fixed bottom-24 right-4 z-40 lg:hidden">
         <motion.a
           href={whatsappUrl}
@@ -90,7 +89,7 @@ export default function FloatingActions() {
             className="flex flex-col items-center justify-center py-2.5 border border-gold-primary/20 bg-gold-primary text-luxury-black font-semibold"
           >
             <MessageSquare size={18} className="mb-1" />
-            <span className="text-[9px] uppercase tracking-[0.1em]">Book WhatsApp</span>
+            <span className="text-[9px] uppercase tracking-[0.1em]">WhatsApp</span>
           </a>
 
           {/* Directions */}

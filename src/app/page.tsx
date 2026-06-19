@@ -4,10 +4,12 @@ import ReviewMarquee from "@/components/ReviewMarquee";
 import Stats from "@/components/Stats";
 import About from "@/components/About";
 import Services from "@/components/Services";
+import Branches from "@/components/Branches";
 import BeforeAfter from "@/components/BeforeAfter";
 import Trust from "@/components/Trust";
 import Gallery from "@/components/Gallery";
 import Booking from "@/components/Booking";
+import Feedback from "@/components/Feedback";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import FloatingActions from "@/components/FloatingActions";
@@ -37,6 +39,9 @@ export default function Home() {
         {/* Services Experience Grid */}
         <Services />
 
+        {/* Our Branches — 3 locations with premium cards */}
+        <Branches />
+
         {/* Interactive Before & After comparison slider */}
         <BeforeAfter />
 
@@ -49,7 +54,10 @@ export default function Home() {
         {/* Booking Form with WhatsApp forwarding */}
         <Booking />
 
-        {/* Contact info & Interactive Map */}
+        {/* Customer Feedback Form */}
+        <Feedback />
+
+        {/* Contact info — all 3 branches */}
         <Contact />
       </main>
 

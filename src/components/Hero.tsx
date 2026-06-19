@@ -86,7 +86,7 @@ export default function Hero() {
             ))}
           </div>
           <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-champagne">
-            4.8★ Rating | 781+ Reviews
+            4.8★ Avg. Rating | 1,626+ Reviews · 3 Branches
           </span>
         </motion.div>
 
@@ -117,7 +117,7 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.7, ease: "easeOut" }}
           className="text-xs sm:text-sm md:text-lg text-ivory/80 max-w-2xl font-light tracking-wide mt-6 leading-relaxed"
         >
-          Kaduthuruthy&apos;s trusted destination for premium beauty, grooming, and wellness experiences.
+          Kerala&apos;s premier multi-branch luxury salon — Kaduthuruthy, Ettumanoor &amp; Peruva.
         </motion.p>
 
         {/* Action CTAs with strong priority */}

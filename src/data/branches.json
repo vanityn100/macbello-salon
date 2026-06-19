@@ -1,0 +1,47 @@
+[
+  {
+    "id": "kaduthuruthy",
+    "name": "Macbello Family Salon",
+    "branch": "Kaduthuruthy",
+    "address": "Market Junction, Kaduthuruthy, Kerala 686604",
+    "phone": "+91 95625 14002",
+    "phoneRaw": "919562514002",
+    "rating": 4.8,
+    "reviewCount": 781,
+    "hours": "9:30 AM – 8:30 PM",
+    "hoursNote": "Open All 7 Days",
+    "whatsappMessage": "Hi Macbello Family Salon (Kaduthuruthy), I'd like to book an appointment.",
+    "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Macbello+Family+Salon+Market+Junction+Kaduthuruthy+Kerala+686604",
+    "mapsUrl": "https://maps.google.com/?q=Macbello+Family+Salon+Market+Junction+Kaduthuruthy+Kerala+686604"
+  },
+  {
+    "id": "ettumanoor",
+    "name": "Macbello Family Salon",
+    "branch": "Ettumanoor",
+    "address": "Ground Floor, Panthaplackil Buildings, 1/376, MC Road, Ettumanoor, Kottayam, Kerala 686632",
+    "phone": "+91 97469 14003",
+    "phoneRaw": "919746914003",
+    "rating": 4.8,
+    "reviewCount": 424,
+    "hours": "9:30 AM – 8:30 PM",
+    "hoursNote": "Open All 7 Days",
+    "whatsappMessage": "Hi Macbello Family Salon (Ettumanoor), I'd like to book an appointment.",
+    "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Macbello+Family+Salon+Panthaplackil+Buildings+MC+Road+Ettumanoor+Kottayam+Kerala+686632",
+    "mapsUrl": "https://maps.google.com/?q=Macbello+Family+Salon+Panthaplackil+Buildings+MC+Road+Ettumanoor+Kottayam+Kerala"
+  },
+  {
+    "id": "peruva",
+    "name": "Macbello Family Salon",
+    "branch": "Peruva",
+    "address": "Macbello Family Salon, Peruva, Kerala 686610",
+    "phone": "+91 95448 14003",
+    "phoneRaw": "919544814003",
+    "rating": 4.7,
+    "reviewCount": 421,
+    "hours": "9:30 AM – 8:30 PM",
+    "hoursNote": "Open All 7 Days",
+    "whatsappMessage": "Hi Macbello Family Salon (Peruva), I'd like to book an appointment.",
+    "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Macbello+Family+Salon+Peruva+Kerala+686610",
+    "mapsUrl": "https://maps.google.com/?q=Macbello+Family+Salon+Peruva+Kerala+686610"
+  }
+]

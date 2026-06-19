@@ -7,11 +7,11 @@ import { motion, AnimatePresence } from "framer-motion";
 const navLinks = [
   { name: "About", href: "#about" },
   { name: "Services", href: "#services" },
-  { name: "Transformations", href: "#transformations" },
+  { name: "Branches", href: "#branches" },
   { name: "Gallery", href: "#gallery" },
   { name: "Reviews", href: "#reviews" },
-  { name: "Experts", href: "#experts" },
-  { name: "Contact", href: "#contact" }
+  { name: "Feedback", href: "#feedback" },
+  { name: "Contact", href: "#contact" },
 ];
 
 export default function Navbar() {
@@ -21,16 +21,12 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Background scroll trigger
       setScrolled(window.scrollY > 50);
-
-      // Scroll progress computation
       const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
       if (totalScroll > 0) {
         setScrollProgress((window.scrollY / totalScroll) * 100);
       }
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -39,7 +35,7 @@ export default function Navbar() {
     <>
       {/* Scroll Progress Indicator */}
       <div className="fixed top-0 left-0 right-0 h-[2px] z-50 pointer-events-none">
-        <div 
+        <div
           className="h-full bg-gold-primary transition-all duration-75"
           style={{ width: `${scrollProgress}%` }}
         />
@@ -48,7 +44,7 @@ export default function Navbar() {
       <nav
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
           scrolled
-            ? "bg-luxury-black/80 backdrop-blur-md border-b border-gold-primary/10 py-4"
+            ? "bg-luxury-black/85 backdrop-blur-md border-b border-gold-primary/10 py-4"
             : "bg-transparent py-6"
         }`}
       >
@@ -64,12 +60,12 @@ export default function Navbar() {
           </a>
 
           {/* Desktop Nav Links */}
-          <div className="hidden lg:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center space-x-7">
             {navLinks.map((link) => (
               <a
                 key={link.name}
                 href={link.href}
-                className="text-xs uppercase tracking-[0.2em] text-ivory/70 hover:text-gold-primary transition-colors duration-300 relative py-1 group"
+                className="text-[11px] uppercase tracking-[0.18em] text-ivory/70 hover:text-gold-primary transition-colors duration-300 relative py-1 group"
               >
                 {link.name}
                 <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-gold-primary transition-all duration-300 group-hover:w-full" />
@@ -78,24 +74,24 @@ export default function Navbar() {
           </div>
 
           {/* Action CTAs */}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-3">
             <a
               href="tel:+919562514002"
-              className="flex items-center space-x-2 text-xs uppercase tracking-[0.15em] border border-white/10 hover:border-gold-primary/30 px-4 py-2.5 rounded-none backdrop-blur-md bg-white/5 text-ivory hover:text-gold-primary transition-all duration-300"
+              className="flex items-center space-x-2 text-[11px] uppercase tracking-[0.15em] border border-white/10 hover:border-gold-primary/40 px-4 py-2.5 backdrop-blur-md bg-white/5 text-ivory hover:text-gold-primary transition-all duration-300"
             >
               <Phone size={12} className="text-gold-primary" />
-              <span>+91 95625 14002</span>
+              <span>Call Now</span>
             </a>
             <a
               href="#booking"
-              className="flex items-center space-x-2 text-xs uppercase tracking-[0.15em] bg-gold-primary hover:bg-gold-dark text-luxury-black px-5 py-2.5 rounded-none font-medium transition-all duration-300 shadow-[0_0_15px_rgba(212,175,55,0.2)] hover:shadow-[0_0_25px_rgba(212,175,55,0.4)]"
+              className="flex items-center space-x-2 text-[11px] uppercase tracking-[0.15em] bg-gold-primary hover:bg-gold-dark text-luxury-black px-5 py-2.5 font-semibold transition-all duration-300 shadow-[0_0_15px_rgba(212,175,55,0.2)] hover:shadow-[0_0_25px_rgba(212,175,55,0.35)]"
             >
               <Calendar size={12} />
-              <span>Book Appointment</span>
+              <span>Book Now</span>
             </a>
           </div>
 
-          {/* Mobile Hamburguer Toggle */}
+          {/* Mobile Menu Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="lg:hidden text-ivory hover:text-gold-primary transition-colors focus:outline-none"
@@ -105,7 +101,7 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Mobile Fullscreen Navigation Overlay */}
+        {/* Mobile Overlay */}
         <AnimatePresence>
           {isOpen && (
             <motion.div
@@ -113,9 +109,9 @@ export default function Navbar() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-x-0 top-[72px] bottom-0 z-40 bg-luxury-black/95 backdrop-blur-xl border-t border-white/5 flex flex-col justify-between p-8 lg:hidden"
+              className="fixed inset-x-0 top-[72px] bottom-0 z-40 bg-luxury-black/97 backdrop-blur-xl border-t border-white/5 flex flex-col justify-between p-8 lg:hidden"
             >
-              <div className="flex flex-col space-y-6 mt-4">
+              <div className="flex flex-col space-y-5 mt-4">
                 {navLinks.map((link, idx) => (
                   <motion.a
                     initial={{ opacity: 0, x: -25 }}
@@ -131,7 +127,6 @@ export default function Navbar() {
                 ))}
               </div>
 
-              {/* Mobile Menu Action CTAs */}
               <div className="flex flex-col space-y-4 mb-12">
                 <a
                   href="tel:+919562514002"

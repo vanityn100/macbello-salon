@@ -16,21 +16,24 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Macbello Family Salon | Premium Salon in Kaduthuruthy",
-  description: "Luxury hair styling, beauty treatments, hair botox, grooming and bridal services in Kaduthuruthy, Kerala.",
+  title: "Macbello Family Salon | Premium Salon in Kaduthuruthy, Ettumanoor & Peruva",
+  description: "Luxury hair styling, beauty treatments, hair botox, grooming and bridal services across 3 branches — Kaduthuruthy, Ettumanoor & Peruva, Kerala.",
   keywords: [
     "Best Salon in Kaduthuruthy",
+    "Salon Ettumanoor",
+    "Salon Peruva",
     "Family Salon Kaduthuruthy",
-    "Beauty Parlour Kaduthuruthy",
+    "Beauty Parlour Kottayam",
     "Hair Botox Kerala",
     "Bridal Makeup Kaduthuruthy",
     "Hair Salon Near Me",
-    "Hair Coloring Kaduthuruthy"
+    "Hair Coloring Kerala",
+    "Macbello Family Salon"
   ],
   authors: [{ name: "Macbello Family Salon" }],
   openGraph: {
-    title: "Macbello Family Salon | Premium Salon in Kaduthuruthy",
-    description: "Luxury hair styling, beauty treatments, hair botox, grooming and bridal services in Kaduthuruthy, Kerala.",
+    title: "Macbello Family Salon | Premium Salon in Kaduthuruthy, Ettumanoor & Peruva",
+    description: "Luxury hair styling, beauty treatments, hair botox, grooming and bridal services across 3 branches in Kerala.",
     url: "https://macbellosalon.com",
     siteName: "Macbello Family Salon",
     locale: "en_IN",
@@ -46,8 +49,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Macbello Family Salon | Premium Salon in Kaduthuruthy",
-    description: "Luxury hair styling, beauty treatments, hair botox, grooming and bridal services in Kaduthuruthy.",
+    title: "Macbello Family Salon | Premium Salon in Kaduthuruthy, Ettumanoor & Peruva",
+    description: "Luxury hair styling, beauty treatments and bridal services across 3 branches in Kerala.",
     images: ["https://macbellosalon.com/images/hero/hero_salon.webp"],
   },
   alternates: {
