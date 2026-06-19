@@ -176,7 +176,7 @@ export default function Gallery() {
   const lightboxItem = lightboxIdx !== null ? filteredItems[lightboxIdx] : null;
 
   return (
-    <section id="gallery" className="relative py-20 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
+    <section id="portfolio" className="relative py-20 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
       {/* Background ambient light */}
       <div className="absolute top-[40%] left-[20%] w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(212,175,55,0.02),transparent_70%)] pointer-events-none" />
 
@@ -185,10 +185,10 @@ export default function Gallery() {
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
           <span className="text-[10px] md:text-xs uppercase tracking-[0.25em] text-gold-primary mb-3 font-medium block">
-            Gallery
+            Portfolio
           </span>
           <h2 className="font-playfair text-3xl md:text-4xl text-white font-light tracking-wide mb-6">
-            Luxury Portfolio
+            Luxury Showcase
           </h2>
           <p className="text-sm text-ivory/60 leading-relaxed font-light">
             Browse our collection of custom works and get inspired for your next transformation at Macbello.

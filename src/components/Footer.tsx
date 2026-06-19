@@ -76,7 +76,7 @@ export default function Footer() {
               { label: "Premium Experiences", href: "#services" },
               { label: "Our Branches", href: "#branches" },
               { label: "Before & After Slider", href: "#transformations" },
-              { label: "Luxury Portfolio", href: "#gallery" },
+              { label: "Luxury Portfolio", href: "#portfolio" },
               { label: "Customer Feedback", href: "#feedback" },
               { label: "Contact Us", href: "#contact" },
             ].map((link) => (
