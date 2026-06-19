@@ -1,72 +1,112 @@
 [
   {
     "id": "gallery-styling-1",
+    "type": "video",
     "title": "Avant-Garde Wave",
     "category": "styling",
-    "image": "/images/gallery/styling-1.webp",
+    "thumbnail": "/images/gallery/styling-1.webp",
+    "video": "/videos/styling-1.mp4",
+    "featured": true,
+    "sortOrder": 1,
     "description": "High-end texturized waves with gold highlighting accents."
   },
   {
     "id": "gallery-coloring-1",
+    "type": "video",
     "title": "Champagne Balayage",
     "category": "coloring",
-    "image": "/images/gallery/coloring-1.webp",
+    "thumbnail": "/images/gallery/coloring-1.webp",
+    "video": "/videos/coloring-1.mp4",
+    "featured": true,
+    "sortOrder": 2,
     "description": "Multi-dimensional blonde hand-painted highlights."
   },
   {
     "id": "gallery-bridal-1",
+    "type": "video",
     "title": "Royal Kerala Bride",
     "category": "bridal",
-    "image": "/images/gallery/bridal-1.webp",
+    "thumbnail": "/images/gallery/bridal-1.webp",
+    "video": "/videos/bridal-1.mp4",
+    "featured": true,
+    "sortOrder": 3,
     "description": "Traditional gold ornamentation with modern HD dewy makeup."
   },
   {
     "id": "gallery-grooming-1",
+    "type": "video",
     "title": "Classic Executive Contour",
     "category": "grooming",
-    "image": "/images/gallery/grooming-1.webp",
+    "thumbnail": "/images/gallery/grooming-1.webp",
+    "video": "/videos/grooming-1.mp4",
+    "featured": true,
+    "sortOrder": 4,
     "description": "Sharp side-part contour with premium hot-towel beard finish."
   },
   {
     "id": "gallery-interior-1",
+    "type": "video",
     "title": "Macbello Main Suite",
     "category": "interior",
-    "image": "/images/gallery/interior-1.webp",
+    "thumbnail": "/images/gallery/interior-1.webp",
+    "video": "/videos/interior-1.mp4",
+    "featured": true,
+    "sortOrder": 5,
     "description": "Luxe styling chairs with custom gold borders and black marble."
   },
   {
     "id": "gallery-styling-2",
+    "type": "video",
     "title": "Luxury Sleek Blowout",
     "category": "styling",
-    "image": "/images/gallery/styling-2.webp",
+    "thumbnail": "/images/gallery/styling-2.webp",
+    "video": "/videos/styling-2.mp4",
+    "featured": false,
+    "sortOrder": 6,
     "description": "Ultra-smooth glass hair finish using thermal nourishing serums."
   },
   {
     "id": "gallery-coloring-2",
+    "type": "video",
     "title": "Midnight Obsidian & Gold",
     "category": "coloring",
-    "image": "/images/gallery/coloring-2.webp",
+    "thumbnail": "/images/gallery/coloring-2.webp",
+    "video": "/videos/coloring-2.mp4",
+    "featured": false,
+    "sortOrder": 7,
     "description": "Deep black base with subtle golden-champagne underlights."
   },
   {
     "id": "gallery-bridal-2",
+    "type": "video",
     "title": "Contemporary Reception Glam",
     "category": "bridal",
-    "image": "/images/gallery/bridal-2.webp",
+    "thumbnail": "/images/gallery/bridal-2.webp",
+    "video": "/videos/bridal-2.mp4",
+    "featured": false,
+    "sortOrder": 8,
     "description": "Soft smoky eyes and bold lip styling for evening celebrations."
   },
   {
     "id": "gallery-grooming-2",
+    "type": "video",
     "title": "Premium Beard Fade",
     "category": "grooming",
-    "image": "/images/gallery/grooming-2.webp",
+    "thumbnail": "/images/gallery/grooming-2.webp",
+    "video": "/videos/grooming-2.mp4",
+    "featured": false,
+    "sortOrder": 9,
     "description": "Seamless skin fade beard shaping with organic oils."
   },
   {
     "id": "gallery-interior-2",
+    "type": "video",
     "title": "VIP Lounge & Waiting Area",
     "category": "interior",
-    "image": "/images/gallery/interior-2.webp",
+    "thumbnail": "/images/gallery/interior-2.webp",
+    "video": "/videos/interior-2.mp4",
+    "featured": false,
+    "sortOrder": 10,
     "description": "Plush seating, ambient champagne lighting, and espresso bar."
   }
 ]

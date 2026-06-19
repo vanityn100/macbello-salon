@@ -1,38 +1,148 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
+// In-memory rate limiting store (sliding window)
+const rateLimitMap = new Map<string, number[]>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const windowMs = 15 * 60 * 1000; // 15 minutes
+  const limit = 5; // 5 requests
+
+  const timestamps = rateLimitMap.get(ip) || [];
+  // Filter out timestamps outside the 15-minute window
+  const activeTimestamps = timestamps.filter((time) => now - time < windowMs);
+
+  if (activeTimestamps.length >= limit) {
+    return true; // Rate limited
+  }
+
+  activeTimestamps.push(now);
+  rateLimitMap.set(ip, activeTimestamps);
+  return false;
+}
+
+// HTML sanitizer to prevent XSS / HTML Injection
+function sanitize(input: string): string {
+  if (typeof input !== "string") return "";
+  return input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;")
+    .replace(/\//g, "&#x2F;");
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { name, mobile, branch, rating, message } = body as {
-      name: string;
-      mobile: string;
-      branch: string;
-      rating: number;
-      message: string;
-    };
-
-    // Validate required fields
-    if (!name || !mobile || !branch || !rating || !message) {
+    // 1. Verify Content-Type header
+    const contentType = request.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
       return NextResponse.json(
-        { success: false, error: "All fields are required." },
+        { success: false, error: "Invalid content type." },
         { status: 400 }
       );
     }
 
+    // 2. Enforce Payload Size Limit (Max 50KB)
+    const contentLengthHeader = request.headers.get("content-length");
+    if (contentLengthHeader) {
+      const contentLength = parseInt(contentLengthHeader, 10);
+      if (isNaN(contentLength) || contentLength > 50 * 1024) {
+        return NextResponse.json(
+          { success: false, error: "Request payload too large." },
+          { status: 413 }
+        );
+      }
+    }
+
+    // 3. In-Memory Rate Limiting
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+    if (checkRateLimit(ip)) {
+      return NextResponse.json(
+        { success: false, error: "Too many feedback submissions. Please try again after 15 minutes." },
+        { status: 429 }
+      );
+    }
+
+    // 4. Parse JSON with exception handling
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, error: "Invalid JSON format." },
+        { status: 400 }
+      );
+    }
+
+    const { name, mobile, branch, rating, message } = body || {};
+
+    // 5. Input Validation
+    if (typeof name !== "string" || name.trim() === "" || name.length > 100) {
+      return NextResponse.json(
+        { success: false, error: "Invalid name format." },
+        { status: 400 }
+      );
+    }
+
+    // Mobile Validation: Require 10-15 digits (allowing optional leading plus, spaces or dashes for UX)
+    const mobileRegex = /^\+?[0-9\s\-()]{10,15}$/;
+    if (typeof mobile !== "string" || !mobileRegex.test(mobile)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid mobile number format." },
+        { status: 400 }
+      );
+    }
+
+    // Branch Validation: Strict list
+    const allowedBranches = ["Kaduthuruthy", "Ettumanoor", "Peruva"];
+    if (typeof branch !== "string" || !allowedBranches.includes(branch)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid branch selected." },
+        { status: 400 }
+      );
+    }
+
+    // Rating Validation: Strict integer between 1 and 5
+    const parsedRating = Number(rating);
+    if (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+      return NextResponse.json(
+        { success: false, error: "Invalid rating value." },
+        { status: 400 }
+      );
+    }
+
+    // Message Validation: Maximum 1000 characters
+    if (typeof message !== "string" || message.trim() === "" || message.length > 1000) {
+      return NextResponse.json(
+        { success: false, error: "Invalid message format." },
+        { status: 400 }
+      );
+    }
+
+    // 6. Sanitization of input values
+    const safeName = sanitize(name.trim());
+    const safeMobile = sanitize(mobile.trim());
+    const safeBranch = sanitize(branch.trim());
+    const safeMessage = sanitize(message.trim());
+
+    // 7. Verify Server-Side Secrets
     const feedbackEmail = process.env.FEEDBACK_EMAIL;
     const resendApiKey = process.env.RESEND_API_KEY;
 
     if (!feedbackEmail || !resendApiKey) {
-      console.error("Missing FEEDBACK_EMAIL or RESEND_API_KEY environment variables.");
+      // Log details only on server side to safeguard config
+      console.error("API Error: Configuration variables missing.");
       return NextResponse.json(
-        { success: false, error: "Email service not configured." },
+        { success: false, error: "Feedback submission failed." },
         { status: 500 }
       );
     }
 
     const resend = new Resend(resendApiKey);
-    const stars = "★".repeat(rating) + "☆".repeat(5 - rating);
+    const stars = "★".repeat(parsedRating) + "☆".repeat(5 - parsedRating);
 
     const html = `
 <!DOCTYPE html>
@@ -64,23 +174,23 @@ export async function POST(request: NextRequest) {
     <div class="body">
       <div class="field">
         <div class="field-label">Customer Name</div>
-        <div class="field-value">${name}</div>
+        <div class="field-value">${safeName}</div>
       </div>
       <div class="field">
         <div class="field-label">Mobile Number</div>
-        <div class="field-value">${mobile}</div>
+        <div class="field-value">${safeMobile}</div>
       </div>
       <div class="field">
         <div class="field-label">Branch Visited</div>
-        <div class="field-value">${branch}</div>
+        <div class="field-value">${safeBranch}</div>
       </div>
       <div class="field">
         <div class="field-label">Rating</div>
-        <div class="field-value rating">${stars} (${rating}/5)</div>
+        <div class="field-value rating">${stars} (${parsedRating}/5)</div>
       </div>
       <div class="field" style="border-bottom:none;padding-bottom:0;">
         <div class="field-label">Feedback</div>
-        <div class="message-box field-value">${message.replace(/\n/g, "<br/>")}</div>
+        <div class="message-box field-value">${safeMessage.replace(/\n/g, "<br/>")}</div>
       </div>
     </div>
     <div class="footer">
@@ -94,23 +204,24 @@ export async function POST(request: NextRequest) {
     const { error } = await resend.emails.send({
       from: "Macbello Feedback <onboarding@resend.dev>",
       to: [feedbackEmail],
-      subject: `⭐ ${rating}/5 Feedback from ${name} — ${branch} Branch`,
+      subject: `⭐ ${parsedRating}/5 Feedback from ${safeName} — ${safeBranch} Branch`,
       html,
     });
 
     if (error) {
-      console.error("Resend error:", error);
+      console.error("Resend API failed:", error);
       return NextResponse.json(
-        { success: false, error: "Failed to send feedback." },
-        { status: 500 }
+        { success: false, error: "Feedback submission failed." },
+        { status: 502 }
       );
     }
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Feedback email error:", err);
+    // Catch-all with generic responses to ensure client doesn't receive stack traces
+    console.error("Unhandled feedback routing error:", err);
     return NextResponse.json(
-      { success: false, error: "Failed to send feedback." },
+      { success: false, error: "Feedback submission failed." },
       { status: 500 }
     );
   }
