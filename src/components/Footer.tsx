@@ -147,7 +147,7 @@ export default function Footer() {
           {/* Social Icons */}
           <div className="flex space-x-3 pt-2">
             <a
-              href="https://instagram.com"
+              href="https://www.instagram.com/macbellofamily?igsh=MWdpZXIybTk0cGFzeA=="
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 border border-white/5 bg-white/[0.02] hover:border-gold-primary text-ivory hover:text-gold-primary transition-all duration-300"
@@ -156,7 +156,7 @@ export default function Footer() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
             </a>
             <a
-              href="https://facebook.com"
+              href="https://www.facebook.com/macbellofamilysalon"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 border border-white/5 bg-white/[0.02] hover:border-gold-primary text-ivory hover:text-gold-primary transition-all duration-300"
