@@ -77,6 +77,7 @@ export default function Footer() {
               { label: "Our Branches", href: "#branches" },
               { label: "Before & After Slider", href: "#transformations" },
               { label: "Luxury Portfolio", href: "#portfolio" },
+              { label: "Loyalty Rewards", href: "#loyalty" },
               { label: "Customer Feedback", href: "#feedback" },
               { label: "Contact Us", href: "#contact" },
             ].map((link) => (

@@ -9,6 +9,7 @@ import BeforeAfter from "@/components/BeforeAfter";
 import Trust from "@/components/Trust";
 import Gallery from "@/components/Gallery";
 import Booking from "@/components/Booking";
+import Loyalty from "@/components/Loyalty";
 import Feedback from "@/components/Feedback";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
@@ -53,6 +54,9 @@ export default function Home() {
 
         {/* Booking Form with WhatsApp forwarding */}
         <Booking />
+
+        {/* Loyalty Rewards balance checker */}
+        <Loyalty />
 
         {/* Customer Feedback Form */}
         <Feedback />

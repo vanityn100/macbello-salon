@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: [
           {
+            key: "Content-Security-Policy",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://nquixbakqqjllhvvnydr.supabase.co; media-src 'self' data: blob:; connect-src 'self' https://nquixbakqqjllhvvnydr.supabase.co; font-src 'self' data:; frame-ancestors 'none';",
+          },
+          {
             key: "X-Content-Type-Options",
             value: "nosniff",
           },
