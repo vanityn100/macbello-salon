@@ -80,13 +80,9 @@ function VideoCard({ item, onClick }: { item: GalleryItem; onClick: () => void }
 export default function Gallery() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const galleryItems = getGalleryItems();
   const modalRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    setGalleryItems(getGalleryItems());
-  }, []);
 
   // Filter gallery items
   const filteredItems = galleryItems.filter(

@@ -18,5 +18,8 @@ export function proxy(request: NextRequest) {
 
 // Limit the proxy only to the protected admin API endpoints to optimize performance
 export const config = {
-  matcher: ["/api/loyalty/admin/:path*"]
+  matcher: [
+    "/api/loyalty/admin/:path*",
+    "/api/billing/admin/:path*"
+  ]
 };

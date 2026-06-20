@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { 
-  User, Phone, Award, ShieldAlert, LogOut, Search, Plus, ListCollapse, MapPin, 
-  Loader2, CheckCircle2, FileClock, History
+  Phone, Award, ShieldAlert, LogOut, Search, Plus, 
+  Loader2, CheckCircle2, FileClock, History, ShoppingBag, FileText
 } from "lucide-react";
+import Link from "next/link";
 
 interface Customer {
   id: string;
@@ -61,12 +62,35 @@ export default function StaffPortal() {
   const [adjSuccess, setAdjSuccess] = useState("");
   const [adjLoading, setAdjLoading] = useState(false);
 
+  // Daily profit stats state
+  const [stats, setStats] = useState<{
+    totalSales: number;
+    invoiceCount: number;
+    branchBreakdown: Record<string, number>;
+  } | null>(null);
+  const loadDailyStats = async (token: string) => {
+    try {
+      const res = await fetch("/api/billing/admin?action=get_daily_stats", {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setStats(data.stats);
+      }
+    } catch (err) {
+      console.error("Failed to load daily stats:", err);
+    }
+  };
+
   useEffect(() => {
     // Check initial active session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setSessionToken(session.access_token);
         setStaffEmail(session.user?.email || null);
+        loadDailyStats(session.access_token);
       }
     });
 
@@ -74,11 +98,13 @@ export default function StaffPortal() {
       if (session) {
         setSessionToken(session.access_token);
         setStaffEmail(session.user?.email || null);
+        loadDailyStats(session.access_token);
       } else {
         setSessionToken(null);
         setStaffEmail(null);
         setCustomer(null);
         setHistory([]);
+        setStats(null);
       }
     });
 
@@ -337,7 +363,6 @@ export default function StaffPortal() {
       <div className="absolute top-[10%] left-[10%] w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(212,175,55,0.015),transparent_70%)] pointer-events-none" />
 
       <div className="max-w-6xl mx-auto z-10 relative">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-white/5 pb-6 mb-10 gap-4">
           <div>
             <span className="text-[9px] uppercase tracking-[0.25em] text-gold-primary mb-1.5 block">
@@ -351,14 +376,88 @@ export default function StaffPortal() {
             </p>
           </div>
 
-          <button
-            onClick={handleLogout}
-            className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-white/10 hover:border-red-500/30 hover:text-red-400 px-4 py-2 bg-white/5 transition-all duration-300 rounded-none cursor-pointer"
-          >
-            <LogOut size={12} />
-            <span>Sign Out</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/admin/billing"
+              className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-gold-primary/20 hover:border-gold-primary/60 hover:text-gold-primary px-4 py-2 bg-gold-primary/5 transition-all duration-300 rounded-none"
+            >
+              <FileText size={12} className="text-gold-primary" />
+              <span>Billing Workspace</span>
+            </Link>
+
+            <Link
+              href="/admin/billing/services"
+              className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-white/10 hover:border-white/30 px-4 py-2 bg-white/5 transition-all duration-300 rounded-none"
+            >
+              <ShoppingBag size={12} />
+              <span>Manage Catalog</span>
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-white/10 hover:border-red-500/30 hover:text-red-400 px-4 py-2 bg-white/5 transition-all duration-300 rounded-none cursor-pointer"
+            >
+              <LogOut size={12} />
+              <span>Sign Out</span>
+            </button>
+          </div>
         </div>
+
+        {/* Daily Profit & Stats Banner */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 border border-white/5 bg-white/[0.01] p-6 relative">
+            {/* Corners */}
+            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-gold-primary/25" />
+            <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-gold-primary/25" />
+            <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-gold-primary/25" />
+            <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-gold-primary/25" />
+
+            {/* Total Income */}
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-gold-primary/10 border border-gold-primary/20 text-gold-primary">
+                <Award size={20} />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-ivory/50 block">Today&apos;s Profit / Income</span>
+                <span className="font-playfair text-3xl text-white font-medium tracking-wide mt-0.5 block">
+                  ₹{stats.totalSales.toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            {/* Invoices Count */}
+            <div className="flex items-center space-x-4 border-t md:border-t-0 md:border-x border-white/5 py-4 md:py-0 md:px-6">
+              <div className="p-3 bg-white/5 border border-white/10 text-white">
+                <FileText size={20} />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-ivory/50 block">Invoices Generated</span>
+                <span className="font-playfair text-3xl text-white font-medium tracking-wide mt-0.5 block">
+                  {stats.invoiceCount} Invoices
+                </span>
+              </div>
+            </div>
+
+            {/* Branch-wise breakdown */}
+            <div className="flex flex-col justify-center space-y-1.5">
+              <span className="text-[10px] uppercase tracking-wider text-gold-primary block font-bold">Branch Contribution Today</span>
+              <div className="grid grid-cols-3 gap-2 text-[11px] text-ivory/70 pt-0.5">
+                <div>
+                  <span className="block font-medium text-white/90">Kaduthuruthy</span>
+                  <span className="text-xs text-gold-primary font-bold">₹{stats.branchBreakdown.Kaduthuruthy.toFixed(0)}</span>
+                </div>
+                <div>
+                  <span className="block font-medium text-white/90">Ettumanoor</span>
+                  <span className="text-xs text-gold-primary font-bold">₹{stats.branchBreakdown.Ettumanoor.toFixed(0)}</span>
+                </div>
+                <div>
+                  <span className="block font-medium text-white/90">Peruva</span>
+                  <span className="text-xs text-gold-primary font-bold">₹{stats.branchBreakdown.Peruva.toFixed(0)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
