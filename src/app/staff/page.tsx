@@ -15,6 +15,16 @@ interface Customer {
   points: number;
 }
 
+interface Appointment {
+  id: string;
+  status: string;
+  branch: string;
+  appointment_date: string;
+  appointment_time: string;
+  customer_name: string;
+  customer_phone: string;
+}
+
 interface Transaction {
   id: string;
   points_change: number;
@@ -64,6 +74,11 @@ export default function StaffPortal() {
 
   const [userRole, setUserRole] = useState<string | null>(null);
 
+  // Appointments Viewer
+  const [appointmentsDate, setAppointmentsDate] = useState("");
+  const [appointmentsList, setAppointmentsList] = useState<Appointment[]>([]);
+  const [appointmentsLoading, setAppointmentsLoading] = useState(false);
+
   const [stats, setStats] = useState<{
     totalSales: number;
     invoiceCount: number;
@@ -86,7 +101,28 @@ export default function StaffPortal() {
     }
   };
 
+  const loadAppointments = async (token: string, date: string) => {
+    if (!date) return;
+    setAppointmentsLoading(true);
+    try {
+      const res = await fetch(`/api/billing/admin?action=get_appointments&date=${date}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setAppointmentsList(data.appointments || []);
+      }
+    } catch (err) {
+      console.error("Failed to load appointments:", err);
+    } finally {
+      setAppointmentsLoading(false);
+    }
+  };
+
   useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    setAppointmentsDate(today);
+
     // Check initial active session
     supabaseStaffClient.auth.getSession().then(({ data: { session } }) => {
       if (session) {
@@ -94,6 +130,7 @@ export default function StaffPortal() {
         setStaffEmail(session.user?.email || null);
         setUserRole(session.user?.app_metadata?.role || null);
         loadDailyStats(session.access_token);
+        loadAppointments(session.access_token, today);
       }
     });
 
@@ -103,6 +140,7 @@ export default function StaffPortal() {
         setStaffEmail(session.user?.email || null);
         setUserRole(session.user?.app_metadata?.role || null);
         loadDailyStats(session.access_token);
+        loadAppointments(session.access_token, appointmentsDate || today);
       } else {
         setSessionToken(null);
         setStaffEmail(null);
@@ -110,11 +148,19 @@ export default function StaffPortal() {
         setCustomer(null);
         setHistory([]);
         setStats(null);
+        setAppointmentsList([]);
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Fetch appointments when date changes
+  useEffect(() => {
+    if (sessionToken && appointmentsDate) {
+      loadAppointments(sessionToken, appointmentsDate);
+    }
+  }, [appointmentsDate, sessionToken]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -487,6 +533,57 @@ export default function StaffPortal() {
             )}
           </div>
         )}
+
+        {/* Appointments Viewer */}
+        <div className="border border-white/5 bg-white/[0.01] p-6 relative mb-10">
+          <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-gold-primary/25" />
+          <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-gold-primary/25" />
+          <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-gold-primary/25" />
+          <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-gold-primary/25" />
+          
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 border-b border-white/5 pb-4">
+            <h2 className="font-playfair text-lg text-white font-medium tracking-wide flex items-center mb-4 md:mb-0">
+              <span className="p-2 bg-gold-primary/10 border border-gold-primary/20 text-gold-primary mr-3">
+                <FileClock size={16} />
+              </span>
+              <span>Appointments</span>
+            </h2>
+            <div className="flex items-center space-x-3">
+              <label className="text-[10px] uppercase tracking-wider text-ivory/40">Select Date:</label>
+              <input
+                type="date"
+                value={appointmentsDate}
+                onChange={(e) => setAppointmentsDate(e.target.value)}
+                className="bg-luxury-black border border-white/10 px-3 py-2 text-xs text-white rounded-none focus:outline-none focus:border-gold-primary/50"
+              />
+            </div>
+          </div>
+
+          {appointmentsLoading ? (
+            <div className="flex justify-center py-6">
+              <Loader2 size={24} className="animate-spin text-gold-primary" />
+            </div>
+          ) : appointmentsList.length > 0 ? (
+            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
+              {appointmentsList.map((apt) => (
+                <div key={apt.id} className="bg-white/[0.02] border border-white/5 p-4 flex flex-col md:flex-row justify-between items-start md:items-center">
+                  <div>
+                    <div className="text-sm text-white font-medium mb-1">{apt.customer_name}</div>
+                    <div className="text-[10px] text-ivory/50 uppercase tracking-wider">{apt.customer_phone}</div>
+                  </div>
+                  <div className="text-left md:text-right mt-3 md:mt-0">
+                    <div className="text-xs text-gold-primary mb-1">{apt.appointment_time}</div>
+                    <div className="text-[10px] text-ivory/40 uppercase tracking-wider">{apt.branch} &bull; {apt.status}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-xs text-ivory/30 italic">No appointments booked for {appointmentsDate}.</p>
+            </div>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           

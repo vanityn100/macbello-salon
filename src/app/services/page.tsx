@@ -1,10 +1,16 @@
-"use client";
+import { Metadata } from "next";
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingActions from "@/components/FloatingActions";
 import Services from "@/components/Services";
 import Booking from "@/components/Booking";
+
+export const metadata: Metadata = {
+  title: "Services & Pricing | Macbello Family Salon",
+  description: "Explore our premium menu of hair styling, advanced skin care, botox treatments, grooming, and luxury bridal services at Macbello Family Salon.",
+  keywords: ["Salon Services", "Hair Styling Pricing", "Bridal Makeup Packages", "Skin Treatments Kerala", "Hair Botox Cost"]
+};
 
 export default function ServicesPage() {
   return (

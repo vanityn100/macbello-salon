@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { getSupabaseAdmin } from "@/lib/supabase";
 
 // HTML sanitizer to prevent XSS / HTML Injection
 function sanitize(input: string): string {
@@ -53,18 +54,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Invalid JSON format." }, { status: 400 });
     }
 
-    const { name, phone, email, branch, service, date, time, message } = body || {};
+    const { name, phone, email, branch, service, serviceId, date, time, message } = body || {};
 
     // 3. Validate required fields
     if (typeof name !== "string" || !name.trim()) {
       return NextResponse.json({ success: false, error: "Missing name." }, { status: 400 });
     }
-    if (typeof email !== "string" || !email.trim()) {
-      return NextResponse.json({ success: false, error: "Missing email." }, { status: 400 });
-    }
-    const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/;
-    if (!emailRegex.test(email.trim()) || email.length > 254) {
-      return NextResponse.json({ success: false, error: "Invalid email address." }, { status: 400 });
+    
+    let safeEmail = "";
+    if (email && typeof email === "string" && email.trim()) {
+      const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/;
+      if (!emailRegex.test(email.trim()) || email.length > 254) {
+        return NextResponse.json({ success: false, error: "Invalid email address." }, { status: 400 });
+      }
+      safeEmail = sanitize(email.trim());
     }
 
     const allowedBranches = ["Kaduthuruthy", "Ettumanoor", "Peruva"];
@@ -72,22 +75,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Invalid branch." }, { status: 400 });
     }
 
-    // 4. Verify Resend API key
-    const resendApiKey = process.env.RESEND_API_KEY;
-    if (!resendApiKey) {
-      console.error("Missing RESEND_API_KEY for booking confirmation.");
-      return NextResponse.json({ success: false, error: "Email service not configured." }, { status: 500 });
-    }
-
-    // 5. Sanitize inputs
+    // 4. Sanitize inputs
     const safeName    = sanitize(String(name).trim());
     const safePhone   = sanitize(String(phone || "").trim());
-    const safeEmail   = sanitize(email.trim());
     const safeBranch  = sanitize(branch);
     const safeService = sanitize(String(service || "").trim());
     const safeDate    = sanitize(String(date || "").trim());
     const safeTime    = sanitize(String(time || "").trim());
     const safeMessage = sanitize(String(message || "").trim());
+    
+    // Save to Database
+    const supabase = getSupabaseAdmin();
+    const { error: dbError } = await supabase.from("appointments").insert([
+      {
+        customer_name: safeName,
+        customer_phone: safePhone,
+        branch: safeBranch,
+        service_id: serviceId || null,
+        appointment_date: safeDate,
+        appointment_time: safeTime,
+        status: "scheduled",
+        notes: safeMessage || null,
+      }
+    ]);
+    
+    if (dbError) {
+      console.error("Failed to save appointment to DB:", dbError);
+      // We don't block the user, but we log the error
+    }
 
     const displayDate = safeDate ? formatDate(safeDate) : "—";
     const displayTime = safeTime ? formatTime(safeTime) : "—";
@@ -237,18 +252,18 @@ export async function POST(request: NextRequest) {
 </html>
     `.trim();
 
-    // 7. Send confirmation email to customer
-    const resend = new Resend(resendApiKey);
-    const { error } = await resend.emails.send({
-      from: "Macbello Family Salon <onboarding@resend.dev>",
-      to: [email.trim()],
-      subject: `Appointment Confirmation — ${safeService || "Your Booking"} at Macbello ${safeBranch}`,
-      html,
-    });
-
-    if (error) {
-      console.error("Resend API failed for booking confirmation:", error);
-      return NextResponse.json({ success: false, error: "Failed to send confirmation email." }, { status: 502 });
+    // 5. Send confirmation email to customer if email is provided
+    if (safeEmail) {
+      const resendApiKey = process.env.RESEND_API_KEY;
+      if (resendApiKey) {
+        const resend = new Resend(resendApiKey);
+        resend.emails.send({
+          from: "Macbello Family Salon <onboarding@resend.dev>",
+          to: [safeEmail],
+          subject: `Appointment Confirmation — ${safeService || "Your Booking"} at Macbello ${safeBranch}`,
+          html,
+        }).catch((err) => console.error("Resend API failed for booking confirmation:", err));
+      }
     }
 
     return NextResponse.json({ success: true });

@@ -101,23 +101,22 @@ ${formData.message ? `*Message:* ${formData.message}` : ""}`;
     // Display elegant success modal
     setShowSuccessModal(true);
 
-    // Send booking confirmation email if customer provided their email
-    if (formData.email.trim()) {
-      fetch("/api/booking/confirm", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name,
-          phone: formData.phone,
-          email: formData.email,
-          branch: formData.branch,
-          service: serviceName,
-          date: formData.date,
-          time: formData.time,
-          message: formData.message,
-        }),
-      }).catch((err) => console.error("Booking confirmation email failed:", err));
-    }
+    // Record appointment in database and send confirmation email if email is provided
+    fetch("/api/booking/confirm", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        branch: formData.branch,
+        service: serviceName, // The component maps ID to name
+        serviceId: formData.service, // The actual ID for DB
+        date: formData.date,
+        time: formData.time,
+        message: formData.message,
+      }),
+    }).catch((err) => console.error("Booking API failed:", err));
 
     // Open WhatsApp link in new tab
     setTimeout(() => {

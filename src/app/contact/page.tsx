@@ -1,10 +1,16 @@
-"use client";
+import { Metadata } from "next";
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingActions from "@/components/FloatingActions";
 import Contact from "@/components/Contact";
 import Feedback from "@/components/Feedback";
+
+export const metadata: Metadata = {
+  title: "Contact Us | Macbello Family Salon",
+  description: "Get in touch with Macbello Family Salon. Find our branches in Kaduthuruthy, Ettumanoor, and Peruva. Book your appointment or send us feedback today.",
+  keywords: ["Contact Macbello Salon", "Salon Branches Kerala", "Book Salon Appointment", "Kaduthuruthy Salon Address", "Ettumanoor Salon Contact"]
+};
 
 export default function ContactPage() {
   return (

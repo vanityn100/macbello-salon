@@ -214,12 +214,20 @@ export async function GET(request: NextRequest) {
           return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
         }
         query = query.eq("branch", user.branch);
-      } else {
-        // Admin optional filter
+      }
+      
+      // Admin optional filter
+      if (user.role !== "staff") {
         const filterBranch = searchParams.get("branch");
         if (filterBranch) {
           query = query.eq("branch", filterBranch);
         }
+      }
+
+      // Optional date filter
+      const filterDate = searchParams.get("date");
+      if (filterDate) {
+        query = query.eq("appointment_date", filterDate);
       }
 
       const { data: appointments, error } = await query.order("appointment_date", { ascending: true });
@@ -317,7 +325,7 @@ export async function GET(request: NextRequest) {
       // Fetch Appointments in range
       let appointmentsQuery = adminSupabase
         .from("appointments")
-        .select("id, status, branch, appointment_date, customer_name, customer_phone")
+        .select("id, status, branch, appointment_date, appointment_time, customer_name, customer_phone")
         .gte("appointment_date", startDate)
         .lte("appointment_date", endDate);
 

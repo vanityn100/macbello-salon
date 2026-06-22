@@ -1,10 +1,16 @@
-"use client";
+import { Metadata } from "next";
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingActions from "@/components/FloatingActions";
 import Gallery from "@/components/Gallery";
 import BeforeAfter from "@/components/BeforeAfter";
+
+export const metadata: Metadata = {
+  title: "Gallery & Portfolio | Macbello Family Salon",
+  description: "Browse our luxury salon portfolio. See stunning hair transformations, premium bridal styling, and interactive before-and-after highlights.",
+  keywords: ["Salon Gallery", "Hair Transformation", "Bridal Portfolio", "Before and After Hair", "Macbello Salon Photos"]
+};
 
 export default function GalleryPage() {
   return (

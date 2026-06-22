@@ -58,6 +58,7 @@ interface Appointment {
   status: string;
   branch: string;
   appointment_date: string;
+  appointment_time: string;
   customer_name: string;
   customer_phone: string;
 }
@@ -824,15 +825,41 @@ export default function AdminPortal() {
               <button
                 onClick={exportPDFReport}
                 disabled={pdfLoading}
-                className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] bg-gold-primary text-luxury-black font-bold px-6 py-3 hover:bg-gold-dark transition-all duration-300 rounded-none cursor-pointer"
+                className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] bg-gold-primary text-luxury-black font-bold px-6 py-3 hover:bg-gold-dark transition-all duration-300 rounded-none cursor-pointer mb-8"
               >
                 {pdfLoading ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
                 <span>Export PDF Transactions Report</span>
               </button>
+
+              {/* Appointments List */}
+              <div className="w-full text-left mt-4 border-t border-white/5 pt-6">
+                <h3 className="text-sm text-gold-primary uppercase tracking-[0.2em] mb-4 flex items-center justify-between">
+                  <span>Appointments in Range</span>
+                  <span className="text-[10px] text-ivory/50">Total: {reportData.appointments.length}</span>
+                </h3>
+                {reportData.appointments.length > 0 ? (
+                  <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
+                    {reportData.appointments.map((apt) => (
+                      <div key={apt.id} className="bg-white/[0.02] border border-white/5 p-4 flex flex-col md:flex-row justify-between items-start md:items-center">
+                        <div>
+                          <div className="text-sm text-white font-medium mb-1">{apt.customer_name}</div>
+                          <div className="text-[10px] text-ivory/50 uppercase tracking-wider">{apt.customer_phone}</div>
+                        </div>
+                        <div className="text-right mt-3 md:mt-0">
+                          <div className="text-xs text-gold-primary mb-1">{apt.appointment_date} {apt.appointment_time ? `at ${apt.appointment_time}` : ""}</div>
+                          <div className="text-[10px] text-ivory/40 uppercase tracking-wider">{apt.branch} &bull; {apt.status}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-ivory/30 italic text-center py-6">No appointments found for this date range.</p>
+                )}
+              </div>
             </div>
           ) : (
             <div className="border-t border-white/5 pt-8 text-center text-xs text-ivory/30 italic">
-              Select date ranges and branch parameters to build printable transaction reports.
+              Select date ranges and branch parameters to build printable transaction reports and view appointments.
             </div>
           )}
         </div>
