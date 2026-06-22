@@ -19,6 +19,8 @@ export interface CompletedInvoice {
     unit_price: string;
     tax_rate: number;
     line_total: string;
+    item_code?: string | null;
+    hsn?: string | null;
   }>;
   customer: {
     id: string;
@@ -154,9 +156,11 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
   doc.setFontSize(8.5);
   doc.setTextColor(100, 100, 100);
   doc.text("Item Description", 23, y + 5.5);
-  doc.text("Category", 100, y + 5.5);
-  doc.text("Qty", 125, y + 5.5);
-  doc.text("Unit Price", 140, y + 5.5);
+  doc.text("HSN", 78, y + 5.5);
+  doc.text("Category", 94, y + 5.5);
+  doc.text("Tax Rate", 112, y + 5.5);
+  doc.text("Qty", 132, y + 5.5);
+  doc.text("Unit Price", 143, y + 5.5);
   doc.text("Total (excl. Tax)", 165, y + 5.5);
 
   y += 8;
@@ -171,11 +175,14 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
     doc.line(20, y + 8, 190, y + 8);
 
     doc.setFont("helvetica", "bold");
-    doc.text(item.item_name, 23, y + 5);
+    const desc = item.item_code ? `${item.item_name} [${item.item_code}]` : item.item_name;
+    doc.text(desc, 23, y + 5);
     doc.setFont("helvetica", "normal");
-    doc.text(item.category, 100, y + 5);
-    doc.text(String(item.quantity), 127, y + 5);
-    doc.text(`INR ${parseFloat(item.unit_price).toFixed(2)}`, 140, y + 5);
+    doc.text(item.hsn || "-", 78, y + 5);
+    doc.text(item.category, 94, y + 5);
+    doc.text(`${(item.tax_rate * 100).toFixed(0)}%`, 112, y + 5);
+    doc.text(String(item.quantity), 134, y + 5);
+    doc.text(`INR ${parseFloat(item.unit_price).toFixed(2)}`, 143, y + 5);
     doc.text(`INR ${parseFloat(item.line_total).toFixed(2)}`, 165, y + 5);
 
     y += 8;
@@ -211,23 +218,43 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
   doc.setFontSize(9);
   doc.setTextColor(100, 100, 100);
 
-  doc.text("Subtotal:", 115, y + 5);
-  doc.text(`INR ${subtotal.toFixed(2)}`, 165, y + 5);
+  let offset = 0;
+  doc.text("Subtotal:", 115, y + 5 + offset);
+  doc.text(`INR ${subtotal.toFixed(2)}`, 165, y + 5 + offset);
+  offset += 5;
 
-  doc.text("Service Tax (5%):", 115, y + 10);
-  doc.text(`INR ${serviceTax.toFixed(2)}`, 165, y + 10);
+  if (serviceTax > 0) {
+    doc.text("Service CGST (2.5%):", 115, y + 5 + offset);
+    doc.text(`INR ${(serviceTax / 2).toFixed(2)}`, 165, y + 5 + offset);
+    offset += 5;
 
-  doc.text("Retail Tax (18%):", 115, y + 15);
-  doc.text(`INR ${retailTax.toFixed(2)}`, 165, y + 15);
+    doc.text("Service SGST (2.5%):", 115, y + 5 + offset);
+    doc.text(`INR ${(serviceTax / 2).toFixed(2)}`, 165, y + 5 + offset);
+    offset += 5;
+  }
 
-  doc.text("Total Tax Collected:", 115, y + 20);
-  doc.text(`INR ${totalTax.toFixed(2)}`, 165, y + 20);
+  if (retailTax > 0) {
+    doc.text("Retail CGST (9%):", 115, y + 5 + offset);
+    doc.text(`INR ${(retailTax / 2).toFixed(2)}`, 165, y + 5 + offset);
+    offset += 5;
+
+    doc.text("Retail SGST (9%):", 115, y + 5 + offset);
+    doc.text(`INR ${(retailTax / 2).toFixed(2)}`, 165, y + 5 + offset);
+    offset += 5;
+  }
+
+  doc.text("Total Tax (CGST + SGST):", 115, y + 5 + offset);
+  doc.text(`INR ${totalTax.toFixed(2)}`, 165, y + 5 + offset);
+  offset += 5;
 
   if (discount > 0) {
     doc.setFont("helvetica", "bold");
     doc.setTextColor(200, 50, 50);
-    doc.text("Loyalty Discount:", 115, y + 25);
-    doc.text(`-INR ${discount.toFixed(2)}`, 165, y + 25);
+    doc.text("Loyalty Discount:", 115, y + 5 + offset);
+    doc.text(`-INR ${discount.toFixed(2)}`, 165, y + 5 + offset);
+    doc.setTextColor(100, 100, 100);
+    doc.setFont("helvetica", "normal");
+    offset += 5;
   }
 
   // Grand Total Highlight
@@ -236,10 +263,10 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
   doc.setTextColor(17, 17, 17);
   doc.setDrawColor(170, 124, 17);
   doc.setLineWidth(0.5);
-  doc.line(115, y + 28, 190, y + 28);
+  doc.line(115, y + 3 + offset, 190, y + 3 + offset);
   
-  doc.text("GRAND TOTAL:", 115, y + 33);
-  doc.text(`INR ${grandTotal.toFixed(2)}`, 165, y + 33);
+  doc.text("GRAND TOTAL:", 115, y + 8 + offset);
+  doc.text(`INR ${grandTotal.toFixed(2)}`, 165, y + 8 + offset);
 
   // Professional Footer
   doc.setDrawColor(240, 240, 240);

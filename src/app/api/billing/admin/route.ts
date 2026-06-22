@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     // 1. SERVICE / PRODUCT MANAGEMENT
     if (action === "create_service") {
-      const { name, price, category } = body;
+      const { name, price, category, itemCode, hsn, taxRate } = body;
       
       if (!name || typeof name !== "string" || name.trim() === "") {
         return NextResponse.json({ success: false, error: "Name is required." }, { status: 400 });
@@ -145,17 +145,43 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Category must be either Service or Retail." }, { status: 400 });
       }
 
-      const taxRate = category === "Service" ? 0.05 : 0.18;
+      const cleanItemCode = itemCode && typeof itemCode === "string" ? itemCode.trim() : null;
+      const cleanHsn = hsn && typeof hsn === "string" ? hsn.trim() : null;
+
+      // Sanitization: Escape HTML tags to prevent XSS
+      const cleanName = name.replace(/<[^>]*>/g, "").trim();
+      const safeItemCode = cleanItemCode ? cleanItemCode.replace(/<[^>]*>/g, "") : null;
+      const safeHsn = cleanHsn ? cleanHsn.replace(/<[^>]*>/g, "") : null;
+
+      let parsedTaxRate = category === "Service" ? 0.05 : 0.18;
+      if (taxRate !== undefined) {
+        const tempTax = parseFloat(taxRate);
+        if (!isNaN(tempTax) && tempTax >= 0 && tempTax <= 1) {
+          parsedTaxRate = tempTax;
+        } else {
+          return NextResponse.json({ success: false, error: "Tax rate must be a percentage between 0% and 100%." }, { status: 400 });
+        }
+      }
 
       const { data: newService, error } = await adminSupabase
-        .from("services")
-        .insert([{ name: name.trim(), price: parsedPrice, category, tax_rate: taxRate }])
-        .select("*")
-        .single();
+         .from("services")
+         .insert([{ 
+           name: cleanName, 
+           price: parsedPrice, 
+           category, 
+           tax_rate: parsedTaxRate, 
+           item_code: safeItemCode, 
+           hsn: safeHsn 
+         }])
+         .select("*")
+         .single();
 
       if (error) {
         console.error("Create service error:", error);
         if (error.code === "23505") {
+          if (error.message?.includes("item_code") || error.details?.includes("item_code")) {
+            return NextResponse.json({ success: false, error: "An item with this Item Code already exists." }, { status: 409 });
+          }
           return NextResponse.json({ success: false, error: "An item with this name already exists." }, { status: 409 });
         }
         return NextResponse.json({ success: false, error: "Failed to create menu item." }, { status: 500 });
@@ -165,7 +191,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "edit_service") {
-      const { id, name, price, category } = body;
+      const { id, name, price, category, itemCode, hsn, taxRate } = body;
 
       if (!id) {
         return NextResponse.json({ success: false, error: "Item ID is required." }, { status: 400 });
@@ -181,17 +207,46 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Category must be either Service or Retail." }, { status: 400 });
       }
 
-      const taxRate = category === "Service" ? 0.05 : 0.18;
+      const cleanItemCode = itemCode && typeof itemCode === "string" ? itemCode.trim() : null;
+      const cleanHsn = hsn && typeof hsn === "string" ? hsn.trim() : null;
+
+      // Sanitization: Escape HTML tags to prevent XSS
+      const cleanName = name.replace(/<[^>]*>/g, "").trim();
+      const safeItemCode = cleanItemCode ? cleanItemCode.replace(/<[^>]*>/g, "") : null;
+      const safeHsn = cleanHsn ? cleanHsn.replace(/<[^>]*>/g, "") : null;
+
+      let parsedTaxRate = category === "Service" ? 0.05 : 0.18;
+      if (taxRate !== undefined) {
+        const tempTax = parseFloat(taxRate);
+        if (!isNaN(tempTax) && tempTax >= 0 && tempTax <= 1) {
+          parsedTaxRate = tempTax;
+        } else {
+          return NextResponse.json({ success: false, error: "Tax rate must be a percentage between 0% and 100%." }, { status: 400 });
+        }
+      }
 
       const { data: updatedService, error } = await adminSupabase
         .from("services")
-        .update({ name: name.trim(), price: parsedPrice, category, tax_rate: taxRate })
+        .update({ 
+          name: cleanName, 
+          price: parsedPrice, 
+          category, 
+          tax_rate: parsedTaxRate, 
+          item_code: safeItemCode, 
+          hsn: safeHsn 
+        })
         .eq("id", id)
         .select("*")
         .single();
 
       if (error) {
         console.error("Edit service error:", error);
+        if (error.code === "23505") {
+          if (error.message?.includes("item_code") || error.details?.includes("item_code")) {
+            return NextResponse.json({ success: false, error: "An item with this Item Code already exists." }, { status: 409 });
+          }
+          return NextResponse.json({ success: false, error: "An item with this name already exists." }, { status: 409 });
+        }
         return NextResponse.json({ success: false, error: "Failed to update menu item." }, { status: 500 });
       }
 
@@ -321,6 +376,8 @@ export async function POST(request: NextRequest) {
         unit_price: number;
         tax_rate: number;
         line_total: number;
+        item_code: string | null;
+        hsn: string | null;
       }
       const invoiceItemsToInsert: InvoiceItemInsert[] = [];
 
@@ -337,12 +394,13 @@ export async function POST(request: NextRequest) {
         const price = dbItem.price;
         const lineTotal = price * qty;
 
+        const calculatedTax = lineTotal * (parseFloat(dbItem.tax_rate) || 0);
         if (dbItem.category === "Service") {
           serviceSubtotal += lineTotal;
-          serviceTax += lineTotal * 0.05;
+          serviceTax += calculatedTax;
         } else {
           retailSubtotal += lineTotal;
-          retailTax += lineTotal * 0.18;
+          retailTax += calculatedTax;
         }
 
         invoiceItemsToInsert.push({
@@ -351,7 +409,9 @@ export async function POST(request: NextRequest) {
           quantity: qty,
           unit_price: price,
           tax_rate: dbItem.tax_rate,
-          line_total: lineTotal
+          line_total: lineTotal,
+          item_code: dbItem.item_code || null,
+          hsn: dbItem.hsn || null
         });
       }
 

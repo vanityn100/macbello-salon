@@ -13,6 +13,8 @@ interface ServiceItem {
   price: number;
   category: "Service" | "Retail";
   tax_rate: number;
+  item_code: string | null;
+  hsn: string | null;
 }
 
 export default function ServicesManagement() {
@@ -28,6 +30,9 @@ export default function ServicesManagement() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState<"Service" | "Retail">("Service");
+  const [itemCode, setItemCode] = useState("");
+  const [hsn, setHsn] = useState("");
+  const [gstRate, setGstRate] = useState("5");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formError, setFormError] = useState("");
   const [formSuccess, setFormSuccess] = useState("");
@@ -102,9 +107,10 @@ export default function ServicesManagement() {
 
     try {
       const url = "/api/billing/admin";
+      const gstPercent = parseFloat(gstRate) / 100;
       const payload = editingId 
-        ? { action: "edit_service", id: editingId, name, price: priceNum, category }
-        : { action: "create_service", name, price: priceNum, category };
+        ? { action: "edit_service", id: editingId, name, price: priceNum, category, itemCode, hsn, taxRate: gstPercent }
+        : { action: "create_service", name, price: priceNum, category, itemCode, hsn, taxRate: gstPercent };
 
       const res = await fetch(url, {
         method: "POST",
@@ -124,6 +130,9 @@ export default function ServicesManagement() {
         setName("");
         setPrice("");
         setCategory("Service");
+        setItemCode("");
+        setHsn("");
+        setGstRate("5");
         setEditingId(null);
         loadItems(sessionToken!);
       }
@@ -139,6 +148,9 @@ export default function ServicesManagement() {
     setName(item.name);
     setPrice(item.price.toString());
     setCategory(item.category);
+    setItemCode(item.item_code || "");
+    setHsn(item.hsn || "");
+    setGstRate((item.tax_rate * 100).toString());
     setFormError("");
     setFormSuccess("");
   };
@@ -148,6 +160,9 @@ export default function ServicesManagement() {
     setName("");
     setPrice("");
     setCategory("Service");
+    setItemCode("");
+    setHsn("");
+    setGstRate("5");
     setFormError("");
     setFormSuccess("");
   };
@@ -278,21 +293,21 @@ export default function ServicesManagement() {
                 <div className="flex border border-white/10">
                   <button
                     type="button"
-                    onClick={() => setCategory("Service")}
+                    onClick={() => { setCategory("Service"); setGstRate("5"); }}
                     className={`flex-1 py-2 text-center text-[10px] uppercase tracking-wider font-semibold cursor-pointer transition-colors ${
                       category === "Service" ? "bg-gold-primary text-luxury-black" : "bg-transparent text-ivory/60 hover:text-ivory"
                     }`}
                   >
-                    Service (5% Tax)
+                    Service
                   </button>
                   <button
                     type="button"
-                    onClick={() => setCategory("Retail")}
+                    onClick={() => { setCategory("Retail"); setGstRate("18"); }}
                     className={`flex-1 py-2 text-center text-[10px] uppercase tracking-wider font-semibold cursor-pointer transition-colors ${
                       category === "Retail" ? "bg-gold-primary text-luxury-black" : "bg-transparent text-ivory/60 hover:text-ivory"
                     }`}
                   >
-                    Retail Product (18% Tax)
+                    Retail Product
                   </button>
                 </div>
               </div>
@@ -307,6 +322,44 @@ export default function ServicesManagement() {
                   placeholder="e.g. 750"
                   className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs tracking-wider text-white placeholder-ivory/20 rounded-none focus:outline-none focus:border-gold-primary/50 transition-colors"
                   required
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label className="text-[9px] uppercase tracking-wider text-ivory/40 mb-1.5">GST Rate (%)</label>
+                <select
+                  value={gstRate}
+                  onChange={(e) => setGstRate(e.target.value)}
+                  className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs text-white rounded-none focus:outline-none focus:border-gold-primary/50 cursor-pointer"
+                >
+                  <option value="0">0% (GST Exempt)</option>
+                  <option value="3">3% GST</option>
+                  <option value="5">5% GST (CGST 2.5% + SGST 2.5%)</option>
+                  <option value="12">12% GST (CGST 6% + SGST 6%)</option>
+                  <option value="18">18% GST (CGST 9% + SGST 9%)</option>
+                  <option value="28">28% GST (CGST 14% + SGST 14%)</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col">
+                <label className="text-[9px] uppercase tracking-wider text-ivory/40 mb-1.5">Item Code (Unique & Optional)</label>
+                <input
+                  type="text"
+                  value={itemCode}
+                  onChange={(e) => setItemCode(e.target.value)}
+                  placeholder="e.g. SERV-HAIR-01 / PROD-GEL-05"
+                  className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs tracking-wider text-white placeholder-ivory/20 rounded-none focus:outline-none focus:border-gold-primary/50 transition-colors"
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label className="text-[9px] uppercase tracking-wider text-ivory/40 mb-1.5">HSN Code (Optional)</label>
+                <input
+                  type="text"
+                  value={hsn}
+                  onChange={(e) => setHsn(e.target.value)}
+                  placeholder="e.g. 9985 / 3305"
+                  className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs tracking-wider text-white placeholder-ivory/20 rounded-none focus:outline-none focus:border-gold-primary/50 transition-colors"
                 />
               </div>
 
@@ -364,12 +417,11 @@ export default function ServicesManagement() {
                 )}
               </div>
             </div>
-            
-            {/* Services List */}
+                       {/* Services List */}
             <div className="border border-white/5 bg-white/[0.01] p-6 relative">
               <h2 className="font-playfair text-lg text-white font-medium tracking-wide mb-6 flex items-center border-b border-white/5 pb-3">
                 <Scissors size={16} className="text-gold-primary mr-2" />
-                <span>Saloon Services (5% Tax)</span>
+                <span>Saloon Services Menu</span>
               </h2>
 
               {filteredServices.length === 0 ? (
@@ -382,6 +434,8 @@ export default function ServicesManagement() {
                     <thead>
                       <tr className="border-b border-white/10 uppercase tracking-wider text-gold-primary text-[9px]">
                         <th className="pb-3 font-semibold">Name</th>
+                        <th className="pb-3 font-semibold">Code</th>
+                        <th className="pb-3 font-semibold">HSN</th>
                         <th className="pb-3 font-semibold">Base Price</th>
                         <th className="pb-3 font-semibold">Tax Rate</th>
                         <th className="pb-3 font-semibold text-right">Actions</th>
@@ -391,8 +445,10 @@ export default function ServicesManagement() {
                       {filteredServices.map((item) => (
                         <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                           <td className="py-3 text-white font-medium">{item.name}</td>
+                          <td className="py-3 text-ivory/60 font-mono text-[10px]">{item.item_code || "-"}</td>
+                          <td className="py-3 text-ivory/60">{item.hsn || "-"}</td>
                           <td className="py-3 text-ivory/80">₹{item.price.toFixed(2)}</td>
-                          <td className="py-3 text-ivory/40">5%</td>
+                          <td className="py-3 text-ivory/40">{(item.tax_rate * 100).toFixed(0)}%</td>
                           <td className="py-3 text-right">
                             <div className="inline-flex gap-2">
                               <button
@@ -423,7 +479,7 @@ export default function ServicesManagement() {
             <div className="border border-white/5 bg-white/[0.01] p-6 relative">
               <h2 className="font-playfair text-lg text-white font-medium tracking-wide mb-6 flex items-center border-b border-white/5 pb-3">
                 <ShoppingBag size={16} className="text-gold-primary mr-2" />
-                <span>Retail Products (18% Tax)</span>
+                <span>Retail Products Inventory</span>
               </h2>
 
               {filteredRetail.length === 0 ? (
@@ -436,6 +492,8 @@ export default function ServicesManagement() {
                     <thead>
                       <tr className="border-b border-white/10 uppercase tracking-wider text-gold-primary text-[9px]">
                         <th className="pb-3 font-semibold">Name</th>
+                        <th className="pb-3 font-semibold">Code</th>
+                        <th className="pb-3 font-semibold">HSN</th>
                         <th className="pb-3 font-semibold">Base Price</th>
                         <th className="pb-3 font-semibold">Tax Rate</th>
                         <th className="pb-3 font-semibold text-right">Actions</th>
@@ -445,8 +503,10 @@ export default function ServicesManagement() {
                       {filteredRetail.map((item) => (
                         <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                           <td className="py-3 text-white font-medium">{item.name}</td>
+                          <td className="py-3 text-ivory/60 font-mono text-[10px]">{item.item_code || "-"}</td>
+                          <td className="py-3 text-ivory/60">{item.hsn || "-"}</td>
                           <td className="py-3 text-ivory/80">₹{item.price.toFixed(2)}</td>
-                          <td className="py-3 text-ivory/40">18%</td>
+                          <td className="py-3 text-ivory/40">{(item.tax_rate * 100).toFixed(0)}%</td>
                           <td className="py-3 text-right">
                             <div className="inline-flex gap-2">
                               <button

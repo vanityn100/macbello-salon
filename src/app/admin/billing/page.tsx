@@ -23,6 +23,8 @@ interface ServiceItem {
   price: number;
   category: "Service" | "Retail";
   tax_rate: number;
+  item_code: string | null;
+  hsn: string | null;
 }
 
 interface CartItem {
@@ -52,8 +54,7 @@ export default function BillingModule() {
   // Catalog / Cart
   const [catalog, setCatalog] = useState<ServiceItem[]>([]);
   const [catalogSearch, setCatalogSearch] = useState("");
-  const [selectedItemId, setSelectedItemId] = useState("");
-  const [selectedQty, setSelectedQty] = useState(1);
+  const [categoryFilter, setCategoryFilter] = useState<"All" | "Service" | "Retail">("All");
   const [cart, setCart] = useState<CartItem[]>([]);
 
   // Branch
@@ -193,27 +194,6 @@ export default function BillingModule() {
   };
 
   // Cart Management
-  const addToCart = () => {
-    if (!selectedItemId) return;
-    const item = catalog.find((i) => i.id === selectedItemId);
-    if (!item) return;
-
-    setCart((prev) => {
-      const existing = prev.find((c) => c.item.id === item.id);
-      if (existing) {
-        return prev.map((c) => 
-          c.item.id === item.id 
-            ? { ...c, quantity: c.quantity + selectedQty } 
-            : c
-        );
-      }
-      return [...prev, { item, quantity: selectedQty }];
-    });
-
-    setSelectedItemId("");
-    setSelectedQty(1);
-  };
-
   const removeFromCart = (itemId: string) => {
     setCart((prev) => prev.filter((c) => c.item.id !== itemId));
   };
@@ -568,12 +548,13 @@ export default function BillingModule() {
               </div>
             </div>
           </div>
-
           {/* Items Table */}
           <table className="w-full text-left text-xs font-light mb-8 border-collapse">
             <thead>
               <tr className="border-b border-gold-primary/20 text-[10px] uppercase tracking-wider text-gold-primary print-text-gold font-bold">
                 <th className="pb-3">Item Description</th>
+                <th className="pb-3">HSN</th>
+                <th className="pb-3">Category</th>
                 <th className="pb-3 text-center">Qty</th>
                 <th className="pb-3">Unit Price</th>
                 <th className="pb-3">Tax Rate</th>
@@ -584,12 +565,20 @@ export default function BillingModule() {
               {finalItems.map((item, idx: number) => (
                 <tr key={idx} className="text-ivory/80 print-text-black">
                   <td className="py-3.5 pr-2">
-                    <span className="block font-medium text-white print-text-black">{item.item_name}</span>
-                    <span className="text-[9px] uppercase text-gold-primary/70 print-text-gold font-medium">{item.category}</span>
+                    <span className="block font-medium text-white print-text-black">
+                      {item.item_name} {item.item_code ? `[${item.item_code}]` : ""}
+                    </span>
                   </td>
+                  <td className="py-3.5 text-white print-text-black">{item.hsn || "-"}</td>
+                  <td className="py-3.5 text-gold-primary/70 print-text-gold font-medium">{item.category}</td>
                   <td className="py-3.5 text-center font-medium text-white print-text-black">{item.quantity}</td>
                   <td className="py-3.5 text-white print-text-black">₹{parseFloat(item.unit_price).toFixed(2)}</td>
-                  <td className="py-3.5 text-ivory/60 print-text-muted">{item.tax_rate * 100}%</td>
+                  <td className="py-3.5 text-ivory/60 print-text-muted">
+                    {item.tax_rate * 100}%
+                    <span className="block text-[9px] text-ivory/40">
+                      ({(item.tax_rate * 50).toFixed(1)}% CGST + {(item.tax_rate * 50).toFixed(1)}% SGST)
+                    </span>
+                  </td>
                   <td className="py-3.5 text-right font-medium text-white print-text-black">₹{parseFloat(item.line_total).toFixed(2)}</td>
                 </tr>
               ))}
@@ -634,16 +623,32 @@ export default function BillingModule() {
                 <span>Subtotal:</span>
                 <span className="text-white print-text-black">₹{completedInvoice.subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-[11px] pl-2 border-l border-white/5 print-border-gray">
-                <span>Service Tax (5%):</span>
-                <span className="text-white print-text-black">₹{completedInvoice.serviceTax.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-[11px] pl-2 border-l border-white/5 print-border-gray">
-                <span>Retail Tax (18%):</span>
-                <span className="text-white print-text-black">₹{completedInvoice.retailTax.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between font-medium">
-                <span>Total Tax:</span>
+              {completedInvoice.serviceTax > 0 && (
+                <>
+                  <div className="flex justify-between text-[11px] pl-2 border-l border-white/5 print-border-gray">
+                    <span>Service CGST (2.5%):</span>
+                    <span className="text-white print-text-black">₹{(completedInvoice.serviceTax / 2).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-[11px] pl-2 border-l border-white/5 print-border-gray">
+                    <span>Service SGST (2.5%):</span>
+                    <span className="text-white print-text-black">₹{(completedInvoice.serviceTax / 2).toFixed(2)}</span>
+                  </div>
+                </>
+              )}
+              {completedInvoice.retailTax > 0 && (
+                <>
+                  <div className="flex justify-between text-[11px] pl-2 border-l border-white/5 print-border-gray">
+                    <span>Retail CGST (9%):</span>
+                    <span className="text-white print-text-black">₹{(completedInvoice.retailTax / 2).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-[11px] pl-2 border-l border-white/5 print-border-gray">
+                    <span>Retail SGST (9%):</span>
+                    <span className="text-white print-text-black">₹{(completedInvoice.retailTax / 2).toFixed(2)}</span>
+                  </div>
+                </>
+              )}
+              <div className="flex justify-between font-medium border-t border-white/5 pt-1.5 mt-1">
+                <span>Total Tax (CGST + SGST):</span>
                 <span className="text-white print-text-black">₹{completedInvoice.totalTax.toFixed(2)}</span>
               </div>
               {invoice.points_redeemed > 0 && (
@@ -922,80 +927,95 @@ export default function BillingModule() {
               )}
             </div>
 
-            {/* Step 2 & 3: Catalog Selection */}
+            {/* Step 2: Select Items */}
             <div className="border border-white/5 bg-white/[0.01] p-6 relative">
               <h2 className="font-playfair text-base text-white font-medium tracking-wide mb-4 flex items-center border-b border-white/5 pb-3">
                 <span className="w-5 h-5 rounded-full bg-gold-primary/20 text-gold-primary text-[10px] flex items-center justify-center font-bold mr-2">2</span>
-                <span>Catalog Items Selection</span>
+                <span>Select Services & Products</span>
               </h2>
 
-              <div className="flex flex-col sm:flex-row gap-4 items-end">
-                <div className="flex-1 w-full flex flex-col">
-                  <div className="flex justify-between items-center mb-1">
-                    <label className="text-[9px] uppercase tracking-wider text-ivory/40">Add Service or Retail Product</label>
-                    {catalogSearch && (
-                      <button 
-                        type="button" 
-                        onClick={() => setCatalogSearch("")}
-                        className="text-[8px] uppercase tracking-wider text-gold-primary hover:underline"
-                      >
-                        Clear Search
-                      </button>
-                    )}
-                  </div>
+              <div className="flex border border-white/10 mb-3">
+                {["All", "Service", "Retail"].map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => {
+                      setCategoryFilter(tab as "All" | "Service" | "Retail");
+                    }}
+                    className={`flex-1 py-2 text-center text-xs uppercase tracking-wider font-semibold cursor-pointer transition-colors ${
+                      categoryFilter === tab ? "bg-gold-primary text-luxury-black" : "bg-transparent text-ivory/60 hover:text-ivory"
+                    }`}
+                  >
+                    {tab === "All" ? "All Items" : tab === "Service" ? "Services" : "Retail Products"}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <div className="relative">
                   <input
                     type="text"
-                    placeholder="Type name to filter list below..."
+                    placeholder="Type name or code to filter catalog instantly..."
                     value={catalogSearch}
                     onChange={(e) => setCatalogSearch(e.target.value)}
-                    className="w-full bg-neutral-900 border border-white/10 border-b-0 px-3 py-2 text-[11px] text-white rounded-none focus:outline-none placeholder-white/20"
+                    className="w-full bg-neutral-900 border border-white/10 px-3.5 py-3 text-xs md:text-sm text-white rounded-none focus:outline-none placeholder-white/30"
                   />
-                  <select
-                    value={selectedItemId}
-                    onChange={(e) => setSelectedItemId(e.target.value)}
-                    className="w-full bg-neutral-900 border border-white/10 px-3 py-2.5 text-xs text-white rounded-none focus:outline-none cursor-pointer"
-                  >
-                    <option value="">-- Choose item --</option>
-                    <optgroup label="Services (5% Tax)" className="bg-neutral-950 text-gold-primary">
-                      {catalog
-                        .filter((i) => i.category === "Service" && i.name.toLowerCase().includes(catalogSearch.toLowerCase()))
-                        .map((item) => (
-                          <option key={item.id} value={item.id} className="text-white">
-                            {item.name} - ₹{item.price.toFixed(2)}
-                          </option>
-                        ))}
-                    </optgroup>
-                    <optgroup label="Retail Products (18% Tax)" className="bg-neutral-950 text-gold-primary">
-                      {catalog
-                        .filter((i) => i.category === "Retail" && i.name.toLowerCase().includes(catalogSearch.toLowerCase()))
-                        .map((item) => (
-                          <option key={item.id} value={item.id} className="text-white">
-                            {item.name} - ₹{item.price.toFixed(2)}
-                          </option>
-                        ))}
-                    </optgroup>
-                  </select>
+                  {catalogSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setCatalogSearch("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gold-primary hover:underline cursor-pointer font-medium"
+                    >
+                      Clear
+                    </button>
+                  )}
                 </div>
 
-                <div className="w-full sm:w-[120px] flex flex-col">
-                  <label className="text-[9px] uppercase tracking-wider text-ivory/40 mb-1.5">Quantity</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={selectedQty}
-                    onChange={(e) => setSelectedQty(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                    className="bg-luxury-black border border-white/10 px-3 py-2 text-xs text-white text-center rounded-none focus:outline-none focus:border-gold-primary/50"
-                  />
-                </div>
+                {/* Inline Instant Search & Catalog List */}
+                <div className="w-full bg-neutral-900 border border-white/10 max-h-[300px] overflow-y-auto divide-y divide-white/5">
+                  {(() => {
+                    const searchLower = catalogSearch.toLowerCase();
+                    const filtered = catalog.filter((item) => {
+                      const matchesSearch = item.name.toLowerCase().includes(searchLower) || 
+                                            (item.item_code && item.item_code.toLowerCase().includes(searchLower)) ||
+                                            (item.hsn && item.hsn.toLowerCase().includes(searchLower));
+                      const matchesCategory = categoryFilter === "All" || item.category === categoryFilter;
+                      return matchesSearch && matchesCategory;
+                    });
 
-                <button
-                  type="button"
-                  onClick={addToCart}
-                  disabled={!selectedItemId}
-                  className="w-full sm:w-auto bg-gold-primary hover:bg-gold-dark disabled:bg-gold-primary/40 text-luxury-black font-semibold text-[10px] uppercase tracking-wider py-3 px-6 rounded-none cursor-pointer"
-                >
-                  Add Item
-                </button>
+                    if (filtered.length === 0) {
+                      return <div className="p-4 text-xs md:text-sm text-ivory/40 text-center">No matching items found.</div>;
+                    }
+
+                    return filtered.map((item) => (
+                      <div key={item.id} className="p-3 flex items-center justify-between hover:bg-white/[0.01] transition-colors gap-3">
+                        <div className="flex-1 min-w-0">
+                          <span className="block text-xs md:text-sm font-semibold text-white truncate">{item.name}</span>
+                          <span className="text-[10px] uppercase tracking-wider text-gold-primary/95 mt-0.5 block">
+                            {item.category} {item.item_code ? `• Code: ${item.item_code}` : ""} {item.hsn ? `• HSN: ${item.hsn}` : ""}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <span className="text-xs md:text-sm text-white font-medium">₹{item.price.toFixed(2)}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const existing = cart.find((c) => c.item.id === item.id);
+                              if (existing) {
+                                setCart(cart.map((c) => c.item.id === item.id ? { ...c, quantity: c.quantity + 1 } : c));
+                              } else {
+                                setCart([...cart, { item, quantity: 1 }]);
+                              }
+                            }}
+                            className="bg-gold-primary hover:bg-gold-dark text-luxury-black text-xs uppercase font-bold px-3 py-1.5 transition-colors cursor-pointer"
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>
+                    ));
+                  })()}
+                </div>
               </div>
             </div>
 
@@ -1014,7 +1034,9 @@ export default function BillingModule() {
                     <thead>
                       <tr className="border-b border-white/10 uppercase tracking-wider text-gold-primary text-[9px]">
                         <th className="pb-3">Item Name</th>
+                        <th className="pb-3">Item Code</th>
                         <th className="pb-3">Category</th>
+                        <th className="pb-3">HSN</th>
                         <th className="pb-3">Qty</th>
                         <th className="pb-3">Unit Price</th>
                         <th className="pb-3">Tax Rate</th>
@@ -1029,6 +1051,7 @@ export default function BillingModule() {
                         return (
                           <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                             <td className="py-3 font-medium text-white">{item.name}</td>
+                            <td className="py-3 text-ivory/70 font-mono">{item.item_code || "-"}</td>
                             <td className="py-3 text-ivory/60 text-[10px]">
                               {item.category === "Service" ? (
                                 <span className="flex items-center text-sky-400"><Scissors size={10} className="mr-1" /> Service</span>
@@ -1036,9 +1059,15 @@ export default function BillingModule() {
                                 <span className="flex items-center text-amber-400"><ShoppingBag size={10} className="mr-1" /> Retail</span>
                               )}
                             </td>
+                            <td className="py-3 text-ivory/70">{item.hsn || "-"}</td>
                             <td className="py-3 font-medium">{quantity}</td>
                             <td className="py-3">₹{item.price.toFixed(2)}</td>
-                            <td className="py-3">{item.tax_rate * 100}%</td>
+                            <td className="py-3">
+                              {item.tax_rate * 100}%
+                              <span className="block text-[9px] text-ivory/45">
+                                ({(item.tax_rate * 50).toFixed(1)}% CGST + {(item.tax_rate * 50).toFixed(1)}% SGST)
+                              </span>
+                            </td>
                             <td className="py-3 text-white font-medium">₹{lineTotal.toFixed(2)}</td>
                             <td className="py-3 text-right">
                               <button
