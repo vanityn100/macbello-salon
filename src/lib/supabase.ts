@@ -7,6 +7,26 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholde
 // Uses placeholder values during build-time to prevent build failures
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// Dedicated Admin Client-side client with isolated auth storage key
+export const supabaseAdminClient = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storageKey: "sb-admin-auth-token",
+    persistSession: true,
+    detectSessionInUrl: true,
+    autoRefreshToken: true,
+  }
+});
+
+// Dedicated Staff Client-side client with isolated auth storage key
+export const supabaseStaffClient = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storageKey: "sb-staff-auth-token",
+    persistSession: true,
+    detectSessionInUrl: true,
+    autoRefreshToken: true,
+  }
+});
+
 // Secure admin client bypassing RLS, restricted exclusively to server execution context
 export const getSupabaseAdmin = () => {
   if (typeof window !== "undefined") {
@@ -27,3 +47,4 @@ export const getSupabaseAdmin = () => {
     },
   });
 };
+

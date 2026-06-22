@@ -2,28 +2,58 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase, getSupabaseAdmin } from "@/lib/supabase";
 import { Resend } from "resend";
 
-// Authenticate staff helper
-async function authenticateStaff(request: NextRequest): Promise<{ email: string } | null> {
+export const dynamic = "force-dynamic";
+
+interface AuthenticatedUser {
+  email: string;
+  role: "admin" | "staff";
+  branch: string | null;
+}
+
+// Authenticate staff helper retrieving role and branch from Supabase app_metadata
+async function authenticateStaff(request: NextRequest): Promise<AuthenticatedUser | null> {
   const authHeader = request.headers.get("authorization") || "";
   if (!authHeader.startsWith("Bearer ")) return null;
 
   const token = authHeader.split(" ")[1];
   const { data: { user }, error } = await supabase.auth.getUser(token);
 
-  if (error || !user || !user.email || !(user.app_metadata?.role === "staff" || user.app_metadata?.role === "admin")) {
-    return null;
-  }
+  if (error || !user || !user.email) return null;
 
-  return { email: user.email };
+  const role = user.app_metadata?.role;
+  if (role !== "staff" && role !== "admin") return null;
+
+  return {
+    email: user.email,
+    role: role as "admin" | "staff",
+    branch: user.app_metadata?.branch || null
+  };
 }
 
-// Allowed branches
-const ALLOWED_BRANCHES = ["Kaduthuruthy", "Ettumanoor", "Peruva"];
+// Audit helper
+async function logSecurityAction(
+  adminSupabase: any,
+  user: AuthenticatedUser,
+  action: string,
+  details: string
+) {
+  try {
+    await adminSupabase.from("audit_logs").insert([{
+      user_id: user.email,
+      role: user.role,
+      branch: user.branch || "All",
+      action,
+      details
+    }]);
+  } catch (err) {
+    console.error("Failed to write audit log:", err);
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const staff = await authenticateStaff(request);
-    if (!staff) {
+    const user = await authenticateStaff(request);
+    if (!user) {
       return NextResponse.json({ success: false, error: "Unauthorized access." }, { status: 401 });
     }
 
@@ -31,33 +61,61 @@ export async function GET(request: NextRequest) {
     const action = searchParams.get("action");
     const adminSupabase = getSupabaseAdmin();
 
+    // 1. GET CATALOGUE SERVICES
     if (action === "get_services") {
-      const { data: services, error } = await adminSupabase
+      let query = adminSupabase
         .from("services")
         .select("*")
-        .order("name", { ascending: true });
+        .eq("status", "active");
+
+      // Staff can only see services belonging to their branch or global (null branch)
+      if (user.role === "staff") {
+        if (!user.branch) {
+          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
+        }
+        query = query.or(`branch.is.null,branch.eq."${user.branch}"`);
+      }
+
+      const { data: services, error } = await query.order("name", { ascending: true });
 
       if (error) {
         console.error("Fetch services error:", error);
-        return NextResponse.json({ success: false, error: "Failed to load menu items." }, { status: 500 });
+        return NextResponse.json({ success: false, error: "Failed to load catalogue menu." }, { status: 500 });
       }
 
       return NextResponse.json({ success: true, services });
     }
 
+    // 2. SEARCH CUSTOMERS
     if (action === "search_customers") {
       const phone = searchParams.get("phone") || "";
-      const cleanPhone = phone.trim().replace(/[\s\-()]/g, "");
+      let cleanPhone = phone.trim().replace(/[\s\-()]/g, "");
+      if (cleanPhone.startsWith("+")) {
+        cleanPhone = cleanPhone.substring(1);
+      }
+      if (cleanPhone.length > 10) {
+        cleanPhone = cleanPhone.slice(-10);
+      }
 
       if (!cleanPhone) {
         return NextResponse.json({ success: false, error: "Phone number required." }, { status: 400 });
       }
 
-      const { data: customers, error } = await adminSupabase
+      let query = adminSupabase
         .from("customers")
-        .select("id, name, phone, email, points")
-        .ilike("phone", `%${cleanPhone}%`)
-        .limit(10);
+        .select("id, name, phone, email, points, branch")
+        .eq("status", "active")
+        .ilike("phone", `%${cleanPhone}%`);
+
+      // Staff can only search/view customers of their own branch or global customers
+      if (user.role === "staff") {
+        if (!user.branch) {
+          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
+        }
+        query = query.or(`branch.is.null,branch.eq."${user.branch}"`);
+      }
+
+      const { data: customers, error } = await query.limit(15);
 
       if (error) {
         console.error("Search customers error:", error);
@@ -67,14 +125,26 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, customers });
     }
 
+    // 3. DAILY OPERATIONS METRICS
     if (action === "get_daily_stats") {
       const todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
 
-      const { data: invoices, error } = await adminSupabase
+      let query = adminSupabase
         .from("invoices")
-        .select("grand_total, branch, created_at, invoice_items(line_total, staff_contribution)")
+        .select("id, grand_total, branch, created_at, invoice_items(line_total, staff_contribution)")
+        .eq("status", "active")
         .gte("created_at", todayStart.toISOString());
+
+      // Staff isolated to their assigned branch
+      if (user.role === "staff") {
+        if (!user.branch) {
+          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
+        }
+        query = query.eq("branch", user.branch);
+      }
+
+      const { data: invoices, error } = await query;
 
       if (error) {
         console.error("Fetch daily stats error:", error);
@@ -83,9 +153,9 @@ export async function GET(request: NextRequest) {
 
       let totalSales = 0;
       const branchBreakdown: Record<string, number> = {
-        Kaduthuruthy: 0,
-        Ettumanoor: 0,
-        Peruva: 0
+        "Branch A": 0,
+        "Branch B": 0,
+        "Branch C": 0
       };
       const staffBreakdown: Record<string, { revenue: number; count: number }> = {};
 
@@ -96,7 +166,6 @@ export async function GET(request: NextRequest) {
           branchBreakdown[inv.branch] += amt;
         }
 
-        // Aggregate staff performance from nested invoice_items
         const items = (inv.invoice_items as unknown as Array<{ line_total: string; staff_contribution: string | null }>) || [];
         items.forEach((item) => {
           if (item.staff_contribution && item.staff_contribution.trim() !== "") {
@@ -111,6 +180,16 @@ export async function GET(request: NextRequest) {
         });
       });
 
+      if (user.role === "staff") {
+        return NextResponse.json({
+          success: true,
+          stats: {
+            totalSales,
+            invoiceCount: invoices?.length || 0
+          }
+        });
+      }
+
       return NextResponse.json({
         success: true,
         stats: {
@@ -122,6 +201,214 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // 4. GET APPOINTMENTS (BOOKINGS)
+    if (action === "get_appointments") {
+      let query = adminSupabase
+        .from("appointments")
+        .select("*")
+        .neq("status", "archived");
+
+      // Staff isolated to branch
+      if (user.role === "staff") {
+        if (!user.branch) {
+          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
+        }
+        query = query.eq("branch", user.branch);
+      } else {
+        // Admin optional filter
+        const filterBranch = searchParams.get("branch");
+        if (filterBranch) {
+          query = query.eq("branch", filterBranch);
+        }
+      }
+
+      const { data: appointments, error } = await query.order("appointment_date", { ascending: true });
+      if (error) {
+        console.error("Fetch appointments error:", error);
+        return NextResponse.json({ success: false, error: "Failed to fetch bookings." }, { status: 500 });
+      }
+
+      return NextResponse.json({ success: true, appointments });
+    }
+
+    // 5. BUSINESS REPORTS (ADMIN ONLY)
+    if (action === "get_admin_reports") {
+      const startDate = searchParams.get("startDate");
+      const endDate = searchParams.get("endDate");
+      const branchFilter = searchParams.get("branch"); // specific branch or 'All Branches'
+
+      if (!startDate || !endDate) {
+        return NextResponse.json({ success: false, error: "Start and End dates are required." }, { status: 400 });
+      }
+
+      let targetBranch: string | null = null;
+      if (user.role === "staff") {
+        if (!user.branch) {
+          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
+        }
+        targetBranch = user.branch;
+      } else {
+        // Admin branch filtering selection
+        if (branchFilter && branchFilter !== "All Branches") {
+          targetBranch = branchFilter;
+        }
+      }
+
+      // Fetch Invoices in range
+      let invoicesQuery = adminSupabase
+        .from("invoices")
+        .select(`
+          id, 
+          invoice_number, 
+          grand_total, 
+          subtotal, 
+          total_tax, 
+          points_earned, 
+          points_redeemed, 
+          branch, 
+          created_at, 
+          customers (
+            name, 
+            phone
+          ), 
+          invoice_items (
+            item_name, 
+            line_total, 
+            tax_rate, 
+            category, 
+            quantity, 
+            unit_price
+          )
+        `)
+        .eq("status", "active")
+        .gte("created_at", `${startDate}T00:00:00.000Z`)
+        .lte("created_at", `${endDate}T23:59:59.999Z`);
+
+      if (targetBranch) {
+        invoicesQuery = invoicesQuery.eq("branch", targetBranch);
+      }
+
+      const { data: invoices, error: invError } = await invoicesQuery;
+
+      if (invError) {
+        console.error("Report invoices error:", invError);
+        return NextResponse.json({ success: false, error: "Failed to query invoice records for report." }, { status: 500 });
+      }
+
+      // Fetch Customers registered in range
+      let customersQuery = adminSupabase
+        .from("customers")
+        .select("id, created_at, name, phone, branch")
+        .eq("status", "active")
+        .gte("created_at", `${startDate}T00:00:00.000Z`)
+        .lte("created_at", `${endDate}T23:59:59.999Z`);
+
+      if (targetBranch) {
+        customersQuery = customersQuery.eq("branch", targetBranch);
+      }
+
+      const { data: customers, error: custError } = await customersQuery;
+
+      if (custError) {
+        console.error("Report customers error:", custError);
+        return NextResponse.json({ success: false, error: "Failed to query customer metrics for report." }, { status: 500 });
+      }
+
+      // Fetch Appointments in range
+      let appointmentsQuery = adminSupabase
+        .from("appointments")
+        .select("id, status, branch, appointment_date, customer_name, customer_phone")
+        .gte("appointment_date", startDate)
+        .lte("appointment_date", endDate);
+
+      if (targetBranch) {
+        appointmentsQuery = appointmentsQuery.eq("branch", targetBranch);
+      }
+
+      const { data: appointments, error: appError } = await appointmentsQuery;
+
+      if (appError) {
+        console.error("Report appointments error:", appError);
+        return NextResponse.json({ success: false, error: "Failed to query bookings for report." }, { status: 500 });
+      }
+
+      // Log report query activity to audit trail
+      await logSecurityAction(
+        adminSupabase, 
+        user, 
+        "report_query", 
+        `Queried report range: ${startDate} to ${endDate} for branch: ${targetBranch || "All Branches"}`
+      );
+
+      return NextResponse.json({
+        success: true,
+        report: {
+          invoices: invoices || [],
+          newCustomersCount: customers?.length || 0,
+          customers: customers || [],
+          appointments: appointments || []
+        }
+      });
+    }
+
+    // 6. GET SECURITY AUDIT LOGS (ADMIN ONLY)
+    if (action === "get_audit_logs") {
+      if (user.role !== "admin") {
+        return NextResponse.json({ success: false, error: "Forbidden: Admin access required." }, { status: 403 });
+      }
+
+      const { data: logs, error } = await adminSupabase
+        .from("audit_logs")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (error) {
+        console.error("Fetch audit logs error:", error);
+        return NextResponse.json({ success: false, error: "Failed to load audit logs." }, { status: 500 });
+      }
+
+      return NextResponse.json({ success: true, logs });
+    }
+
+    // 7. LIST STAFF MEMBERS (ADMIN ONLY)
+    if (action === "list_staff") {
+      if (user.role !== "admin") {
+        return NextResponse.json({ success: false, error: "Forbidden: Admin access required." }, { status: 403 });
+      }
+
+      const { data: { users }, error } = await adminSupabase.auth.admin.listUsers();
+
+      if (error) {
+        console.error("List staff error:", error);
+        return NextResponse.json({ success: false, error: "Failed to list staff accounts." }, { status: 500 });
+      }
+
+      const staffMembers = users.filter((u: any) => u.app_metadata?.role === "staff");
+
+      return NextResponse.json({ success: true, staff: staffMembers });
+    }
+
+    // 8. LIST ALL REGISTERED CUSTOMERS (ADMIN ONLY)
+    if (action === "list_all_customers") {
+      if (user.role !== "admin") {
+        return NextResponse.json({ success: false, error: "Forbidden: Admin access required." }, { status: 403 });
+      }
+
+      const { data: customers, error } = await adminSupabase
+        .from("customers")
+        .select("id, name, phone, email, points, branch, created_at")
+        .eq("status", "active")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("List all customers error:", error);
+        return NextResponse.json({ success: false, error: "Failed to query customer database." }, { status: 500 });
+      }
+
+      return NextResponse.json({ success: true, customers });
+    }
+
     return NextResponse.json({ success: false, error: "Invalid action." }, { status: 400 });
   } catch (err) {
     console.error("Billing GET API Error:", err);
@@ -131,8 +418,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const staff = await authenticateStaff(request);
-    if (!staff) {
+    const user = await authenticateStaff(request);
+    if (!user) {
       return NextResponse.json({ success: false, error: "Unauthorized access." }, { status: 401 });
     }
 
@@ -146,10 +433,19 @@ export async function POST(request: NextRequest) {
     const { action } = body || {};
     const adminSupabase = getSupabaseAdmin();
 
-    // 1. SERVICE / PRODUCT MANAGEMENT
+    // 1. ADD CATALOGUE ITEMS
     if (action === "create_service") {
-      const { name, price, category, itemCode, hsn, taxRate } = body;
-      
+      const { name, price, category, itemCode, hsn, taxRate, branch } = body;
+
+      // Staff branch validation
+      let targetBranch = branch;
+      if (user.role === "staff") {
+        if (!user.branch) {
+          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
+        }
+        targetBranch = user.branch;
+      }
+
       if (!name || typeof name !== "string" || name.trim() === "") {
         return NextResponse.json({ success: false, error: "Name is required." }, { status: 400 });
       }
@@ -161,95 +457,100 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Category must be either Service or Retail." }, { status: 400 });
       }
 
-      const cleanItemCode = itemCode && typeof itemCode === "string" ? itemCode.trim() : null;
-      const cleanHsn = hsn && typeof hsn === "string" ? hsn.trim() : null;
-
-      // Sanitization: Escape HTML tags to prevent XSS
       const cleanName = name.replace(/<[^>]*>/g, "").trim();
-      const safeItemCode = cleanItemCode ? cleanItemCode.replace(/<[^>]*>/g, "") : null;
-      const safeHsn = cleanHsn ? cleanHsn.replace(/<[^>]*>/g, "") : null;
+      const safeItemCode = itemCode && typeof itemCode === "string" ? itemCode.trim().replace(/<[^>]*>/g, "") : null;
+      const safeHsn = hsn && typeof hsn === "string" ? hsn.trim().replace(/<[^>]*>/g, "") : null;
 
       let parsedTaxRate = category === "Service" ? 0.05 : 0.18;
       if (taxRate !== undefined) {
         const tempTax = parseFloat(taxRate);
         if (!isNaN(tempTax) && tempTax >= 0 && tempTax <= 1) {
           parsedTaxRate = tempTax;
-        } else {
-          return NextResponse.json({ success: false, error: "Tax rate must be a percentage between 0% and 100%." }, { status: 400 });
         }
       }
 
       const { data: newService, error } = await adminSupabase
-         .from("services")
-         .insert([{ 
-           name: cleanName, 
-           price: parsedPrice, 
-           category, 
-           tax_rate: parsedTaxRate, 
-           item_code: safeItemCode, 
-           hsn: safeHsn 
-         }])
-         .select("*")
-         .single();
+        .from("services")
+        .insert([{
+          name: cleanName,
+          price: parsedPrice,
+          category,
+          tax_rate: parsedTaxRate,
+          item_code: safeItemCode,
+          hsn: safeHsn,
+          branch: targetBranch,
+          status: "active"
+        }])
+        .select("*")
+        .single();
 
       if (error) {
         console.error("Create service error:", error);
-        if (error.code === "23505") {
-          if (error.message?.includes("item_code") || error.details?.includes("item_code")) {
-            return NextResponse.json({ success: false, error: "An item with this Item Code already exists." }, { status: 409 });
-          }
-          return NextResponse.json({ success: false, error: "An item with this name already exists." }, { status: 409 });
-        }
-        return NextResponse.json({ success: false, error: "Failed to create menu item." }, { status: 500 });
+        return NextResponse.json({ success: false, error: "Failed to create catalogue item." }, { status: 500 });
       }
 
+      await logSecurityAction(adminSupabase, user, "create_catalogue_item", `Created ${category} item: ${cleanName} for branch ${targetBranch || "Global"}`);
       return NextResponse.json({ success: true, service: newService });
     }
 
+    // 2. EDIT CATALOGUE ITEMS (IDOR Check)
     if (action === "edit_service") {
       const { id, name, price, category, itemCode, hsn, taxRate } = body;
 
       if (!id) {
         return NextResponse.json({ success: false, error: "Item ID is required." }, { status: 400 });
       }
+
+      // Fetch item to verify ownership (IDOR check)
+      const { data: dbItem, error: fetchErr } = await adminSupabase
+        .from("services")
+        .select("id, branch, name")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (fetchErr || !dbItem) {
+        return NextResponse.json({ success: false, error: "Catalogue item not found." }, { status: 404 });
+      }
+
+      // Enforce branch constraint
+      if (user.role === "staff" && dbItem.branch !== user.branch) {
+        return NextResponse.json({ success: false, error: "Access denied. Cannot modify other branch inventories." }, { status: 403 });
+      }
+
       if (!name || typeof name !== "string" || name.trim() === "") {
         return NextResponse.json({ success: false, error: "Name is required." }, { status: 400 });
       }
+
       const parsedPrice = parseFloat(price);
       if (isNaN(parsedPrice) || parsedPrice < 0) {
         return NextResponse.json({ success: false, error: "Price must be a non-negative number." }, { status: 400 });
       }
+
       if (category !== "Service" && category !== "Retail") {
         return NextResponse.json({ success: false, error: "Category must be either Service or Retail." }, { status: 400 });
       }
 
-      const cleanItemCode = itemCode && typeof itemCode === "string" ? itemCode.trim() : null;
-      const cleanHsn = hsn && typeof hsn === "string" ? hsn.trim() : null;
-
-      // Sanitization: Escape HTML tags to prevent XSS
       const cleanName = name.replace(/<[^>]*>/g, "").trim();
-      const safeItemCode = cleanItemCode ? cleanItemCode.replace(/<[^>]*>/g, "") : null;
-      const safeHsn = cleanHsn ? cleanHsn.replace(/<[^>]*>/g, "") : null;
+      const safeItemCode = itemCode && typeof itemCode === "string" ? itemCode.trim().replace(/<[^>]*>/g, "") : null;
+      const safeHsn = hsn && typeof hsn === "string" ? hsn.trim().replace(/<[^>]*>/g, "") : null;
 
       let parsedTaxRate = category === "Service" ? 0.05 : 0.18;
       if (taxRate !== undefined) {
         const tempTax = parseFloat(taxRate);
         if (!isNaN(tempTax) && tempTax >= 0 && tempTax <= 1) {
           parsedTaxRate = tempTax;
-        } else {
-          return NextResponse.json({ success: false, error: "Tax rate must be a percentage between 0% and 100%." }, { status: 400 });
         }
       }
 
       const { data: updatedService, error } = await adminSupabase
         .from("services")
-        .update({ 
-          name: cleanName, 
-          price: parsedPrice, 
-          category, 
-          tax_rate: parsedTaxRate, 
-          item_code: safeItemCode, 
-          hsn: safeHsn 
+        .update({
+          name: cleanName,
+          price: parsedPrice,
+          category,
+          tax_rate: parsedTaxRate,
+          item_code: safeItemCode,
+          hsn: safeHsn
         })
         .eq("id", id)
         .select("*")
@@ -257,221 +558,240 @@ export async function POST(request: NextRequest) {
 
       if (error) {
         console.error("Edit service error:", error);
-        if (error.code === "23505") {
-          if (error.message?.includes("item_code") || error.details?.includes("item_code")) {
-            return NextResponse.json({ success: false, error: "An item with this Item Code already exists." }, { status: 409 });
-          }
-          return NextResponse.json({ success: false, error: "An item with this name already exists." }, { status: 409 });
-        }
-        return NextResponse.json({ success: false, error: "Failed to update menu item." }, { status: 500 });
+        return NextResponse.json({ success: false, error: "Failed to update catalog item." }, { status: 500 });
       }
 
+      await logSecurityAction(adminSupabase, user, "edit_catalogue_item", `Edited item ID: ${id} (${cleanName})`);
       return NextResponse.json({ success: true, service: updatedService });
     }
 
+    // 3. ARCHIVE SERVICES (SOFT DELETE)
     if (action === "delete_service") {
       const { id } = body;
       if (!id) {
         return NextResponse.json({ success: false, error: "Item ID is required." }, { status: 400 });
       }
 
+      const { data: dbItem, error: fetchErr } = await adminSupabase
+        .from("services")
+        .select("id, branch, name")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (fetchErr || !dbItem) {
+        return NextResponse.json({ success: false, error: "Item not found." }, { status: 404 });
+      }
+
+      if (user.role === "staff" && dbItem.branch !== user.branch) {
+        return NextResponse.json({ success: false, error: "Access Denied: Branch mismatch." }, { status: 403 });
+      }
+
+      // Soft delete: status = archived
       const { error } = await adminSupabase
         .from("services")
-        .delete()
+        .update({ status: "archived" })
         .eq("id", id);
 
       if (error) {
-        console.error("Delete service error:", error);
-        return NextResponse.json({ success: false, error: "Failed to delete menu item." }, { status: 500 });
+        console.error("Archive service error:", error);
+        return NextResponse.json({ success: false, error: "Failed to archive item." }, { status: 500 });
       }
 
+      await logSecurityAction(adminSupabase, user, "archive_catalogue_item", `Archived catalogue item ID: ${id} (${dbItem.name})`);
       return NextResponse.json({ success: true });
     }
 
-    // 2. CUSTOMER REGISTRATION WITH EMAIL
+    // 4. CREATE CUSTOMER
     if (action === "create_customer") {
-      const { name, phone, email } = body;
+      const { name, phone, email, branch } = body;
 
-      if (typeof name !== "string" || name.trim() === "" || name.length > 100) {
-        return NextResponse.json({ success: false, error: "Invalid name format." }, { status: 400 });
+      let targetBranch = branch;
+      if (user.role === "staff") {
+        if (!user.branch) {
+          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
+        }
+        targetBranch = user.branch;
+      }
+
+      if (typeof name !== "string" || name.trim() === "") {
+        return NextResponse.json({ success: false, error: "Name is required." }, { status: 400 });
       }
 
       const phoneRegex = /^\+?[0-9\s\-()]{10,15}$/;
       if (typeof phone !== "string" || !phoneRegex.test(phone)) {
-        return NextResponse.json({ success: false, error: "Invalid phone number format." }, { status: 400 });
+        return NextResponse.json({ success: false, error: "Invalid phone number." }, { status: 400 });
       }
 
       const cleanPhone = phone.trim().replace(/[\s\-()]/g, "");
 
-      let cleanEmail = null;
-      if (email && email.trim() !== "") {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-          return NextResponse.json({ success: false, error: "Invalid email format." }, { status: 400 });
-        }
-        cleanEmail = email.trim().toLowerCase();
-      }
-
-      // Check if duplicate phone profile exists
       const { data: existingCustomer } = await adminSupabase
         .from("customers")
         .select("id")
         .eq("phone", cleanPhone)
+        .eq("status", "active")
         .maybeSingle();
 
       if (existingCustomer) {
-        return NextResponse.json({ success: false, error: "A customer profile already exists for this phone number." }, { status: 409 });
+        return NextResponse.json({ success: false, error: "Customer profile already exists for this number." }, { status: 409 });
       }
 
-      const { data: newCustomer, error: insertError } = await adminSupabase
+      let cleanEmail = null;
+      if (email && typeof email === "string" && email.trim() !== "") {
+        cleanEmail = email.trim().toLowerCase();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(cleanEmail)) {
+          return NextResponse.json({ success: false, error: "Invalid email format." }, { status: 400 });
+        }
+
+        const { data: existingEmailCustomer } = await adminSupabase
+          .from("customers")
+          .select("id")
+          .eq("email", cleanEmail)
+          .eq("status", "active")
+          .maybeSingle();
+
+        if (existingEmailCustomer) {
+          return NextResponse.json({ success: false, error: "A customer profile already exists for this email." }, { status: 409 });
+        }
+      }
+
+      const { data: newCustomer, error } = await adminSupabase
         .from("customers")
-        .insert([{ name: name.trim(), phone: cleanPhone, email: cleanEmail, points: 0 }])
+        .insert([{
+          name: name.trim(),
+          phone: cleanPhone,
+          email: cleanEmail,
+          branch: targetBranch,
+          points: 0,
+          status: "active"
+        }])
         .select("id, name, phone, email, points")
         .single();
 
-      if (insertError) {
-        console.error("Customer creation error:", insertError);
-        return NextResponse.json({ success: false, error: "Failed to create customer profile." }, { status: 500 });
+      if (error) {
+        console.error("Create customer error:", error);
+        return NextResponse.json({ success: false, error: "Failed to register customer." }, { status: 500 });
       }
 
+      await logSecurityAction(adminSupabase, user, "create_customer", `Registered customer: ${name.trim()} (${cleanPhone}) at branch ${targetBranch || "Global"}`);
       return NextResponse.json({ success: true, customer: newCustomer });
     }
 
-    // 3. SECURE BILLING CHECKOUT & POINT ADJUSTMENTS
+    // 5. SECURE INVOICING CHECKOUT
     if (action === "create_invoice") {
       const { customerId, items, pointsToRedeem, branch } = body;
 
-      if (!customerId || !Array.isArray(items) || items.length === 0 || !branch) {
-        return NextResponse.json({ success: false, error: "Missing required fields." }, { status: 400 });
+      let targetBranch = branch;
+      if (user.role === "staff") {
+        if (!user.branch) {
+          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
+        }
+        targetBranch = user.branch;
       }
 
-      if (!ALLOWED_BRANCHES.includes(branch)) {
-        return NextResponse.json({ success: false, error: "Invalid branch location." }, { status: 400 });
+      if (!customerId || !Array.isArray(items) || items.length === 0 || !targetBranch) {
+        return NextResponse.json({ success: false, error: "Missing checkout parameters." }, { status: 400 });
       }
 
       const redeemAmt = parseInt(pointsToRedeem, 10) || 0;
-      if (redeemAmt < 0) {
-        return NextResponse.json({ success: false, error: "Invalid point redemption amount." }, { status: 400 });
-      }
 
-      // Fetch customer profile to check loyalty points
-      const { data: customer, error: customerError } = await adminSupabase
+      // Verify customer exist & ownership (IDOR check)
+      const { data: customer, error: customerErr } = await adminSupabase
         .from("customers")
-        .select("id, name, phone, email, points")
+        .select("id, name, points, branch")
         .eq("id", customerId)
+        .eq("status", "active")
         .maybeSingle();
 
-      if (customerError || !customer) {
-        return NextResponse.json({ success: false, error: "Customer not found." }, { status: 404 });
+      if (customerErr || !customer) {
+        return NextResponse.json({ success: false, error: "Customer profile not found." }, { status: 404 });
+      }
+
+      // Staff branch customer check
+      if (user.role === "staff" && customer.branch !== user.branch) {
+        return NextResponse.json({ success: false, error: "Forbidden: Customer profile belongs to another branch." }, { status: 403 });
       }
 
       if (redeemAmt > customer.points) {
-        return NextResponse.json({ success: false, error: "Insufficient loyalty points balance." }, { status: 400 });
+        return NextResponse.json({ success: false, error: "Insufficient points balance." }, { status: 400 });
       }
 
-      // Fetch all items from DB to verify prices and tax rates
+      // Verify items and compute totals
       const itemIds = items.map((i) => i.id);
-      const { data: dbItems, error: dbItemsError } = await adminSupabase
+      const { data: dbItems, error: dbItemsErr } = await adminSupabase
         .from("services")
         .select("*")
         .in("id", itemIds);
 
-      if (dbItemsError || !dbItems || dbItems.length === 0) {
-        return NextResponse.json({ success: false, error: "Failed to retrieve menu items from database." }, { status: 500 });
+      if (dbItemsErr || !dbItems || dbItems.length === 0) {
+        return NextResponse.json({ success: false, error: "Failed to query checkout items." }, { status: 500 });
       }
 
-      // Perform calculations
-      let serviceSubtotal = 0;
-      let retailSubtotal = 0;
+      let subtotal = 0;
       let serviceTax = 0;
       let retailTax = 0;
-      interface InvoiceItemInsert {
-        item_name: string;
-        category: "Service" | "Retail";
-        quantity: number;
-        unit_price: number;
-        tax_rate: number;
-        line_total: number;
-        item_code: string | null;
-        hsn: string | null;
-        staff_contribution: string | null;
-      }
-      const invoiceItemsToInsert: InvoiceItemInsert[] = [];
+      const invoiceItemsToInsert = [];
 
       for (const reqItem of items) {
         const dbItem = dbItems.find((i) => i.id === reqItem.id);
         if (!dbItem) {
-          return NextResponse.json({ success: false, error: `Item with ID ${reqItem.id} not found.` }, { status: 400 });
+          return NextResponse.json({ success: false, error: `Item ID ${reqItem.id} not found.` }, { status: 400 });
         }
+
+        // Staff branch item check (IDOR check)
+        if (user.role === "staff" && dbItem.branch && dbItem.branch !== user.branch) {
+          return NextResponse.json({ success: false, error: `Forbidden: Item ${dbItem.name} belongs to another branch.` }, { status: 403 });
+        }
+
         const qty = parseInt(reqItem.quantity, 10);
         if (isNaN(qty) || qty <= 0) {
-          return NextResponse.json({ success: false, error: "Quantity must be a positive integer." }, { status: 400 });
+          return NextResponse.json({ success: false, error: "Quantity must be positive integer." }, { status: 400 });
         }
 
-        const price = dbItem.price;
-        const lineTotal = price * qty;
+        const lineTotal = dbItem.price * qty;
+        const tax = lineTotal * (parseFloat(dbItem.tax_rate) || 0);
 
-        const calculatedTax = lineTotal * (parseFloat(dbItem.tax_rate) || 0);
+        subtotal += lineTotal;
         if (dbItem.category === "Service") {
-          serviceSubtotal += lineTotal;
-          serviceTax += calculatedTax;
+          serviceTax += tax;
         } else {
-          retailSubtotal += lineTotal;
-          retailTax += calculatedTax;
+          retailTax += tax;
         }
-
-        const cleanStaff = reqItem.staffContribution && typeof reqItem.staffContribution === "string" 
-          ? reqItem.staffContribution.replace(/<[^>]*>/g, "").trim()
-          : null;
 
         invoiceItemsToInsert.push({
           item_name: dbItem.name,
           category: dbItem.category,
           quantity: qty,
-          unit_price: price,
+          unit_price: dbItem.price,
           tax_rate: dbItem.tax_rate,
           line_total: lineTotal,
           item_code: dbItem.item_code || null,
           hsn: dbItem.hsn || null,
-          staff_contribution: cleanStaff
+          staff_contribution: reqItem.staffContribution ? reqItem.staffContribution.replace(/<[^>]*>/g, "").trim() : null
         });
       }
 
-      const subtotal = serviceSubtotal + retailSubtotal;
       const totalTax = serviceTax + retailTax;
       const preDiscountTotal = subtotal + totalTax;
-
-      // 1 Point = 1 Rupee discount
       const discount = redeemAmt;
-      if (discount > preDiscountTotal) {
-        return NextResponse.json({ success: false, error: "Discount exceeds invoice grand total." }, { status: 400 });
-      }
-
       const grandTotal = parseFloat((preDiscountTotal - discount).toFixed(2));
-
-      // Calculate loyalty points earned (1 Loyalty Point = 10 Rs spent)
       const pointsEarned = Math.floor(grandTotal / 10);
 
-      // Generate invoice number
-      const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-      const randStr = Math.floor(1000 + Math.random() * 9000);
-      const invoiceNumber = `INV-${dateStr}-${randStr}`;
-
-      // Update customer loyalty points balance atomically
+      // Save to database atomically
       const finalPoints = customer.points - redeemAmt + pointsEarned;
-      const { error: pointsUpdateError } = await adminSupabase
+      const { error: ptErr } = await adminSupabase
         .from("customers")
         .update({ points: finalPoints })
         .eq("id", customerId)
-        .gte("points", redeemAmt); // Race condition safety: ensure points haven't been spent in another request
+        .gte("points", redeemAmt);
 
-      if (pointsUpdateError) {
-        console.error("Points update error:", pointsUpdateError);
-        return NextResponse.json({ success: false, error: "Failed to modify points. Concurrent update or insufficient points." }, { status: 409 });
+      if (ptErr) {
+        return NextResponse.json({ success: false, error: "Concurrency conflict during points redemption." }, { status: 409 });
       }
 
-      // Create Invoice
-      const { data: invoice, error: invoiceInsertError } = await adminSupabase
+      const invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      const { data: invoice, error: invErr } = await adminSupabase
         .from("invoices")
         .insert([{
           invoice_number: invoiceNumber,
@@ -483,234 +803,239 @@ export async function POST(request: NextRequest) {
           grand_total: grandTotal,
           points_earned: pointsEarned,
           points_redeemed: redeemAmt,
-          created_by: staff.email,
-          branch: branch
+          created_by: user.email,
+          branch: targetBranch,
+          status: "active"
         }])
         .select("*")
         .single();
 
-      if (invoiceInsertError) {
-        console.error("Invoice insertion error:", invoiceInsertError);
-        // Rollback points on failure
+      if (invErr) {
+        // Rollback points
         await adminSupabase.from("customers").update({ points: customer.points }).eq("id", customerId);
-        return NextResponse.json({ success: false, error: "Failed to generate invoice." }, { status: 500 });
+        return NextResponse.json({ success: false, error: "Failed to write invoice records." }, { status: 500 });
       }
 
-      // Create Invoice Items
-      const itemsToInsert = invoiceItemsToInsert.map((item) => ({
-        ...item,
-        invoice_id: invoice.id
-      }));
+      const itemsToInsert = invoiceItemsToInsert.map((item) => ({ ...item, invoice_id: invoice.id }));
+      const { error: itemsErr } = await adminSupabase.from("invoice_items").insert(itemsToInsert);
 
-      const { error: itemsInsertError } = await adminSupabase
-        .from("invoice_items")
-        .insert(itemsToInsert);
-
-      if (itemsInsertError) {
-        console.error("Invoice items insertion error:", itemsInsertError);
-        // Rollback invoice and points on failure
+      if (itemsErr) {
+        // Rollback invoice and points
         await adminSupabase.from("invoices").delete().eq("id", invoice.id);
         await adminSupabase.from("customers").update({ points: customer.points }).eq("id", customerId);
-        return NextResponse.json({ success: false, error: "Failed to log invoice items." }, { status: 500 });
+        return NextResponse.json({ success: false, error: "Failed to write items to database." }, { status: 500 });
       }
 
-      // Log invoice action
-      await adminSupabase.from("invoice_audit_logs").insert([{
-        staff_id: staff.email,
-        invoice_id: invoice.id,
-        action: "created"
-      }]);
-
-      // Log loyalty action
-      await adminSupabase.from("loyalty_audit_logs").insert([{
-        customer_id: customerId,
-        staff_id: staff.email,
-        points_earned: pointsEarned,
-        points_redeemed: redeemAmt,
-        balance_before: customer.points,
-        balance_after: finalPoints
-      }]);
-
-      // Log to standard transaction logs table for backwards compatibility and easy lookup in customer history
-      if (redeemAmt > 0) {
-        await adminSupabase.from("transactions").insert([{
-          customer_id: customerId,
-          points_change: -redeemAmt,
-          transaction_type: "redeem",
-          branch: branch,
-          notes: `Redeemed on Invoice #${invoiceNumber}`,
-          balance_after: customer.points - redeemAmt,
-          created_by_email: staff.email
-        }]);
-      }
-      if (pointsEarned > 0) {
-        await adminSupabase.from("transactions").insert([{
-          customer_id: customerId,
-          points_change: pointsEarned,
-          transaction_type: "add",
-          branch: branch,
-          notes: `Earned on Invoice #${invoiceNumber}`,
-          balance_after: finalPoints,
-          created_by_email: staff.email
-        }]);
-      }
-
-      return NextResponse.json({
-        success: true,
-        invoice,
-        items: itemsToInsert,
-        newPoints: finalPoints
-      });
+      await logSecurityAction(adminSupabase, user, "checkout_invoice", `Generated Invoice #${invoiceNumber} for amount INR ${grandTotal} at branch ${targetBranch}`);
+      return NextResponse.json({ success: true, invoice, items: itemsToInsert, newPoints: finalPoints });
     }
 
-    if (action === "send_invoice_email") {
-      const { invoiceId, pdfBase64 } = body;
+    // 6. CREATE APPOINTMENT (BOOKING)
+    if (action === "create_appointment") {
+      const { customerName, customerPhone, serviceId, date, time, notes, branch } = body;
 
-      if (!invoiceId || typeof invoiceId !== "string") {
-        return NextResponse.json({ success: false, error: "Invoice ID is required." }, { status: 400 });
-      }
-
-      if (!pdfBase64 || typeof pdfBase64 !== "string" || pdfBase64.trim() === "") {
-        return NextResponse.json({ success: false, error: "PDF document attachment is required." }, { status: 400 });
-      }
-
-      // Fetch Invoice from DB to verify existence
-      const { data: invoice, error: invoiceError } = await adminSupabase
-        .from("invoices")
-        .select("id, invoice_number, customer_id, grand_total, created_at")
-        .eq("id", invoiceId)
-        .maybeSingle();
-
-      if (invoiceError || !invoice) {
-        console.error("DB Fetch Invoice Error:", invoiceError);
-        return NextResponse.json({ success: false, error: "Invoice record not found." }, { status: 404 });
-      }
-
-      // Fetch Customer from DB
-      const { data: customer, error: customerError } = await adminSupabase
-        .from("customers")
-        .select("id, name, email")
-        .eq("id", invoice.customer_id)
-        .maybeSingle();
-
-      if (customerError || !customer) {
-        console.error("DB Fetch Customer Error:", customerError);
-        return NextResponse.json({ success: false, error: "Customer profile not found." }, { status: 404 });
-      }
-
-      // Verify that customer email is available
-      if (!customer.email || customer.email.trim() === "") {
-        return NextResponse.json({ success: false, error: "Customer does not have a registered email address." }, { status: 400 });
-      }
-
-      // Server-side email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(customer.email)) {
-        return NextResponse.json({ success: false, error: "Invalid customer email address configuration." }, { status: 400 });
-      }
-
-      // Strip potential base64 prefix
-      let rawBase64 = pdfBase64;
-      if (rawBase64.startsWith("data:application/pdf;base64,")) {
-        rawBase64 = rawBase64.replace("data:application/pdf;base64,", "");
-      }
-
-      // Initialize Resend
-      const resendApiKey = process.env.RESEND_API_KEY;
-      if (!resendApiKey) {
-        console.error("Resend API Key is missing in environment configuration");
-        return NextResponse.json({ success: false, error: "Mail service not configured on the server." }, { status: 500 });
-      }
-
-      const resend = new Resend(resendApiKey);
-      const senderEmail = process.env.SENDER_EMAIL || "Macbello Salon <onboarding@resend.dev>";
-
-      const siteUrl = request.nextUrl.origin;
-
-      // Subject and Body Construction
-      const subject = `Macbello Salon Invoice #${invoice.invoice_number}`;
-      const bodyText = `
-Hello ${customer.name},
-
-Thank you for visiting Macbello Salon.
-
-Please find your invoice attached.
-
-Invoice Number: ${invoice.invoice_number}
-Invoice Date: ${new Date(invoice.created_at).toLocaleDateString()}
-Total Amount: INR ${parseFloat(invoice.grand_total).toFixed(2)}
-
-We value your experience! We would love to hear your thoughts. Please share your feedback with us here:
-${siteUrl}/#feedback
-
-Thank you for choosing Macbello Salon.
-
-Regards,
-Macbello Salon
-      `.trim();
-
-      try {
-        const { data: emailResult, error: emailSendError } = await resend.emails.send({
-          from: senderEmail,
-          to: [customer.email],
-          subject: subject,
-          text: bodyText,
-          attachments: [
-            {
-              filename: `INV-${invoice.invoice_number}.pdf`,
-              content: rawBase64,
-            }
-          ]
-        });
-
-        if (emailSendError || !emailResult) {
-          console.error("Resend send call failed:", emailSendError);
-          const errMsg = emailSendError?.message || "Email dispatch failed.";
-
-          // Log failure to DB Audit Logs
-          await adminSupabase.from("invoice_email_logs").insert([{
-            invoice_id: invoice.id,
-            customer_id: customer.id,
-            recipient_email: customer.email,
-            staff_id: staff.email,
-            status: "failed",
-            error_message: errMsg
-          }]);
-
-          return NextResponse.json({ success: false, error: "Failed to dispatch email. " + errMsg }, { status: 502 });
+      let targetBranch = branch;
+      if (user.role === "staff") {
+        if (!user.branch) {
+          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
         }
-
-        // Log success to DB Audit Logs
-        await adminSupabase.from("invoice_email_logs").insert([{
-          invoice_id: invoice.id,
-          customer_id: customer.id,
-          recipient_email: customer.email,
-          staff_id: staff.email,
-          status: "success",
-          error_message: null
-        }]);
-
-        return NextResponse.json({ success: true });
-      } catch (err) {
-        console.error("Resend API Error:", err);
-        const errMsg = err instanceof Error ? err.message : "Unhandled email routing error.";
-
-        // Log failure to DB Audit Logs
-        await adminSupabase.from("invoice_email_logs").insert([{
-          invoice_id: invoice.id,
-          customer_id: customer.id,
-          recipient_email: customer.email,
-          staff_id: staff.email,
-          status: "failed",
-          error_message: errMsg
-        }]);
-
-        return NextResponse.json({ success: false, error: "Internal mail transmission error." }, { status: 500 });
+        targetBranch = user.branch;
       }
+
+      if (!customerName || !customerPhone || !date || !time) {
+        return NextResponse.json({ success: false, error: "Missing required booking details." }, { status: 400 });
+      }
+
+      const { data: newBooking, error } = await adminSupabase
+        .from("appointments")
+        .insert([{
+          customer_name: customerName.replace(/<[^>]*>/g, "").trim(),
+          customer_phone: customerPhone.replace(/<[^>]*>/g, "").trim(),
+          branch: targetBranch,
+          service_id: serviceId || null,
+          appointment_date: date,
+          appointment_time: time,
+          status: "scheduled",
+          notes: notes ? notes.replace(/<[^>]*>/g, "").trim() : null
+        }])
+        .select("*")
+        .single();
+
+      if (error) {
+        console.error("Create booking error:", error);
+        return NextResponse.json({ success: false, error: "Failed to write appointment to database." }, { status: 500 });
+      }
+
+      await logSecurityAction(adminSupabase, user, "create_booking", `Booked appointment for customer ${customerName} on ${date} at branch ${targetBranch}`);
+      return NextResponse.json({ success: true, appointment: newBooking });
+    }
+
+    // 7. EDIT APPOINTMENT (IDOR Check)
+    if (action === "edit_appointment") {
+      const { id, customerName, customerPhone, serviceId, date, time, notes, status } = body;
+
+      if (!id) {
+        return NextResponse.json({ success: false, error: "Booking ID is required." }, { status: 400 });
+      }
+
+      // IDOR constraint lookup
+      const { data: dbBooking, error: fetchErr } = await adminSupabase
+        .from("appointments")
+        .select("id, branch, customer_name")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (fetchErr || !dbBooking) {
+        return NextResponse.json({ success: false, error: "Booking not found." }, { status: 404 });
+      }
+
+      if (user.role === "staff" && dbBooking.branch !== user.branch) {
+        return NextResponse.json({ success: false, error: "Access Denied: Booking belongs to another branch." }, { status: 403 });
+      }
+
+      const { data: updatedBooking, error } = await adminSupabase
+        .from("appointments")
+        .update({
+          customer_name: customerName ? customerName.replace(/<[^>]*>/g, "").trim() : undefined,
+          customer_phone: customerPhone ? customerPhone.replace(/<[^>]*>/g, "").trim() : undefined,
+          service_id: serviceId || undefined,
+          appointment_date: date || undefined,
+          appointment_time: time || undefined,
+          notes: notes !== undefined ? notes.replace(/<[^>]*>/g, "").trim() : undefined,
+          status: status || undefined
+        })
+        .eq("id", id)
+        .select("*")
+        .single();
+
+      if (error) {
+        console.error("Edit booking error:", error);
+        return NextResponse.json({ success: false, error: "Failed to update appointment record." }, { status: 500 });
+      }
+
+      await logSecurityAction(adminSupabase, user, "edit_booking", `Updated booking ID: ${id} (${dbBooking.customer_name})`);
+      return NextResponse.json({ success: true, appointment: updatedBooking });
+    }
+
+    // 8. ARCHIVE APPOINTMENT (SOFT DELETE / CANCEL)
+    if (action === "cancel_appointment") {
+      const { id } = body;
+
+      if (!id) {
+        return NextResponse.json({ success: false, error: "Booking ID required." }, { status: 400 });
+      }
+
+      const { data: dbBooking, error: fetchErr } = await adminSupabase
+        .from("appointments")
+        .select("id, branch, customer_name")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (fetchErr || !dbBooking) {
+        return NextResponse.json({ success: false, error: "Booking not found." }, { status: 404 });
+      }
+
+      if (user.role === "staff" && dbBooking.branch !== user.branch) {
+        return NextResponse.json({ success: false, error: "Access Denied: Branch mismatch." }, { status: 403 });
+      }
+
+      const { error } = await adminSupabase
+        .from("appointments")
+        .update({ status: "cancelled" })
+        .eq("id", id);
+
+      if (error) {
+        console.error("Cancel booking error:", error);
+        return NextResponse.json({ success: false, error: "Failed to cancel booking." }, { status: 500 });
+      }
+
+      await logSecurityAction(adminSupabase, user, "cancel_booking", `Cancelled booking ID: ${id} (${dbBooking.customer_name})`);
+      return NextResponse.json({ success: true });
+    }
+
+    // 9. LOG SECURITY AUDIT ACTION (e.g. PDF Export event log from frontend)
+    if (action === "log_audit_action") {
+      const { auditAction, details } = body;
+      if (!auditAction) {
+        return NextResponse.json({ success: false, error: "Action is required." }, { status: 400 });
+      }
+
+      const cleanAction = String(auditAction).replace(/<[^>]*>/g, "");
+      const cleanDetails = details ? String(details).replace(/<[^>]*>/g, "") : "";
+
+      await logSecurityAction(adminSupabase, user, cleanAction, cleanDetails);
+      return NextResponse.json({ success: true });
+    }
+
+    // 10. CREATE STAFF MEMBER (ADMIN ONLY)
+    if (action === "create_staff") {
+      if (user.role !== "admin") {
+        return NextResponse.json({ success: false, error: "Forbidden: Admin access required." }, { status: 403 });
+      }
+
+      const { staffEmail, password, branch } = body;
+
+      if (!staffEmail || !password || !branch) {
+        return NextResponse.json({ success: false, error: "Missing required staff parameters." }, { status: 400 });
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (typeof staffEmail !== "string" || !emailRegex.test(staffEmail.trim())) {
+        return NextResponse.json({ success: false, error: "Invalid staff email format." }, { status: 400 });
+      }
+
+      if (typeof password !== "string" || password.length < 6) {
+        return NextResponse.json({ success: false, error: "Password must be at least 6 characters long." }, { status: 400 });
+      }
+
+      const allowedBranches = ["Branch A", "Branch B", "Branch C"];
+      if (typeof branch !== "string" || !allowedBranches.includes(branch.trim())) {
+        return NextResponse.json({ success: false, error: "Invalid branch name. Must be Branch A, Branch B, or Branch C." }, { status: 400 });
+      }
+
+      const cleanBranch = branch.trim();
+      const cleanEmail = staffEmail.trim().toLowerCase();
+
+      const { data: newStaff, error } = await adminSupabase.auth.admin.createUser({
+        email: cleanEmail,
+        password: password,
+        email_confirm: true,
+        app_metadata: { role: "staff", branch: cleanBranch }
+      });
+
+      if (error) {
+        console.error("Create staff error:", error);
+        return NextResponse.json({ success: false, error: error.message || "Failed to create staff account." }, { status: 500 });
+      }
+
+      await logSecurityAction(adminSupabase, user, "create_staff", `Created staff account: ${cleanEmail} for branch ${cleanBranch}`);
+      return NextResponse.json({ success: true, staff: newStaff.user });
+    }
+
+    // 11. DELETE STAFF MEMBER (ADMIN ONLY)
+    if (action === "delete_staff") {
+      if (user.role !== "admin") {
+        return NextResponse.json({ success: false, error: "Forbidden: Admin access required." }, { status: 403 });
+      }
+
+      const { staffId, staffEmail } = body;
+
+      if (!staffId) {
+        return NextResponse.json({ success: false, error: "Staff user ID is required." }, { status: 400 });
+      }
+
+      const { error } = await adminSupabase.auth.admin.deleteUser(staffId);
+
+      if (error) {
+        console.error("Delete staff error:", error);
+        return NextResponse.json({ success: false, error: error.message || "Failed to delete staff account." }, { status: 500 });
+      }
+
+      await logSecurityAction(adminSupabase, user, "delete_staff", `Deleted staff account ID: ${staffId} (${staffEmail || "unknown"})`);
+      return NextResponse.json({ success: true });
     }
 
     return NextResponse.json({ success: false, error: "Invalid action." }, { status: 400 });
-
   } catch (err) {
     console.error("Billing POST API Error:", err);
     return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });

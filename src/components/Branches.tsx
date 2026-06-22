@@ -1,14 +1,17 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Phone, MessageSquare, MapPin, Clock, Star, Compass } from "lucide-react";
 import branchesData from "@/data/branches.json";
 
 export default function Branches() {
+  const [activeAccordionIdx, setActiveAccordionIdx] = useState<number | null>(0);
+
   return (
     <section
       id="branches"
-      className="relative py-20 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10"
+      className="relative py-10 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10"
     >
       {/* Ambient background glow */}
       <div className="absolute top-[30%] left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-[radial-gradient(ellipse,rgba(212,175,55,0.04),transparent_70%)] pointer-events-none" />
@@ -20,7 +23,7 @@ export default function Branches() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          className="text-center max-w-2xl mx-auto mb-16"
+          className="text-center max-w-2xl mx-auto mb-8 md:mb-16"
         >
           <span className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-gold-primary mb-4 font-medium block">
             Our Locations
@@ -34,8 +37,8 @@ export default function Branches() {
           </p>
         </motion.div>
 
-        {/* Branch Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        {/* Desktop Branch Cards Grid */}
+        <div className="hidden md:grid grid-cols-3 gap-6 lg:gap-8">
           {branchesData.map((branch, idx) => {
             const whatsappUrl = `https://wa.me/${branch.phoneRaw}?text=${encodeURIComponent(branch.whatsappMessage)}`;
 
@@ -156,6 +159,122 @@ export default function Branches() {
                   </div>
                 </div>
               </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Mobile Accordion */}
+        <div className="block md:hidden space-y-4">
+          {branchesData.map((branch, idx) => {
+            const isOpen = activeAccordionIdx === idx;
+            const whatsappUrl = `https://wa.me/${branch.phoneRaw}?text=${encodeURIComponent(branch.whatsappMessage)}`;
+
+            return (
+              <div
+                key={branch.id}
+                className="border border-white/5 bg-white/[0.02] overflow-hidden transition-all duration-300"
+              >
+                {/* Accordion Header */}
+                <button
+                  onClick={() => setActiveAccordionIdx(isOpen ? null : idx)}
+                  className="w-full text-left p-5 flex justify-between items-center hover:bg-white/[0.04] transition-colors focus:outline-none cursor-pointer"
+                >
+                  <div>
+                    <span className="text-[8px] uppercase tracking-[0.25em] text-gold-primary font-semibold block mb-0.5">
+                      Branch {idx + 1}
+                    </span>
+                    <span className="font-playfair text-base text-white font-medium tracking-wide">
+                      {branch.name}
+                    </span>
+                  </div>
+                  <span className="text-gold-primary text-xs font-light transition-transform duration-300" style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                    ▶
+                  </span>
+                </button>
+
+                {/* Accordion Content */}
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="border-t border-white/5 bg-white/[0.01]"
+                    >
+                      <div className="p-5 flex flex-col space-y-4">
+                        {/* Rating */}
+                        <div className="flex items-center space-x-2">
+                          <div className="flex">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                size={10}
+                                className={
+                                  i < Math.floor(branch.rating)
+                                    ? "fill-gold-primary text-gold-primary"
+                                    : "fill-gold-primary/20 text-gold-primary/20"
+                                }
+                              />
+                            ))}
+                          </div>
+                          <span className="text-[10px] text-ivory/70 font-light">
+                            {branch.rating}★ ({branch.reviewCount.toLocaleString()} Reviews)
+                          </span>
+                        </div>
+
+                        {/* Details */}
+                        <div className="space-y-2 text-xs font-light text-ivory/75">
+                          <div className="flex items-start space-x-2.5">
+                            <MapPin size={12} className="text-gold-primary mt-0.5 shrink-0" />
+                            <span className="text-[11px] leading-relaxed">{branch.address}</span>
+                          </div>
+                          <div className="flex items-center space-x-2.5">
+                            <Phone size={12} className="text-gold-primary shrink-0" />
+                            <a href={`tel:+${branch.phoneRaw}`} className="text-[11px] hover:text-gold-primary font-medium">{branch.phone}</a>
+                          </div>
+                          <div className="flex items-start space-x-2.5">
+                            <Clock size={12} className="text-gold-primary mt-0.5 shrink-0" />
+                            <div className="text-[11px]">
+                              <span>{branch.hours}</span>
+                              <span className="block text-[9px] text-gold-primary/60">{branch.hoursNote}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* CTAs */}
+                        <div className="grid grid-cols-3 gap-2 border-t border-white/5 pt-4">
+                          <a
+                            href={`tel:+${branch.phoneRaw}`}
+                            className="flex flex-col items-center justify-center py-2.5 border border-white/8 bg-white/[0.03] text-ivory hover:text-gold-primary text-center"
+                          >
+                            <Phone size={13} className="mb-0.5 text-gold-primary" />
+                            <span className="text-[8px] uppercase tracking-[0.1em]">Call</span>
+                          </a>
+                          <a
+                            href={whatsappUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex flex-col items-center justify-center py-2.5 bg-gold-primary text-luxury-black font-semibold text-center"
+                          >
+                            <MessageSquare size={13} className="mb-0.5" />
+                            <span className="text-[8px] uppercase tracking-[0.1em] font-bold">WhatsApp</span>
+                          </a>
+                          <a
+                            href={branch.directionsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex flex-col items-center justify-center py-2.5 border border-white/8 bg-white/[0.03] text-ivory hover:text-gold-primary text-center"
+                          >
+                            <Compass size={13} className="mb-0.5 text-gold-primary" />
+                            <span className="text-[8px] uppercase tracking-[0.1em]">Map</span>
+                          </a>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             );
           })}
         </div>

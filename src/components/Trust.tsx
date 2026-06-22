@@ -37,14 +37,14 @@ export default function Trust({ isHomepage = false }: { isHomepage?: boolean }) 
   const googleReviewsSearchUrl = "https://www.google.com/maps/place/Macbello+Family+Salon/@9.773539,76.471694,15z/data=!4m6!3m5!1s0x3b0877a5ab0f7cf7:0xfb6efadca3d73507!8m2!3d9.773539!4d76.471694!16s%2Fg%2F11fn7cl20n?entry=ttu";
 
   return (
-    <section id="reviews" className="relative py-20 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
+    <section id="reviews" className="relative py-10 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
       {/* Background soft light */}
       <div className="absolute top-[10%] right-[10%] w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(212,175,55,0.02),transparent_70%)] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         
         {/* Section Title */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div className="text-center max-w-2xl mx-auto mb-8 md:mb-16">
           <span className="text-[10px] md:text-xs uppercase tracking-[0.25em] text-gold-primary mb-3 font-medium block">
             Trust & Reviews
           </span>
@@ -53,7 +53,7 @@ export default function Trust({ isHomepage = false }: { isHomepage?: boolean }) 
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-16 items-center">
           
           {/* Left Column: Stats & Badge */}
           <div className="lg:col-span-5 flex flex-col justify-center">
@@ -66,7 +66,7 @@ export default function Trust({ isHomepage = false }: { isHomepage?: boolean }) 
             </div>
 
             {/* Large Stats block */}
-            <div className="flex items-center space-x-6 mb-8">
+            <div className="flex items-center space-x-6 mb-4 md:mb-8">
               <div className="flex flex-col">
                 <span className="font-playfair text-5xl md:text-6xl text-white font-light">4.8</span>
                 <div className="flex space-x-1 mt-1">
@@ -88,7 +88,7 @@ export default function Trust({ isHomepage = false }: { isHomepage?: boolean }) 
             </div>
 
             {/* Distribution Graph */}
-            <div className="space-y-2.5 mb-8">
+            <div className="space-y-2.5 mb-4 md:mb-8">
               {distribution.map((row) => (
                 <div key={row.stars} className="flex items-center text-xs text-ivory/60">
                   <span className="w-3 text-right">{row.stars}</span>
@@ -138,7 +138,7 @@ export default function Trust({ isHomepage = false }: { isHomepage?: boolean }) 
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -50 }}
                 transition={{ duration: 0.4 }}
-                className="relative p-8 md:p-10 border border-white/5 bg-white/[0.02] backdrop-blur-md shadow-[0_15px_30px_rgba(0,0,0,0.5)] flex flex-col justify-between"
+                className="relative p-5 md:p-10 border border-white/5 bg-white/[0.02] backdrop-blur-md shadow-[0_15px_30px_rgba(0,0,0,0.5)] flex flex-col justify-between"
               >
                 {/* Large Background Quote Symbol */}
                 <span className="absolute top-4 right-8 font-playfair text-[120px] text-gold-primary/5 select-none leading-none pointer-events-none">

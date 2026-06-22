@@ -80,6 +80,7 @@ function VideoCard({ item, onClick }: { item: GalleryItem; onClick: () => void }
 export default function Gallery() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [expanded, setExpanded] = useState(false);
   const galleryItems = getGalleryItems();
   const modalRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
@@ -172,7 +173,7 @@ export default function Gallery() {
   const lightboxItem = lightboxIdx !== null ? filteredItems[lightboxIdx] : null;
 
   return (
-    <section id="portfolio" className="relative py-20 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
+    <section id="portfolio" className="relative py-10 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
       {/* Background ambient light */}
       <div className="absolute top-[40%] left-[20%] w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(212,175,55,0.02),transparent_70%)] pointer-events-none" />
 
@@ -222,7 +223,9 @@ export default function Gallery() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
-                className="w-full focus:outline-none focus:ring-1 focus:ring-gold-primary"
+                className={`w-full focus:outline-none focus:ring-1 focus:ring-gold-primary ${
+                  !expanded && idx >= 4 ? "max-md:hidden" : ""
+                }`}
                 tabIndex={0}
                 role="button"
                 aria-label={`View ${item.category} showcase video`}
@@ -239,6 +242,18 @@ export default function Gallery() {
             ))}
           </AnimatePresence>
         </div>
+
+        {/* Mobile View Full Gallery Toggle Button */}
+        {!expanded && filteredItems.length > 4 && (
+          <div className="mt-8 text-center md:hidden">
+            <button
+              onClick={() => setExpanded(true)}
+              className="inline-block text-xs uppercase tracking-[0.2em] border border-gold-primary/30 hover:border-gold-primary bg-transparent text-gold-primary hover:text-luxury-black hover:bg-gold-primary px-8 py-3 transition-all duration-300 cursor-pointer"
+            >
+              View Full Gallery
+            </button>
+          </div>
+        )}
 
       </div>
 

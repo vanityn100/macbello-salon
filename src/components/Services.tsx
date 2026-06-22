@@ -15,14 +15,14 @@ export default function Services({ featuredOnly = false }: { featuredOnly?: bool
   const displayServices = featuredOnly ? servicesData.slice(0, 6) : servicesData;
 
   return (
-    <section id="services" className="relative py-20 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
+    <section id="services" className="relative py-10 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
       {/* Background ambient gold gradient */}
       <div className="absolute top-[30%] left-[10%] w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(212,175,55,0.02),transparent_70%)] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 md:mb-24">
+        <div className="text-center max-w-3xl mx-auto mb-8 md:mb-24">
           <span className="text-[10px] md:text-xs uppercase tracking-[0.25em] text-gold-primary mb-3 font-medium block">
             Our Menu
           </span>
@@ -45,7 +45,9 @@ export default function Services({ featuredOnly = false }: { featuredOnly?: bool
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: (idx % 3) * 0.15 }}
-                className="relative overflow-hidden p-8 border border-white/5 bg-white/[0.02] hover:border-gold-primary/30 group hover:shadow-[0_10px_30px_rgba(212,175,55,0.05)] transition-all duration-500 flex flex-col justify-between h-full"
+                className={`relative overflow-hidden p-8 border border-white/5 bg-white/[0.02] hover:border-gold-primary/30 group hover:shadow-[0_10px_30px_rgba(212,175,55,0.05)] transition-all duration-500 flex flex-col justify-between h-full ${
+                  featuredOnly && idx >= 4 ? "max-md:hidden" : ""
+                }`}
               >
                 {/* Subtle glass shimmer hover animation */}
                 <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
@@ -91,7 +93,7 @@ export default function Services({ featuredOnly = false }: { featuredOnly?: bool
         </div>
 
         {/* Dynamic CTA box */}
-        <div className="mt-16 md:mt-24 text-center">
+        <div className="mt-8 md:mt-24 text-center">
           <div className="inline-block p-6 md:p-8 border border-gold-primary/10 bg-gold-primary/5 backdrop-blur-md max-w-2xl mx-auto">
             <h4 className="font-playfair text-lg text-white font-medium tracking-wide mb-2">
               {featuredOnly ? "Want to see our full range?" : "Looking for a custom makeover?"}
@@ -106,7 +108,8 @@ export default function Services({ featuredOnly = false }: { featuredOnly?: bool
                 href="/services"
                 className="inline-block text-xs uppercase tracking-[0.2em] border border-gold-primary/30 hover:border-gold-primary bg-transparent text-gold-primary hover:text-luxury-black hover:bg-gold-primary px-8 py-3 transition-all duration-300"
               >
-                View Full Services Menu
+                <span className="hidden md:inline">View Full Services Menu</span>
+                <span className="md:hidden">View All Services</span>
               </a>
             ) : (
               <a

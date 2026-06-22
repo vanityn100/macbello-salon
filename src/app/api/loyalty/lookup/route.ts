@@ -1,23 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
 
-// In-memory sliding window IP rate limiter
+// Sliding window IP rate limiter with automatic memory cleanup
 const rateLimitMap = new Map<string, number[]>();
+const WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const MAX_REQUESTS = 10;           // Max 10 lookups per 10 minutes
+const MAX_IPS = 5000;              // Hard cap to prevent unbounded growth
+
+// Purge stale IP entries every 10 minutes to prevent memory leaks
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, timestamps] of rateLimitMap.entries()) {
+    const active = timestamps.filter((t) => now - t < WINDOW_MS);
+    if (active.length === 0) {
+      rateLimitMap.delete(ip);
+    } else {
+      rateLimitMap.set(ip, active);
+    }
+  }
+}, WINDOW_MS);
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
-  const windowMs = 10 * 60 * 1000; // 10 minutes
-  const maxRequests = 10; // Max 10 lookups per 10 minutes
-
   const timestamps = rateLimitMap.get(ip) || [];
-  const activeTimestamps = timestamps.filter((time) => now - time < windowMs);
+  const active = timestamps.filter((t) => now - t < WINDOW_MS);
 
-  if (activeTimestamps.length >= maxRequests) {
-    return true;
+  if (active.length >= MAX_REQUESTS) return true;
+
+  // Safety valve: evict oldest entry if map is too large
+  if (!rateLimitMap.has(ip) && rateLimitMap.size >= MAX_IPS) {
+    const oldestKey = rateLimitMap.keys().next().value;
+    if (oldestKey) rateLimitMap.delete(oldestKey);
   }
 
-  activeTimestamps.push(now);
-  rateLimitMap.set(ip, activeTimestamps);
+  active.push(now);
+  rateLimitMap.set(ip, active);
   return false;
 }
 

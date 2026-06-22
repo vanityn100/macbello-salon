@@ -63,7 +63,7 @@ export default function BeforeAfter() {
   }, []);
 
   return (
-    <section id="transformations" className="relative py-20 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
+    <section id="transformations" className="relative py-10 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
       {/* Background soft light */}
       <div className="absolute bottom-10 right-1/2 translate-x-1/2 w-[700px] h-[350px] bg-[radial-gradient(circle,rgba(212,175,55,0.01),transparent_70%)] pointer-events-none" />
 

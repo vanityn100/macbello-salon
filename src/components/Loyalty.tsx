@@ -50,7 +50,7 @@ export default function Loyalty() {
   };
 
   return (
-    <section id="loyalty" className="relative py-20 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
+    <section id="loyalty" className="relative py-10 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
       {/* Background ambient radial light */}
       <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[radial-gradient(circle,rgba(212,175,55,0.03),transparent_70%)] pointer-events-none" />
 

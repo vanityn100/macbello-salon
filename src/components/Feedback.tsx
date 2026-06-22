@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, Send, User, Phone, MapPin, MessageSquare, CheckCircle, XCircle } from "lucide-react";
+import { Star, Send, User, Phone, Mail, MapPin, MessageSquare, CheckCircle, XCircle } from "lucide-react";
 import branchesData from "@/data/branches.json";
 
 interface FormState {
   name: string;
   mobile: string;
+  email: string;
   branch: string;
   rating: number;
   message: string;
@@ -16,6 +17,7 @@ interface FormState {
 const initialForm: FormState = {
   name: "",
   mobile: "",
+  email: "",
   branch: "",
   rating: 0,
   message: "",
@@ -186,6 +188,26 @@ export default function Feedback() {
                         onChange={handleChange}
                         required
                         placeholder="+91 XXXXX XXXXX"
+                        className="w-full bg-white/[0.03] border border-white/8 hover:border-white/15 focus:border-gold-primary/50 focus:outline-none px-4 py-3.5 text-sm text-ivory placeholder-ivory/30 transition-colors duration-200 font-light"
+                      />
+                    </div>
+
+                    {/* Email Address (optional — for confirmation) */}
+                    <div className="space-y-2 md:col-span-2">
+                      <label
+                        htmlFor="feedback-email"
+                        className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.2em] text-gold-primary font-medium"
+                      >
+                        <Mail size={10} />
+                        <span>Email Address <span className="text-ivory/30 normal-case tracking-normal">(optional — we&apos;ll send you a thank-you)</span></span>
+                      </label>
+                      <input
+                        id="feedback-email"
+                        name="email"
+                        type="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        placeholder="your@email.com"
                         className="w-full bg-white/[0.03] border border-white/8 hover:border-white/15 focus:border-gold-primary/50 focus:outline-none px-4 py-3.5 text-sm text-ivory placeholder-ivory/30 transition-colors duration-200 font-light"
                       />
                     </div>

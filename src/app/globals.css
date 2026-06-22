@@ -138,3 +138,20 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Mobile-Specific Fluid Typography Optimization (public pages only) */
+@media (max-width: 767px) {
+  /* Compact section header margins */
+  .mb-16 {
+    margin-bottom: 2rem;
+  }
+  .mb-24, .mt-24 {
+    margin-bottom: 2.5rem;
+    margin-top: 2.5rem;
+  }
+
+  /* Prevent horizontal overflow */
+  main {
+    overflow-x: hidden;
+  }
+}

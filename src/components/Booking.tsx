@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar, Clock, MessageSquare, Sparkles, User, Phone, X, MapPin } from "lucide-react";
+import { Calendar, Clock, MessageSquare, Sparkles, User, Phone, Mail, X, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import servicesData from "@/data/services.json";
 
@@ -9,12 +9,16 @@ export default function Booking() {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
+    email: "",
     branch: "",
     service: "",
     date: "",
     time: "",
     message: ""
   });
+
+  // Honeypot: bots fill this, real users never see it (positioned off-screen, not display:none)
+  const [honeypot, setHoneypot] = useState("");
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -31,6 +35,14 @@ export default function Booking() {
       newErrors.phone = "Please enter your phone number.";
     } else if (!phoneRegex.test(formData.phone.replace(/[\s-+]/g, ""))) {
       newErrors.phone = "Please enter a valid 10-digit mobile number.";
+    }
+
+    // Optional email validation
+    if (formData.email.trim()) {
+      const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/;
+      if (!emailRegex.test(formData.email.trim())) {
+        newErrors.email = "Please enter a valid email address.";
+      }
     }
 
     if (!formData.branch) newErrors.branch = "Please select a branch.";
@@ -57,6 +69,10 @@ export default function Booking() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Honeypot check: if this hidden field is filled, it's a bot — silently do nothing
+    if (honeypot) return;
+
     if (!validate()) return;
 
     // Map branch names to their specific WhatsApp numbers
@@ -85,6 +101,24 @@ ${formData.message ? `*Message:* ${formData.message}` : ""}`;
     // Display elegant success modal
     setShowSuccessModal(true);
 
+    // Send booking confirmation email if customer provided their email
+    if (formData.email.trim()) {
+      fetch("/api/booking/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          branch: formData.branch,
+          service: serviceName,
+          date: formData.date,
+          time: formData.time,
+          message: formData.message,
+        }),
+      }).catch((err) => console.error("Booking confirmation email failed:", err));
+    }
+
     // Open WhatsApp link in new tab
     setTimeout(() => {
       window.open(whatsappUrl, "_blank", "noopener,noreferrer");
@@ -97,6 +131,7 @@ ${formData.message ? `*Message:* ${formData.message}` : ""}`;
     setFormData({
       name: "",
       phone: "",
+      email: "",
       branch: "",
       service: "",
       date: "",
@@ -106,14 +141,14 @@ ${formData.message ? `*Message:* ${formData.message}` : ""}`;
   };
 
   return (
-    <section id="booking" className="relative py-20 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
+    <section id="booking" className="relative py-10 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
       {/* Background soft ambient radial light */}
       <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[radial-gradient(circle,rgba(212,175,55,0.03),transparent_70%)] pointer-events-none" />
 
       <div className="max-w-4xl mx-auto px-6 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div className="text-center max-w-2xl mx-auto mb-8 md:mb-16">
           <span className="text-[10px] md:text-xs uppercase tracking-[0.25em] text-gold-primary mb-3 font-medium block">
             Reservations
           </span>
@@ -126,15 +161,29 @@ ${formData.message ? `*Message:* ${formData.message}` : ""}`;
         </div>
 
         {/* Booking Form Card */}
-        <div className="border border-gold-primary/15 bg-white/[0.02] backdrop-blur-md p-8 md:p-12 relative shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
+        <div className="border border-gold-primary/15 bg-white/[0.02] backdrop-blur-md p-5 md:p-12 relative shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
           {/* Decorative Gold Corner Borders */}
           <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-gold-primary/45" />
           <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-gold-primary/45" />
           <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-gold-primary/45" />
           <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-gold-primary/45" />
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+
+            {/* Honeypot anti-bot trap — visually hidden, tabindex=-1, autocomplete=off */}
+            <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", overflow: "hidden" }}>
+              <label htmlFor="hp_website">Website</label>
+              <input
+                id="hp_website"
+                type="text"
+                name="website"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {/* Name field */}
               <div className="flex flex-col">
                 <label className="text-[10px] uppercase tracking-[0.2em] text-gold-primary font-medium mb-2 flex items-center">
@@ -179,6 +228,30 @@ ${formData.message ? `*Message:* ${formData.message}` : ""}`;
                 {errors.phone && (
                   <span className="text-[10px] text-red-400 mt-1.5 font-light tracking-wide">
                     {errors.phone}
+                  </span>
+                )}
+              </div>
+
+              {/* Email field (optional — for booking confirmation) */}
+              <div className="flex flex-col md:col-span-2">
+                <label className="text-[10px] uppercase tracking-[0.2em] text-gold-primary font-medium mb-2 flex items-center">
+                  <Mail size={10} className="mr-1.5" />
+                  <span>Email Address <span className="text-ivory/30 normal-case tracking-normal font-light">(optional — receive booking confirmation)</span></span>
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  maxLength={254}
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="your@email.com"
+                  className={`bg-luxury-black border ${
+                    errors.email ? "border-red-500/70" : "border-white/10 focus:border-gold-primary/50"
+                  } px-4 py-3 text-xs tracking-wider text-white placeholder-ivory/20 rounded-none focus:outline-none transition-colors duration-300`}
+                />
+                {errors.email && (
+                  <span className="text-[10px] text-red-400 mt-1.5 font-light tracking-wide">
+                    {errors.email}
                   </span>
                 )}
               </div>

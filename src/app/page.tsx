@@ -22,14 +22,14 @@ export default function Home() {
       <Navbar />
 
       <main className="flex flex-col min-h-screen">
-        {/* Hero Banner */}
+        {/* Hero Banner - always first on desktop and mobile */}
         <Hero />
 
-        {/* Dynamic Auto-Scrolling Review Marquee ribbon */}
-        <ReviewMarquee />
+        {/* Dynamic Auto-Scrolling Review Marquee ribbon - Hidden on mobile */}
+        <div className="max-md:hidden"><ReviewMarquee /></div>
 
-        {/* Counter Statistics Section */}
-        <Stats />
+        {/* Counter Statistics Section - Hidden on mobile */}
+        <div className="max-md:hidden"><Stats /></div>
 
         {/* About Heritage & Storytelling Section */}
         <About />
@@ -37,20 +37,20 @@ export default function Home() {
         {/* Services Experience Grid (Preview mode) */}
         <Services featuredOnly={true} />
 
-        {/* Our Branches — 3 locations with premium cards */}
-        <Branches />
-
         {/* Interactive Before & After comparison slider */}
         <BeforeAfter />
 
         {/* Google Reviews Showcase Section (Preview mode) */}
         <Trust isHomepage={true} />
 
+        {/* Our Branches — 3 locations with premium cards */}
+        <Branches />
+
         {/* Booking Form with WhatsApp forwarding */}
         <Booking />
 
-        {/* Loyalty Rewards balance checker */}
-        <Loyalty />
+        {/* Loyalty Rewards balance checker - Hidden on mobile */}
+        <div className="max-md:hidden"><Loyalty /></div>
       </main>
 
       {/* Footer Details */}

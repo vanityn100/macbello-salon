@@ -1,35 +1,62 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase, getSupabaseAdmin } from "@/lib/supabase";
 
-// Helper to authenticate staff using their Supabase JWT
-async function authenticateStaff(request: NextRequest): Promise<{ email: string } | null> {
+export const dynamic = "force-dynamic";
+
+interface AuthenticatedUser {
+  email: string;
+  role: "admin" | "staff";
+  branch: string | null;
+}
+
+// Authenticate staff helper retrieving role and branch from Supabase app_metadata
+async function authenticateStaff(request: NextRequest): Promise<AuthenticatedUser | null> {
   const authHeader = request.headers.get("authorization") || "";
   if (!authHeader.startsWith("Bearer ")) return null;
 
   const token = authHeader.split(" ")[1];
   const { data: { user }, error } = await supabase.auth.getUser(token);
 
-  if (error || !user || !user.email || !(user.app_metadata?.role === "staff" || user.app_metadata?.role === "admin")) {
-    return null;
-  }
+  if (error || !user || !user.email) return null;
 
-  return { email: user.email };
+  const role = user.app_metadata?.role;
+  if (role !== "staff" && role !== "admin") return null;
+
+  return {
+    email: user.email,
+    role: role as "admin" | "staff",
+    branch: user.app_metadata?.branch || null
+  };
+}
+
+// Audit helper
+async function logSecurityAction(
+  adminSupabase: any,
+  user: AuthenticatedUser,
+  action: string,
+  details: string
+) {
+  try {
+    await adminSupabase.from("audit_logs").insert([{
+      user_id: user.email,
+      role: user.role,
+      branch: user.branch || "All",
+      action,
+      details
+    }]);
+  } catch (err) {
+    console.error("Failed to write audit log:", err);
+  }
 }
 
 // Allowed branches validation
-const ALLOWED_BRANCHES = ["Kaduthuruthy", "Ettumanoor", "Peruva"];
+const ALLOWED_BRANCHES = ["Branch A", "Branch B", "Branch C"];
 
 export async function GET(request: NextRequest) {
   try {
-    // 1. Authenticate Staff Request
-    const staff = await authenticateStaff(request);
-    if (!staff) {
+    const user = await authenticateStaff(request);
+    if (!user) {
       return NextResponse.json({ success: false, error: "Unauthorized access." }, { status: 401 });
-    }
-
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error("Missing Supabase configuration in admin route");
-      return NextResponse.json({ success: false, error: "Database service not configured." }, { status: 500 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -38,35 +65,66 @@ export async function GET(request: NextRequest) {
 
     if (action === "search") {
       const phone = searchParams.get("phone") || "";
-      const cleanPhone = phone.trim().replace(/[\s\-()]/g, "");
+      let cleanPhone = phone.trim().replace(/[\s\-()]/g, "");
+      if (cleanPhone.startsWith("+")) {
+        cleanPhone = cleanPhone.substring(1);
+      }
+      if (cleanPhone.length > 10) {
+        cleanPhone = cleanPhone.slice(-10);
+      }
 
       if (!cleanPhone) {
         return NextResponse.json({ success: false, error: "Phone number required." }, { status: 400 });
       }
 
-      // Search customer profiles
-      const { data: customer, error } = await adminSupabase
+      let query = adminSupabase
         .from("customers")
-        .select("id, name, phone, points")
-        .eq("phone", cleanPhone)
-        .maybeSingle();
+        .select("id, name, phone, points, branch")
+        .eq("status", "active")
+        .ilike("phone", `%${cleanPhone}%`);
+
+      // Staff can only search/view customers of their own branch or global customers
+      if (user.role === "staff") {
+        if (!user.branch) {
+          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
+        }
+        query = query.or(`branch.is.null,branch.eq."${user.branch}"`);
+      }
+
+      const { data: customers, error } = await query.limit(1);
 
       if (error) {
         console.error("Search query error:", error);
         return NextResponse.json({ success: false, error: "Failed to search customer." }, { status: 500 });
       }
 
-      if (!customer) {
+      if (!customers || customers.length === 0) {
         return NextResponse.json({ success: false, error: "No customer account found." }, { status: 404 });
       }
 
-      return NextResponse.json({ success: true, customer });
+      return NextResponse.json({ success: true, customer: customers[0] });
     }
 
     if (action === "history") {
       const customerId = searchParams.get("customerId");
       if (!customerId) {
         return NextResponse.json({ success: false, error: "Customer ID required." }, { status: 400 });
+      }
+
+      // Fetch customer first to check ownership (prevent IDOR)
+      const { data: customer, error: custErr } = await adminSupabase
+        .from("customers")
+        .select("id, branch")
+        .eq("id", customerId)
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (custErr || !customer) {
+        return NextResponse.json({ success: false, error: "Customer profile not found." }, { status: 404 });
+      }
+
+      if (user.role === "staff" && customer.branch && customer.branch !== user.branch) {
+        return NextResponse.json({ success: false, error: "Forbidden: Customer profile belongs to another branch." }, { status: 403 });
       }
 
       // Retrieve full transaction logs
@@ -94,15 +152,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // 1. Authenticate Staff Request
-    const staff = await authenticateStaff(request);
-    if (!staff) {
+    const user = await authenticateStaff(request);
+    if (!user) {
       return NextResponse.json({ success: false, error: "Unauthorized access." }, { status: 401 });
-    }
-
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error("Missing Supabase configuration in admin route");
-      return NextResponse.json({ success: false, error: "Database service not configured." }, { status: 500 });
     }
 
     let body;
@@ -117,7 +169,15 @@ export async function POST(request: NextRequest) {
 
     // Create Customer
     if (action === "create") {
-      const { name, phone } = body;
+      const { name, phone, email, branch } = body;
+
+      let targetBranch = branch;
+      if (user.role === "staff") {
+        if (!user.branch) {
+          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
+        }
+        targetBranch = user.branch; // Override request body value
+      }
 
       if (typeof name !== "string" || name.trim() === "" || name.length > 100) {
         return NextResponse.json({ success: false, error: "Invalid name format." }, { status: 400 });
@@ -130,22 +190,50 @@ export async function POST(request: NextRequest) {
 
       const cleanPhone = phone.trim().replace(/[\s\-()]/g, "");
 
-      // Check if duplicate profile exists
+      // Check if duplicate profile exists by phone
       const { data: existingCustomer } = await adminSupabase
         .from("customers")
         .select("id")
         .eq("phone", cleanPhone)
+        .eq("status", "active")
         .maybeSingle();
 
       if (existingCustomer) {
         return NextResponse.json({ success: false, error: "A customer profile already exists for this phone number." }, { status: 409 });
       }
 
+      let cleanEmail = null;
+      if (email && typeof email === "string" && email.trim() !== "") {
+        cleanEmail = email.trim().toLowerCase();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(cleanEmail)) {
+          return NextResponse.json({ success: false, error: "Invalid email format." }, { status: 400 });
+        }
+
+        const { data: existingEmailCustomer } = await adminSupabase
+          .from("customers")
+          .select("id")
+          .eq("email", cleanEmail)
+          .eq("status", "active")
+          .maybeSingle();
+
+        if (existingEmailCustomer) {
+          return NextResponse.json({ success: false, error: "A customer profile already exists for this email." }, { status: 409 });
+        }
+      }
+
       // Create new customer
       const { data: newCustomer, error } = await adminSupabase
         .from("customers")
-        .insert([{ name: name.trim(), phone: cleanPhone, points: 0 }])
-        .select("id, name, phone, points")
+        .insert([{
+          name: name.trim(),
+          phone: cleanPhone,
+          email: cleanEmail,
+          branch: targetBranch,
+          points: 0,
+          status: "active"
+        }])
+        .select("id, name, phone, email, points, branch")
         .single();
 
       if (error) {
@@ -153,6 +241,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Failed to create customer." }, { status: 500 });
       }
 
+      await logSecurityAction(adminSupabase, user, "create_customer", `Registered customer: ${name.trim()} (${cleanPhone}) at branch ${targetBranch}`);
       return NextResponse.json({ success: true, customer: newCustomer });
     }
 
@@ -160,7 +249,7 @@ export async function POST(request: NextRequest) {
     if (action === "modify_points") {
       const { customerId, type, pointsChange, branch, notes } = body;
 
-      if (!customerId || !type || !pointsChange || !branch) {
+      if (!customerId || !type || !pointsChange) {
         return NextResponse.json({ success: false, error: "Missing required fields." }, { status: 400 });
       }
 
@@ -168,9 +257,17 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Invalid transaction type." }, { status: 400 });
       }
 
-      // Validate Branch selection
-      if (!ALLOWED_BRANCHES.includes(branch)) {
-        return NextResponse.json({ success: false, error: "Invalid branch location." }, { status: 400 });
+      let targetBranch = branch;
+      if (user.role === "staff") {
+        if (!user.branch) {
+          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
+        }
+        targetBranch = user.branch; // Override request body value
+      } else {
+        // Admin branch validation
+        if (!ALLOWED_BRANCHES.includes(targetBranch)) {
+          return NextResponse.json({ success: false, error: "Invalid branch location." }, { status: 400 });
+        }
       }
 
       // Validate point values (positive integers only)
@@ -179,15 +276,20 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Points value must be a positive integer." }, { status: 400 });
       }
 
-      // Fetch current customer profile to perform updates and calculations
+      // Fetch current customer profile to perform updates and checks (prevent IDOR)
       const { data: customer, error: fetchError } = await adminSupabase
         .from("customers")
-        .select("id, points")
+        .select("id, points, branch")
         .eq("id", customerId)
+        .eq("status", "active")
         .maybeSingle();
 
       if (fetchError || !customer) {
         return NextResponse.json({ success: false, error: "Customer not found." }, { status: 404 });
+      }
+
+      if (user.role === "staff" && customer.branch && customer.branch !== user.branch) {
+        return NextResponse.json({ success: false, error: "Forbidden: Customer profile belongs to another branch." }, { status: 403 });
       }
 
       let newBalance = customer.points;
@@ -219,10 +321,10 @@ export async function POST(request: NextRequest) {
             customer_id: customerId,
             points_change: type === "add" ? parsedPoints : -parsedPoints,
             transaction_type: type,
-            branch,
+            branch: targetBranch,
             notes: notes ? sanitizeInput(notes) : "",
             balance_after: newBalance,
-            created_by_email: staff.email
+            created_by_email: user.email
           }
         ]);
 
@@ -233,6 +335,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Failed to log transaction audit." }, { status: 500 });
       }
 
+      await logSecurityAction(adminSupabase, user, "customer_edit", `Modified loyalty points for customer ID: ${customerId} (${type} ${parsedPoints} points) at branch ${targetBranch}`);
       return NextResponse.json({ success: true, newBalance });
     }
 

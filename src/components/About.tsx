@@ -47,7 +47,7 @@ const sellingPoints = [
 
 export default function About() {
   return (
-    <section id="about" className="relative py-20 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
+    <section id="about" className="relative py-10 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
       {/* Background soft ambient glow */}
       <div className="absolute top-[20%] right-0 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(212,175,55,0.02),transparent_70%)] pointer-events-none" />
 
@@ -101,7 +101,7 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.15 }}
-            className="relative h-[220px] sm:h-[260px] md:h-[280px] lg:h-[320px] border border-gold-primary/20 hover:border-gold-primary/50 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden rounded-lg group"
+            className="relative h-[220px] sm:h-[260px] md:h-[280px] lg:h-[320px] border border-gold-primary/20 hover:border-gold-primary/50 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden rounded-lg group max-md:hidden"
           >
             <Image 
               src="/images/gallery/photo2.webp"
@@ -118,7 +118,7 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="relative h-[220px] sm:h-[260px] md:h-[280px] lg:h-[320px] border border-gold-primary/20 hover:border-gold-primary/50 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden rounded-lg group"
+            className="relative h-[220px] sm:h-[260px] md:h-[280px] lg:h-[320px] border border-gold-primary/20 hover:border-gold-primary/50 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.4)] overflow-hidden rounded-lg group max-md:hidden"
           >
             <Image 
               src="/images/gallery/photo3.webp"
@@ -131,7 +131,7 @@ export default function About() {
         </div>
 
         {/* Experience Highlights Checklist (Horizontal list at bottom) */}
-        <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-xs font-light text-ivory/80 max-w-6xl mx-auto py-6 border-b border-white/5 print-border-gray">
+        <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-xs font-light text-ivory/80 max-w-6xl mx-auto py-4 border-b border-white/5 print-border-gray">
           {sellingPoints.map((point, idx) => {
             const Icon = point.icon;
             return (
@@ -153,9 +153,9 @@ export default function About() {
         </div>
 
         {/* Call to Action & Timeline */}
-        <div className="mt-12 flex flex-col items-center">
+        <div className="mt-6 md:mt-12 flex flex-col items-center">
           {/* Reserve CTA */}
-          <div className="mb-14">
+          <div className="mb-6 md:mb-14">
             <a
               href="#booking"
               className="inline-flex items-center space-x-2 text-[10px] uppercase tracking-[0.2em] bg-gold-primary hover:bg-gold-dark text-luxury-black font-semibold px-6 py-3.5 transition-all duration-300"
@@ -165,8 +165,8 @@ export default function About() {
             </a>
           </div>
 
-          {/* Timeline Block (Horizontal grid on desktop, vertical list on mobile) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
+          {/* Timeline Block - hidden on mobile to save space */}
+          <div className="hidden md:grid grid-cols-3 gap-8 w-full max-w-6xl">
             {milestones.map((milestone, idx) => (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}

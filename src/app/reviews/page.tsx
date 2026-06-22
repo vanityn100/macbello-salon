@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingActions from "@/components/FloatingActions";
@@ -9,6 +10,8 @@ import reviewsData from "@/data/reviews.json";
 import { motion } from "framer-motion";
 
 export default function ReviewsPage() {
+  const [expanded, setExpanded] = useState(false);
+
   return (
     <>
       <FloatingActions />
@@ -48,7 +51,9 @@ export default function ReviewsPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: idx * 0.1 }}
-                  className="relative p-6 md:p-8 border border-white/5 bg-white/[0.01] hover:border-gold-primary/20 transition-all duration-300 flex flex-col justify-between"
+                  className={`relative p-6 md:p-8 border border-white/5 bg-white/[0.01] hover:border-gold-primary/20 transition-all duration-300 flex flex-col justify-between ${
+                    !expanded && idx >= 3 ? "max-md:hidden" : ""
+                  }`}
                 >
                   <div>
                     <div className="flex space-x-0.5 mb-4">
@@ -79,6 +84,18 @@ export default function ReviewsPage() {
                 </motion.div>
               ))}
             </div>
+
+            {/* Mobile Expand Button */}
+            {!expanded && reviewsData.length > 3 && (
+              <div className="mt-8 text-center md:hidden">
+                <button
+                  onClick={() => setExpanded(true)}
+                  className="inline-block text-xs uppercase tracking-[0.2em] border border-gold-primary/30 hover:border-gold-primary bg-transparent text-gold-primary hover:text-luxury-black hover:bg-gold-primary px-8 py-3 transition-all duration-300 cursor-pointer"
+                >
+                  Read All Reviews
+                </button>
+              </div>
+            )}
           </div>
         </section>
       </main>
