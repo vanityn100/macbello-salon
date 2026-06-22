@@ -435,9 +435,10 @@ export default function ServicesManagement() {
                       <tr className="border-b border-white/10 uppercase tracking-wider text-gold-primary text-[9px]">
                         <th className="pb-3 font-semibold">Name</th>
                         <th className="pb-3 font-semibold">Code</th>
-                        <th className="pb-3 font-semibold">HSN</th>
+                        <th className="pb-3 font-semibold pr-8">HSN</th>
                         <th className="pb-3 font-semibold">Base Price</th>
                         <th className="pb-3 font-semibold">Tax Rate</th>
+                        <th className="pb-3 font-semibold">Sale Price</th>
                         <th className="pb-3 font-semibold text-right">Actions</th>
                       </tr>
                     </thead>
@@ -446,9 +447,10 @@ export default function ServicesManagement() {
                         <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                           <td className="py-3 text-white font-medium">{item.name}</td>
                           <td className="py-3 text-ivory/60 font-mono text-[10px]">{item.item_code || "-"}</td>
-                          <td className="py-3 text-ivory/60">{item.hsn || "-"}</td>
+                          <td className="py-3 text-ivory/60 pr-8">{item.hsn || "-"}</td>
                           <td className="py-3 text-ivory/80">₹{item.price.toFixed(2)}</td>
                           <td className="py-3 text-ivory/40">{(item.tax_rate * 100).toFixed(0)}%</td>
+                          <td className="py-3 text-white font-semibold">₹{(item.price * (1 + item.tax_rate)).toFixed(2)}</td>
                           <td className="py-3 text-right">
                             <div className="inline-flex gap-2">
                               <button
@@ -493,9 +495,10 @@ export default function ServicesManagement() {
                       <tr className="border-b border-white/10 uppercase tracking-wider text-gold-primary text-[9px]">
                         <th className="pb-3 font-semibold">Name</th>
                         <th className="pb-3 font-semibold">Code</th>
-                        <th className="pb-3 font-semibold">HSN</th>
+                        <th className="pb-3 font-semibold pr-8">HSN</th>
                         <th className="pb-3 font-semibold">Base Price</th>
                         <th className="pb-3 font-semibold">Tax Rate</th>
+                        <th className="pb-3 font-semibold">Sale Price</th>
                         <th className="pb-3 font-semibold text-right">Actions</th>
                       </tr>
                     </thead>
@@ -504,9 +507,10 @@ export default function ServicesManagement() {
                         <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                           <td className="py-3 text-white font-medium">{item.name}</td>
                           <td className="py-3 text-ivory/60 font-mono text-[10px]">{item.item_code || "-"}</td>
-                          <td className="py-3 text-ivory/60">{item.hsn || "-"}</td>
+                          <td className="py-3 text-ivory/60 pr-8">{item.hsn || "-"}</td>
                           <td className="py-3 text-ivory/80">₹{item.price.toFixed(2)}</td>
                           <td className="py-3 text-ivory/40">{(item.tax_rate * 100).toFixed(0)}%</td>
+                          <td className="py-3 text-white font-semibold">₹{(item.price * (1 + item.tax_rate)).toFixed(2)}</td>
                           <td className="py-3 text-right">
                             <div className="inline-flex gap-2">
                               <button

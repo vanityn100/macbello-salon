@@ -553,7 +553,7 @@ export default function BillingModule() {
             <thead>
               <tr className="border-b border-gold-primary/20 text-[10px] uppercase tracking-wider text-gold-primary print-text-gold font-bold">
                 <th className="pb-3">Item Description</th>
-                <th className="pb-3">HSN</th>
+                <th className="pb-3 pr-8">HSN</th>
                 <th className="pb-3">Category</th>
                 <th className="pb-3 text-center">Qty</th>
                 <th className="pb-3">Unit Price</th>
@@ -569,7 +569,7 @@ export default function BillingModule() {
                       {item.item_name} {item.item_code ? `[${item.item_code}]` : ""}
                     </span>
                   </td>
-                  <td className="py-3.5 text-white print-text-black">{item.hsn || "-"}</td>
+                  <td className="py-3.5 pr-8 text-white print-text-black">{item.hsn || "-"}</td>
                   <td className="py-3.5 text-gold-primary/70 print-text-gold font-medium">{item.category}</td>
                   <td className="py-3.5 text-center font-medium text-white print-text-black">{item.quantity}</td>
                   <td className="py-3.5 text-white print-text-black">₹{parseFloat(item.unit_price).toFixed(2)}</td>
@@ -1036,7 +1036,7 @@ export default function BillingModule() {
                         <th className="pb-3">Item Name</th>
                         <th className="pb-3">Item Code</th>
                         <th className="pb-3">Category</th>
-                        <th className="pb-3">HSN</th>
+                        <th className="pb-3 pr-8">HSN</th>
                         <th className="pb-3">Qty</th>
                         <th className="pb-3">Unit Price</th>
                         <th className="pb-3">Tax Rate</th>
@@ -1059,7 +1059,7 @@ export default function BillingModule() {
                                 <span className="flex items-center text-amber-400"><ShoppingBag size={10} className="mr-1" /> Retail</span>
                               )}
                             </td>
-                            <td className="py-3 text-ivory/70">{item.hsn || "-"}</td>
+                            <td className="py-3 text-ivory/70 pr-8">{item.hsn || "-"}</td>
                             <td className="py-3 font-medium">{quantity}</td>
                             <td className="py-3">₹{item.price.toFixed(2)}</td>
                             <td className="py-3">
