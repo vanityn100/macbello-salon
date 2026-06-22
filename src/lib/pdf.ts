@@ -21,6 +21,7 @@ export interface CompletedInvoice {
     line_total: string;
     item_code?: string | null;
     hsn?: string | null;
+    staff_contribution?: string | null;
   }>;
   customer: {
     id: string;
@@ -170,22 +171,39 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
 
   // Table Rows
   items.forEach((item) => {
+    const hasStaff = !!item.staff_contribution;
+    const rowHeight = hasStaff ? 11 : 8;
+
     doc.setDrawColor(245, 245, 245);
     doc.setLineWidth(0.3);
-    doc.line(20, y + 8, 190, y + 8);
+    doc.line(20, y + rowHeight, 190, y + rowHeight);
 
     doc.setFont("helvetica", "bold");
     const desc = item.item_code ? `${item.item_name} [${item.item_code}]` : item.item_name;
-    doc.text(desc, 23, y + 5);
-    doc.setFont("helvetica", "normal");
-    doc.text(item.hsn || "-", 78, y + 5);
-    doc.text(item.category, 94, y + 5);
-    doc.text(`${(item.tax_rate * 100).toFixed(0)}%`, 112, y + 5);
-    doc.text(String(item.quantity), 134, y + 5);
-    doc.text(`INR ${parseFloat(item.unit_price).toFixed(2)}`, 143, y + 5);
-    doc.text(`INR ${parseFloat(item.line_total).toFixed(2)}`, 165, y + 5);
+    
+    // Center alignment adjustment for dual-line text if staff exists
+    const textY = y + (hasStaff ? 4.5 : 5);
+    doc.text(desc, 23, textY);
+    
+    if (hasStaff) {
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(7.5);
+      doc.setTextColor(120, 120, 120);
+      doc.text(`Staff: ${item.staff_contribution}`, 23, textY + 3.5);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(17, 17, 17);
+    }
 
-    y += 8;
+    doc.setFont("helvetica", "normal");
+    doc.text(item.hsn || "-", 78, textY);
+    doc.text(item.category, 94, textY);
+    doc.text(`${(item.tax_rate * 100).toFixed(0)}%`, 112, textY);
+    doc.text(String(item.quantity), 134, textY);
+    doc.text(`INR ${parseFloat(item.unit_price).toFixed(2)}`, 143, textY);
+    doc.text(`INR ${parseFloat(item.line_total).toFixed(2)}`, 165, textY);
+
+    y += rowHeight;
   });
 
   // Summary and Totals Section Grid

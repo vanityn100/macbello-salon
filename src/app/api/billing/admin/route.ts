@@ -378,6 +378,7 @@ export async function POST(request: NextRequest) {
         line_total: number;
         item_code: string | null;
         hsn: string | null;
+        staff_contribution: string | null;
       }
       const invoiceItemsToInsert: InvoiceItemInsert[] = [];
 
@@ -403,6 +404,10 @@ export async function POST(request: NextRequest) {
           retailTax += calculatedTax;
         }
 
+        const cleanStaff = reqItem.staffContribution && typeof reqItem.staffContribution === "string" 
+          ? reqItem.staffContribution.replace(/<[^>]*>/g, "").trim()
+          : null;
+
         invoiceItemsToInsert.push({
           item_name: dbItem.name,
           category: dbItem.category,
@@ -411,7 +416,8 @@ export async function POST(request: NextRequest) {
           tax_rate: dbItem.tax_rate,
           line_total: lineTotal,
           item_code: dbItem.item_code || null,
-          hsn: dbItem.hsn || null
+          hsn: dbItem.hsn || null,
+          staff_contribution: cleanStaff
         });
       }
 

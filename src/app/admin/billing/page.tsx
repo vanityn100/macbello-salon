@@ -30,6 +30,7 @@ interface ServiceItem {
 interface CartItem {
   item: ServiceItem;
   quantity: number;
+  staffContribution?: string;
 }
 
 export default function BillingModule() {
@@ -265,7 +266,11 @@ export default function BillingModule() {
         body: JSON.stringify({
           action: "create_invoice",
           customerId: selectedCustomer.id,
-          items: cart.map((c) => ({ id: c.item.id, quantity: c.quantity })),
+          items: cart.map((c) => ({ 
+            id: c.item.id, 
+            quantity: c.quantity,
+            staffContribution: c.staffContribution || null
+          })),
           pointsToRedeem: redeemPointsNum,
           branch
         })
@@ -568,6 +573,11 @@ export default function BillingModule() {
                     <span className="block font-medium text-white print-text-black">
                       {item.item_name} {item.item_code ? `[${item.item_code}]` : ""}
                     </span>
+                    {item.staff_contribution && (
+                      <span className="block text-[10px] text-gold-primary/80 font-light mt-0.5">
+                        Staff: {item.staff_contribution}
+                      </span>
+                    )}
                   </td>
                   <td className="py-3.5 pr-8 text-white print-text-black">{item.hsn || "-"}</td>
                   <td className="py-3.5 text-gold-primary/70 print-text-gold font-medium">{item.category}</td>
@@ -1037,6 +1047,7 @@ export default function BillingModule() {
                         <th className="pb-3">Item Code</th>
                         <th className="pb-3">Category</th>
                         <th className="pb-3 pr-8">HSN</th>
+                        <th className="pb-3 pr-4">Staff/Stylist</th>
                         <th className="pb-3">Qty</th>
                         <th className="pb-3">Unit Price</th>
                         <th className="pb-3">Tax Rate</th>
@@ -1060,6 +1071,19 @@ export default function BillingModule() {
                               )}
                             </td>
                             <td className="py-3 text-ivory/70 pr-8">{item.hsn || "-"}</td>
+                            <td className="py-3 pr-4">
+                              <input
+                                type="text"
+                                value={cartItem.staffContribution || ""}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setCart(cart.map((c) => c.item.id === item.id ? { ...c, staffContribution: val } : c));
+                                }}
+                                placeholder="Stylist/Staff"
+                                maxLength={100}
+                                className="bg-luxury-black border border-white/10 px-2 py-1 text-[11px] text-white w-28 rounded-none focus:outline-none focus:border-gold-primary/50 transition-colors"
+                              />
+                            </td>
                             <td className="py-3 font-medium">{quantity}</td>
                             <td className="py-3">₹{item.price.toFixed(2)}</td>
                             <td className="py-3">
