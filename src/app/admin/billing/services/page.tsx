@@ -31,6 +31,7 @@ export default function ServicesManagement() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formError, setFormError] = useState("");
   const [formSuccess, setFormSuccess] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const loadItems = async (token: string) => {
     try {
@@ -178,6 +179,13 @@ export default function ServicesManagement() {
       alert("Network error deleting item.");
     }
   };
+
+  const filteredServices = items.filter(
+    (i) => i.category === "Service" && i.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const filteredRetail = items.filter(
+    (i) => i.category === "Retail" && i.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (loading) {
     return (
@@ -333,6 +341,29 @@ export default function ServicesManagement() {
 
           {/* List Side */}
           <div className="lg:col-span-2 space-y-6">
+
+            {/* Search Input Box */}
+            <div className="border border-white/5 bg-white/[0.01] p-6 relative">
+              <label className="text-[10px] uppercase tracking-[0.2em] text-gold-primary mb-2 block font-medium">Search Catalog</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Type service or retail product name to filter..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-neutral-900 border border-white/10 px-3.5 py-2.5 text-xs text-white rounded-none focus:outline-none placeholder-white/20"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gold-primary hover:underline cursor-pointer font-medium"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
             
             {/* Services List */}
             <div className="border border-white/5 bg-white/[0.01] p-6 relative">
@@ -341,8 +372,10 @@ export default function ServicesManagement() {
                 <span>Saloon Services (5% Tax)</span>
               </h2>
 
-              {items.filter(i => i.category === "Service").length === 0 ? (
-                <p className="text-xs text-ivory/40 font-light py-6 text-center">No service menu items created yet.</p>
+              {filteredServices.length === 0 ? (
+                <p className="text-xs text-ivory/40 font-light py-6 text-center">
+                  {searchQuery ? "No matching services found." : "No service menu items created yet."}
+                </p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-[11px] font-light">
@@ -355,7 +388,7 @@ export default function ServicesManagement() {
                       </tr>
                     </thead>
                     <tbody>
-                      {items.filter(i => i.category === "Service").map((item) => (
+                      {filteredServices.map((item) => (
                         <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                           <td className="py-3 text-white font-medium">{item.name}</td>
                           <td className="py-3 text-ivory/80">₹{item.price.toFixed(2)}</td>
@@ -393,8 +426,10 @@ export default function ServicesManagement() {
                 <span>Retail Products (18% Tax)</span>
               </h2>
 
-              {items.filter(i => i.category === "Retail").length === 0 ? (
-                <p className="text-xs text-ivory/40 font-light py-6 text-center">No retail products created yet.</p>
+              {filteredRetail.length === 0 ? (
+                <p className="text-xs text-ivory/40 font-light py-6 text-center">
+                  {searchQuery ? "No matching products found." : "No retail products created yet."}
+                </p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-[11px] font-light">
@@ -407,7 +442,7 @@ export default function ServicesManagement() {
                       </tr>
                     </thead>
                     <tbody>
-                      {items.filter(i => i.category === "Retail").map((item) => (
+                      {filteredRetail.map((item) => (
                         <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                           <td className="py-3 text-white font-medium">{item.name}</td>
                           <td className="py-3 text-ivory/80">₹{item.price.toFixed(2)}</td>

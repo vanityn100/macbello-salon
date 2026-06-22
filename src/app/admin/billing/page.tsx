@@ -51,6 +51,7 @@ export default function BillingModule() {
 
   // Catalog / Cart
   const [catalog, setCatalog] = useState<ServiceItem[]>([]);
+  const [catalogSearch, setCatalogSearch] = useState("");
   const [selectedItemId, setSelectedItemId] = useState("");
   const [selectedQty, setSelectedQty] = useState(1);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -930,7 +931,25 @@ export default function BillingModule() {
 
               <div className="flex flex-col sm:flex-row gap-4 items-end">
                 <div className="flex-1 w-full flex flex-col">
-                  <label className="text-[9px] uppercase tracking-wider text-ivory/40 mb-1.5">Add Service or Retail Product</label>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-[9px] uppercase tracking-wider text-ivory/40">Add Service or Retail Product</label>
+                    {catalogSearch && (
+                      <button 
+                        type="button" 
+                        onClick={() => setCatalogSearch("")}
+                        className="text-[8px] uppercase tracking-wider text-gold-primary hover:underline"
+                      >
+                        Clear Search
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Type name to filter list below..."
+                    value={catalogSearch}
+                    onChange={(e) => setCatalogSearch(e.target.value)}
+                    className="w-full bg-neutral-900 border border-white/10 border-b-0 px-3 py-2 text-[11px] text-white rounded-none focus:outline-none placeholder-white/20"
+                  />
                   <select
                     value={selectedItemId}
                     onChange={(e) => setSelectedItemId(e.target.value)}
@@ -938,18 +957,22 @@ export default function BillingModule() {
                   >
                     <option value="">-- Choose item --</option>
                     <optgroup label="Services (5% Tax)" className="bg-neutral-950 text-gold-primary">
-                      {catalog.filter((i) => i.category === "Service").map((item) => (
-                        <option key={item.id} value={item.id} className="text-white">
-                          {item.name} - ₹{item.price.toFixed(2)}
-                        </option>
-                      ))}
+                      {catalog
+                        .filter((i) => i.category === "Service" && i.name.toLowerCase().includes(catalogSearch.toLowerCase()))
+                        .map((item) => (
+                          <option key={item.id} value={item.id} className="text-white">
+                            {item.name} - ₹{item.price.toFixed(2)}
+                          </option>
+                        ))}
                     </optgroup>
                     <optgroup label="Retail Products (18% Tax)" className="bg-neutral-950 text-gold-primary">
-                      {catalog.filter((i) => i.category === "Retail").map((item) => (
-                        <option key={item.id} value={item.id} className="text-white">
-                          {item.name} - ₹{item.price.toFixed(2)}
-                        </option>
-                      ))}
+                      {catalog
+                        .filter((i) => i.category === "Retail" && i.name.toLowerCase().includes(catalogSearch.toLowerCase()))
+                        .map((item) => (
+                          <option key={item.id} value={item.id} className="text-white">
+                            {item.name} - ₹{item.price.toFixed(2)}
+                          </option>
+                        ))}
                     </optgroup>
                   </select>
                 </div>
