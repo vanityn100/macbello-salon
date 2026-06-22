@@ -62,11 +62,11 @@ export default function StaffPortal() {
   const [adjSuccess, setAdjSuccess] = useState("");
   const [adjLoading, setAdjLoading] = useState(false);
 
-  // Daily profit stats state
   const [stats, setStats] = useState<{
     totalSales: number;
     invoiceCount: number;
     branchBreakdown: Record<string, number>;
+    staffBreakdown?: Record<string, { revenue: number; count: number }>;
   } | null>(null);
   const loadDailyStats = async (token: string) => {
     try {
@@ -405,7 +405,7 @@ export default function StaffPortal() {
 
         {/* Daily Profit & Stats Banner */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 border border-white/5 bg-white/[0.01] p-6 relative">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10 border border-white/5 bg-white/[0.01] p-6 relative">
             {/* Corners */}
             <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-gold-primary/25" />
             <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-gold-primary/25" />
@@ -419,7 +419,7 @@ export default function StaffPortal() {
               </div>
               <div>
                 <span className="text-[10px] uppercase tracking-wider text-ivory/50 block">Today&apos;s Profit / Income</span>
-                <span className="font-playfair text-3xl text-white font-medium tracking-wide mt-0.5 block">
+                <span className="font-playfair text-2xl text-white font-medium tracking-wide mt-0.5 block">
                   ₹{stats.totalSales.toFixed(2)}
                 </span>
               </div>
@@ -432,29 +432,48 @@ export default function StaffPortal() {
               </div>
               <div>
                 <span className="text-[10px] uppercase tracking-wider text-ivory/50 block">Invoices Generated</span>
-                <span className="font-playfair text-3xl text-white font-medium tracking-wide mt-0.5 block">
+                <span className="font-playfair text-2xl text-white font-medium tracking-wide mt-0.5 block">
                   {stats.invoiceCount} Invoices
                 </span>
               </div>
             </div>
 
             {/* Branch-wise breakdown */}
-            <div className="flex flex-col justify-center space-y-1.5">
-              <span className="text-[10px] uppercase tracking-wider text-gold-primary block font-bold">Branch Contribution Today</span>
-              <div className="grid grid-cols-3 gap-2 text-[11px] text-ivory/70 pt-0.5">
+            <div className="flex flex-col justify-center space-y-1.5 border-t md:border-t-0 md:pr-6 border-white/5 pt-4 md:pt-0">
+              <span className="text-[10px] uppercase tracking-wider text-gold-primary block font-bold">Branch Contribution</span>
+              <div className="grid grid-cols-3 gap-2 text-[10px] text-ivory/70 pt-0.5">
                 <div>
-                  <span className="block font-medium text-white/90">Kaduthuruthy</span>
-                  <span className="text-xs text-gold-primary font-bold">₹{stats.branchBreakdown.Kaduthuruthy.toFixed(0)}</span>
+                  <span className="block font-medium text-white/90 truncate">Kty</span>
+                  <span className="text-[11px] text-gold-primary font-bold">₹{stats.branchBreakdown.Kaduthuruthy.toFixed(0)}</span>
                 </div>
                 <div>
-                  <span className="block font-medium text-white/90">Ettumanoor</span>
-                  <span className="text-xs text-gold-primary font-bold">₹{stats.branchBreakdown.Ettumanoor.toFixed(0)}</span>
+                  <span className="block font-medium text-white/90 truncate">Etm</span>
+                  <span className="text-[11px] text-gold-primary font-bold">₹{stats.branchBreakdown.Ettumanoor.toFixed(0)}</span>
                 </div>
                 <div>
-                  <span className="block font-medium text-white/90">Peruva</span>
-                  <span className="text-xs text-gold-primary font-bold">₹{stats.branchBreakdown.Peruva.toFixed(0)}</span>
+                  <span className="block font-medium text-white/90 truncate">Pva</span>
+                  <span className="text-[11px] text-gold-primary font-bold">₹{stats.branchBreakdown.Peruva.toFixed(0)}</span>
                 </div>
               </div>
+            </div>
+
+            {/* Staff Performance Today */}
+            <div className="flex flex-col justify-center space-y-1.5 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-6">
+              <span className="text-[10px] uppercase tracking-wider text-gold-primary block font-bold">Staff Performance</span>
+              {stats.staffBreakdown && Object.keys(stats.staffBreakdown).length > 0 ? (
+                <div className="space-y-1 max-h-[70px] overflow-y-auto no-scrollbar pr-1">
+                  {Object.entries(stats.staffBreakdown).map(([name, performance]) => (
+                    <div key={name} className="flex justify-between items-center text-[10px] text-ivory/80">
+                      <span className="font-medium truncate max-w-[90px]">{name}</span>
+                      <span className="text-gold-primary font-mono font-semibold">
+                        ₹{performance.revenue.toFixed(0)} ({performance.count} services)
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-[10px] text-ivory/30 italic">No staff records logged today.</span>
+              )}
             </div>
           </div>
         )}

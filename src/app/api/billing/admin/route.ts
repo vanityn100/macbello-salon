@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
 
       const { data: invoices, error } = await adminSupabase
         .from("invoices")
-        .select("grand_total, branch, created_at")
+        .select("grand_total, branch, created_at, invoice_items(line_total, staff_contribution)")
         .gte("created_at", todayStart.toISOString());
 
       if (error) {
@@ -87,6 +87,7 @@ export async function GET(request: NextRequest) {
         Ettumanoor: 0,
         Peruva: 0
       };
+      const staffBreakdown: Record<string, { revenue: number; count: number }> = {};
 
       invoices?.forEach((inv) => {
         const amt = parseFloat(inv.grand_total) || 0;
@@ -94,6 +95,20 @@ export async function GET(request: NextRequest) {
         if (inv.branch && branchBreakdown[inv.branch] !== undefined) {
           branchBreakdown[inv.branch] += amt;
         }
+
+        // Aggregate staff performance from nested invoice_items
+        const items = (inv.invoice_items as unknown as Array<{ line_total: string; staff_contribution: string | null }>) || [];
+        items.forEach((item) => {
+          if (item.staff_contribution && item.staff_contribution.trim() !== "") {
+            const name = item.staff_contribution.trim();
+            if (!staffBreakdown[name]) {
+              staffBreakdown[name] = { revenue: 0, count: 0 };
+            }
+            const lineAmt = parseFloat(item.line_total) || 0;
+            staffBreakdown[name].revenue += lineAmt;
+            staffBreakdown[name].count += 1;
+          }
+        });
       });
 
       return NextResponse.json({
@@ -101,7 +116,8 @@ export async function GET(request: NextRequest) {
         stats: {
           totalSales,
           invoiceCount: invoices?.length || 0,
-          branchBreakdown
+          branchBreakdown,
+          staffBreakdown
         }
       });
     }
