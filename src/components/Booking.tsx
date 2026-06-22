@@ -144,6 +144,7 @@ ${formData.message ? `*Message:* ${formData.message}` : ""}`;
                 <input
                   type="text"
                   name="name"
+                  maxLength={100}
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Alessandro Macbello"
@@ -167,6 +168,7 @@ ${formData.message ? `*Message:* ${formData.message}` : ""}`;
                 <input
                   type="tel"
                   name="phone"
+                  maxLength={20}
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="+91 95625 14002"
@@ -298,6 +300,7 @@ ${formData.message ? `*Message:* ${formData.message}` : ""}`;
                 </label>
                 <textarea
                   name="message"
+                  maxLength={1000}
                   value={formData.message}
                   onChange={handleChange}
                   rows={3}

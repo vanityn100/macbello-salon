@@ -5,7 +5,7 @@ import { Star, ArrowRight, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import reviewsData from "@/data/reviews.json";
 
-export default function Trust() {
+export default function Trust({ isHomepage = false }: { isHomepage?: boolean }) {
   const [currentIdx, setCurrentIdx] = useState(0);
 
   useEffect(() => {
@@ -107,16 +107,26 @@ export default function Trust() {
               ))}
             </div>
 
-            {/* Link to Google Reviews */}
-            <a
-              href={googleReviewsSearchUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-between text-xs uppercase tracking-[0.2em] text-gold-primary border border-gold-primary/20 hover:border-gold-primary hover:bg-gold-primary hover:text-luxury-black px-6 py-4 transition-all duration-300 w-full sm:w-auto"
-            >
-              <span>View All Google Reviews</span>
-              <ArrowRight size={14} className="ml-3" />
-            </a>
+            {/* Link to Reviews Page or Google */}
+            {isHomepage ? (
+              <a
+                href="/reviews"
+                className="inline-flex items-center justify-between text-xs uppercase tracking-[0.2em] text-gold-primary border border-gold-primary/20 hover:border-gold-primary hover:bg-gold-primary hover:text-luxury-black px-6 py-4 transition-all duration-300 w-full sm:w-auto font-medium"
+              >
+                <span>Read Full Reviews</span>
+                <ArrowRight size={14} className="ml-3" />
+              </a>
+            ) : (
+              <a
+                href={googleReviewsSearchUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-between text-xs uppercase tracking-[0.2em] text-gold-primary border border-gold-primary/20 hover:border-gold-primary hover:bg-gold-primary hover:text-luxury-black px-6 py-4 transition-all duration-300 w-full sm:w-auto font-medium"
+              >
+                <span>View All Google Reviews</span>
+                <ArrowRight size={14} className="ml-3" />
+              </a>
+            )}
           </div>
 
           {/* Right Column: Rotative Review Cards */}

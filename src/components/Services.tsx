@@ -11,7 +11,9 @@ const getIcon = (iconName: string): LucideIcon => {
   return allIcons[iconName] ?? Icons.Sparkles;
 };
 
-export default function Services() {
+export default function Services({ featuredOnly = false }: { featuredOnly?: boolean }) {
+  const displayServices = featuredOnly ? servicesData.slice(0, 6) : servicesData;
+
   return (
     <section id="services" className="relative py-20 md:py-28 bg-luxury-black overflow-hidden border-b border-gold-primary/10">
       {/* Background ambient gold gradient */}
@@ -34,7 +36,7 @@ export default function Services() {
 
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {servicesData.map((service, idx) => {
+          {displayServices.map((service, idx) => {
             const Icon = getIcon(service.icon);
             return (
               <motion.div
@@ -63,7 +65,7 @@ export default function Services() {
                     {service.name}
                   </h3>
                   <p className="text-xs text-ivory/60 leading-relaxed font-light mb-6">
-                    {service.description}
+                     {service.description}
                   </p>
                 </div>
 
@@ -92,17 +94,28 @@ export default function Services() {
         <div className="mt-16 md:mt-24 text-center">
           <div className="inline-block p-6 md:p-8 border border-gold-primary/10 bg-gold-primary/5 backdrop-blur-md max-w-2xl mx-auto">
             <h4 className="font-playfair text-lg text-white font-medium tracking-wide mb-2">
-              Looking for a custom makeover?
+              {featuredOnly ? "Want to see our full range?" : "Looking for a custom makeover?"}
             </h4>
             <p className="text-xs text-ivory/70 font-light leading-relaxed mb-6">
-              Our experts offer complimentary, in-depth styling consultations to curate bespoke services tailored uniquely to your aesthetic goals.
+              {featuredOnly 
+                ? "We offer dozens of specialty treatments, custom styling packages, and grooming experiences." 
+                : "Our experts offer complimentary, in-depth styling consultations to curate bespoke services tailored uniquely to your aesthetic goals."}
             </p>
-            <a
-              href="#booking"
-              className="inline-block text-xs uppercase tracking-[0.2em] border border-gold-primary/30 hover:border-gold-primary bg-transparent text-gold-primary hover:text-luxury-black hover:bg-gold-primary px-6 py-3 transition-all duration-300"
-            >
-              Consult an Expert
-            </a>
+            {featuredOnly ? (
+              <a
+                href="/services"
+                className="inline-block text-xs uppercase tracking-[0.2em] border border-gold-primary/30 hover:border-gold-primary bg-transparent text-gold-primary hover:text-luxury-black hover:bg-gold-primary px-8 py-3 transition-all duration-300"
+              >
+                View Full Services Menu
+              </a>
+            ) : (
+              <a
+                href="#booking"
+                className="inline-block text-xs uppercase tracking-[0.2em] border border-gold-primary/30 hover:border-gold-primary bg-transparent text-gold-primary hover:text-luxury-black hover:bg-gold-primary px-6 py-3 transition-all duration-300"
+              >
+                Consult an Expert
+              </a>
+            )}
           </div>
         </div>
 

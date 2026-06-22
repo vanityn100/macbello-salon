@@ -5,14 +5,13 @@ import { Menu, X, Phone, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
-  { name: "About", href: "#about" },
-  { name: "Services", href: "#services" },
-  { name: "Branches", href: "#branches" },
-  { name: "Portfolio", href: "#portfolio" },
-  { name: "Loyalty", href: "#loyalty" },
-  { name: "Reviews", href: "#reviews" },
-  { name: "Feedback", href: "#feedback" },
-  { name: "Contact", href: "#contact" },
+  { name: "About", href: "/#about" },
+  { name: "Services", href: "/services" },
+  { name: "Branches", href: "/#branches" },
+  { name: "Portfolio", href: "/gallery" },
+  { name: "Loyalty", href: "/#loyalty" },
+  { name: "Reviews", href: "/reviews" },
+  { name: "Contact", href: "/contact" },
 ];
 
 export default function Navbar() {

@@ -7,11 +7,8 @@ import Services from "@/components/Services";
 import Branches from "@/components/Branches";
 import BeforeAfter from "@/components/BeforeAfter";
 import Trust from "@/components/Trust";
-import Gallery from "@/components/Gallery";
 import Booking from "@/components/Booking";
 import Loyalty from "@/components/Loyalty";
-import Feedback from "@/components/Feedback";
-import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import FloatingActions from "@/components/FloatingActions";
 
@@ -37,8 +34,8 @@ export default function Home() {
         {/* About Heritage & Storytelling Section */}
         <About />
 
-        {/* Services Experience Grid */}
-        <Services />
+        {/* Services Experience Grid (Preview mode) */}
+        <Services featuredOnly={true} />
 
         {/* Our Branches — 3 locations with premium cards */}
         <Branches />
@@ -46,23 +43,14 @@ export default function Home() {
         {/* Interactive Before & After comparison slider */}
         <BeforeAfter />
 
-        {/* Google Reviews Showcase Section */}
-        <Trust />
-
-        {/* Masonry Portfolio Gallery Section */}
-        <Gallery />
+        {/* Google Reviews Showcase Section (Preview mode) */}
+        <Trust isHomepage={true} />
 
         {/* Booking Form with WhatsApp forwarding */}
         <Booking />
 
         {/* Loyalty Rewards balance checker */}
         <Loyalty />
-
-        {/* Customer Feedback Form */}
-        <Feedback />
-
-        {/* Contact info — all 3 branches */}
-        <Contact />
       </main>
 
       {/* Footer Details */}
