@@ -295,7 +295,20 @@ export default function TaxComplianceReports() {
         styles: { fontSize: 8 }
       });
 
-      // PAGE 4: DETAILED TRANSACTIONS
+      // PAGE 4: ITEM SALES SUMMARY
+      doc.addPage();
+      drawHeader("ITEM SALES SUMMARY (SORTED BY QTY)");
+      autoTable(doc, {
+        startY: y,
+        head: [["Item Name", "Category", "Quantity Sold", "Total Revenue (GST Incl.)"]],
+        body: dataToExport.itemSummary.map((item: any) => [
+          item.itemName, item.category, item.quantity, pdfINR(item.revenue)
+        ]),
+        theme: "grid",
+        styles: { fontSize: 8 }
+      });
+
+      // PAGE 5: DETAILED TRANSACTIONS
       doc.addPage();
       drawHeader("DETAILED TRANSACTIONS");
       autoTable(doc, {
@@ -396,7 +409,16 @@ export default function TaxComplianceReports() {
       })));
       XLSX.utils.book_append_sheet(wb, wsBranch, "Branch Summary");
 
-      // SHEET 5: Invoice Register
+      // SHEET 5: Item Sales Summary
+      const wsItem = XLSX.utils.json_to_sheet(dataToExport.itemSummary.map((i: any) => ({
+        "Item Name": i.itemName,
+        "Category": i.category,
+        "Quantity Sold": i.quantity,
+        "Total Revenue": i.revenue
+      })));
+      XLSX.utils.book_append_sheet(wb, wsItem, "Item Sales Summary");
+
+      // SHEET 6: Invoice Register
       const wsInvoices = XLSX.utils.json_to_sheet(dataToExport.invoiceRegister.map((inv: any) => {
         if (gstFormat === "combined") {
           return {
@@ -587,6 +609,38 @@ export default function TaxComplianceReports() {
               <div className="bg-white/[0.01] border border-white/5 p-5">
                 <p className="text-[10px] text-ivory/50 uppercase tracking-widest mb-1">Total CGST</p>
                 <p className="text-xl text-white">{formatINR(reportData.summary.totalCgst)}</p>
+              </div>
+            </div>
+
+            {/* Top 5 Best Selling Items Preview */}
+            <div className="bg-white/[0.01] border border-white/5 p-6 mt-8">
+              <h3 className="font-playfair text-lg text-gold-primary mb-4">Top 5 Best Selling Items</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-white/10 text-ivory/60">
+                      <th className="pb-3 font-medium">Item Name</th>
+                      <th className="pb-3 font-medium">Category</th>
+                      <th className="pb-3 font-medium text-right">Quantity Sold</th>
+                      <th className="pb-3 font-medium text-right">Revenue</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {reportData.itemSummary.slice(0, 5).map((item: any, idx: number) => (
+                      <tr key={idx} className="border-b border-white/5 hover:bg-white/[0.02]">
+                        <td className="py-3 text-white">{item.itemName}</td>
+                        <td className="py-3 text-ivory/70">{item.category}</td>
+                        <td className="py-3 text-right text-white font-medium">{item.quantity}</td>
+                        <td className="py-3 text-right text-gold-primary">{formatINR(item.revenue)}</td>
+                      </tr>
+                    ))}
+                    {reportData.itemSummary.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="py-6 text-center text-ivory/40">No items sold in this period</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
             

@@ -91,6 +91,7 @@ export async function POST(req: Request) {
       const hsnMap: Record<string, any> = {};
       const gstRateMap: Record<string, any> = {};
       const branchMap: Record<string, any> = {};
+      const itemMap: Record<string, any> = {};
 
       allInvoices.forEach(inv => {
         const grandTotal = parseFloat(inv.grand_total) || 0;
@@ -181,6 +182,19 @@ export async function POST(req: Request) {
           gstRateMap[ratePercentage].gstCollected += itemTax;
           gstRateMap[ratePercentage].invoiceCount.add(inv.id);
 
+          // Item Sales Aggregation
+          const itemName = item.item_name || "Unknown Item";
+          if (!itemMap[itemName]) {
+            itemMap[itemName] = {
+              itemName,
+              category: item.category || "Service",
+              quantity: 0,
+              revenue: 0
+            };
+          }
+          itemMap[itemName].quantity += qty;
+          itemMap[itemName].revenue += lineTotal;
+
           // Detailed Transactions
           const rawUnitPrice = parseFloat(item.unit_price) || 0;
           // unit_price in DB is GST-inclusive; compute taxable (pre-GST) unit price
@@ -207,6 +221,8 @@ export async function POST(req: Request) {
         invoiceCount: g.invoiceCount.size
       }));
 
+      const itemSummary = Object.values(itemMap).sort((a: any, b: any) => b.quantity - a.quantity);
+
       return NextResponse.json({
         success: true,
         report: {
@@ -223,6 +239,7 @@ export async function POST(req: Request) {
           hsnSummary: Object.values(hsnMap),
           gstRateSummary: finalGstRateSummary,
           branchSummary: Object.values(branchMap),
+          itemSummary,
           invoiceRegister,
           detailedTransactions
         }
