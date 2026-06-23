@@ -134,8 +134,13 @@ export default function AdminPortal() {
       if (res.ok && data.success) {
         setCustomerList(data.customers || []);
       }
-    } catch (err) {
-      console.error("Failed to load customer list:", err);
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     } finally {
       setCustomerListLoading(false);
     }
@@ -154,9 +159,13 @@ export default function AdminPortal() {
       } else {
         setStatsError(data.error || "Failed to load operations metrics.");
       }
-    } catch (err) {
-      console.error("Failed to load daily stats:", err);
-      setStatsError("Network error loading metrics.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        setStatsError("Network error. Please check your connection and try again.");
+      } else {
+        setStatsError("Something went wrong. Please try again.");
+      }
     } finally {
       setStatsLoading(false);
     }
@@ -172,8 +181,13 @@ export default function AdminPortal() {
       if (res.ok && data.success) {
         setFinStats(data.stats);
       }
-    } catch (err) {
-      console.error("Failed to load financial stats:", err);
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     } finally {
       setFinStatsLoading(false);
     }
@@ -205,8 +219,13 @@ export default function AdminPortal() {
       if (res.ok && data.success) {
         setStaffList(data.staff || []);
       }
-    } catch (err) {
-      console.error("Failed to load staff list:", err);
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     } finally {
       setStaffListLoading(false);
     }
@@ -293,8 +312,13 @@ export default function AdminPortal() {
       } else {
         setStaffCreateError(result.error || "Failed to create staff account.");
       }
-    } catch {
-      setStaffCreateError("Network error creating staff account.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        setStaffCreateError("Network error. Please check your connection and try again.");
+      } else {
+        setStaffCreateError("Something went wrong. Please try again.");
+      }
     } finally {
       setStaffCreateLoading(false);
     }
@@ -324,8 +348,13 @@ export default function AdminPortal() {
       } else {
         alert(result.error || "Failed to delete staff account.");
       }
-    } catch {
-      alert("Network error deleting staff account.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     }
   };
 
@@ -335,30 +364,36 @@ export default function AdminPortal() {
     setAuthLoading(true);
 
     try {
-      const { data, error } = await supabaseAdminClient.auth.signInWithPassword({
-        email: email.trim(),
-        password
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password, expectedRole: "admin" })
       });
+      const data = await res.json();
 
-      if (error) {
-        setAuthError(error.message);
+      if (!res.ok || !data.success) {
+        setAuthError(data.error || "Failed to sign in. Please try again.");
       } else if (data.session) {
-        const role = data.session.user?.app_metadata?.role;
-        if (role !== "admin") {
-          await supabaseAdminClient.auth.signOut();
-          setAuthError("Forbidden: Admin privileges required.");
-        } else {
-          setIsAdmin(true);
-          setSessionToken(data.session.access_token);
-          setAdminEmail(data.session.user?.email || null);
-          loadDailyStats(data.session.access_token);
-          loadFinancialStats(data.session.access_token);
-          loadStaffList(data.session.access_token);
-          loadCustomerList(data.session.access_token);
-        }
+        await supabaseAdminClient.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token
+        });
+
+        setIsAdmin(true);
+        setSessionToken(data.session.access_token);
+        setAdminEmail(data.session.user?.email || null);
+        loadDailyStats(data.session.access_token);
+        loadFinancialStats(data.session.access_token);
+        loadStaffList(data.session.access_token);
+        loadCustomerList(data.session.access_token);
       }
-    } catch {
-      setAuthError("Failed to sign in. Please try again.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        setAuthError("Network error. Please check your connection and try again.");
+      } else {
+        setAuthError("Something went wrong. Please try again.");
+      }
     } finally {
       setAuthLoading(false);
     }
@@ -383,9 +418,13 @@ export default function AdminPortal() {
       } else {
         alert(data.error || "Failed to query transactions.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Network error querying transaction records.");
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     } finally {
       setReportLoading(false);
     }
@@ -488,9 +527,9 @@ export default function AdminPortal() {
       doc.text(`Generated By: ${adminEmail} on ${new Date().toLocaleString()}`, 14, 290);
 
       doc.save(`MacBello_Transaction_Report_${startDate}_to_${endDate}.pdf`);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Error printing ledger report PDF.");
+      alert("Export generation failed. Please try again later.");
     } finally {
       setPdfLoading(false);
     }
@@ -546,9 +585,9 @@ export default function AdminPortal() {
       const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
       const data = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
       saveAs(data, `MacBello_Transactions_${startDate}_to_${endDate}.xlsx`);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Error exporting Excel report.");
+      alert("Export generation failed. Please try again later.");
     }
   };
 

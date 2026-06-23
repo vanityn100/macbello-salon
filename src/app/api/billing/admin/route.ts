@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logError } from '@/lib/logger';
 import { supabase, getSupabaseAdmin } from "@/lib/supabase";
 import { Resend } from "resend";
 
@@ -46,6 +47,7 @@ async function logSecurityAction(
       details
     }]);
   } catch (err) {
+    // Only console error here, because logging failed
     console.error("Failed to write audit log:", err);
   }
 }
@@ -54,7 +56,7 @@ export async function GET(request: NextRequest) {
   try {
     const user = await authenticateStaff(request);
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized access." }, { status: 401 });
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -496,8 +498,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: false, error: "Invalid action." }, { status: 400 });
   } catch (err) {
-    console.error("Billing GET API Error:", err);
-    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+    logError("Billing GET API", err, { req: request });
+    return NextResponse.json({ success: false, error: "An unexpected error occurred. Please try again later." }, { status: 500 });
   }
 }
 
@@ -1136,7 +1138,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: false, error: "Invalid action." }, { status: 400 });
   } catch (err) {
-    console.error("Billing POST API Error:", err);
-    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+    logError("Billing POST API", err, { req: request });
+    return NextResponse.json({ success: false, error: "An unexpected error occurred. Please try again later." }, { status: 500 });
   }
 }

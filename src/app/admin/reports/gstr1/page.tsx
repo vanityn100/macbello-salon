@@ -101,7 +101,14 @@ export default function GSTR1Page() {
         ])) as string[];
         setBranches(unique);
       }
-    } catch {}
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    }
   };
 
   const toggleSection = (key: string) =>
@@ -137,8 +144,13 @@ export default function GSTR1Page() {
       } else {
         alert(data.error || "Failed to generate GSTR-1 report.");
       }
-    } catch {
-      alert("Network error. Please try again.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     } finally {
       setReportLoading(false);
     }
@@ -162,7 +174,14 @@ export default function GSTR1Page() {
           branch: selectedBranch,
         }),
       });
-    } catch {}
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    }
   };
 
   // ── PDF EXPORT ───────────────────────────────────────────────────────────────
@@ -375,9 +394,9 @@ export default function GSTR1Page() {
 
       addFooter(reportData.reportId);
       doc.save(`GSTR1_${MONTHS[selectedMonth - 1]}_${selectedYear}.pdf`);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Error generating PDF.");
+      alert("Export generation failed. Please try again later.");
     } finally {
       setPdfLoading(false);
     }
@@ -460,9 +479,9 @@ export default function GSTR1Page() {
         new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }),
         `GSTR1_${MONTHS[selectedMonth - 1]}_${selectedYear}.xlsx`
       );
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Error exporting Excel.");
+      alert("Export generation failed. Please try again later.");
     } finally {
       setExcelLoading(false);
     }

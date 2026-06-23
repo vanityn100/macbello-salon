@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logError } from '@/lib/logger';
 import { supabase, getSupabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
@@ -49,14 +50,11 @@ async function logSecurityAction(
   }
 }
 
-// Allowed branches validation
-const ALLOWED_BRANCHES = ["Branch A", "Branch B", "Branch C"];
-
 export async function GET(request: NextRequest) {
   try {
     const user = await authenticateStaff(request);
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized access." }, { status: 401 });
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -138,8 +136,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ success: false, error: "Invalid action." }, { status: 400 });
 
   } catch (err) {
-    console.error("Admin GET API Error:", err);
-    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+    logError("Admin GET API", err, { req: request });
+    return NextResponse.json({ success: false, error: "An unexpected error occurred. Please try again later." }, { status: 500 });
   }
 }
 
@@ -258,7 +256,7 @@ export async function POST(request: NextRequest) {
         targetBranch = user.branch; // Override request body value
       } else {
         // Admin branch validation
-        if (!ALLOWED_BRANCHES.includes(targetBranch)) {
+        if (!targetBranch) {
           return NextResponse.json({ success: false, error: "Invalid branch location." }, { status: 400 });
         }
       }
@@ -333,8 +331,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: "Invalid action." }, { status: 400 });
 
   } catch (err) {
-    console.error("Admin POST API Error:", err);
-    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+    logError("Admin POST API", err, { req: request });
+    return NextResponse.json({ success: false, error: "An unexpected error occurred. Please try again later." }, { status: 500 });
   }
 }
 

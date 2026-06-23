@@ -93,8 +93,13 @@ export default function BillingModule() {
       } else {
         setAuthError(data.error || "Failed to load catalog items.");
       }
-    } catch {
-      setAuthError("Network error loading catalog.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        setAuthError("Network error. Please check your connection and try again.");
+      } else {
+        setAuthError("Something went wrong. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -148,8 +153,13 @@ export default function BillingModule() {
           setSearchPhone("");
         }
       }
-    } catch {
-      console.error("Search error.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     } finally {
       setSearchLoading(false);
     }
@@ -190,8 +200,13 @@ export default function BillingModule() {
         setCreateEmail("");
         setCreateGstin("");
       }
-    } catch {
-      setCreateError("Network error creating customer.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        setCreateError("Network error. Please check your connection and try again.");
+      } else {
+        setCreateError("Something went wrong. Please try again.");
+      }
     } finally {
       setCreateLoading(false);
     }
@@ -307,8 +322,13 @@ export default function BillingModule() {
         setSearchPhone("");
         setSearchResults([]);
       }
-    } catch {
-      setCheckoutError("Network error creating invoice transaction.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        setCheckoutError("Network error. Please check your connection and try again.");
+      } else {
+        setCheckoutError("Something went wrong. Please try again.");
+      }
     } finally {
       setCheckoutLoading(false);
     }
@@ -334,9 +354,9 @@ export default function BillingModule() {
       setPdfSuccess(true);
       // Auto-clear success status after 3 seconds
       setTimeout(() => setPdfSuccess(false), 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setPdfError("Failed to generate PDF document. Please try print/save option.");
+      setPdfError("Export generation failed. Please try again later.");
     } finally {
       setPdfLoading(false);
     }
@@ -385,10 +405,13 @@ export default function BillingModule() {
         // Clear success status after 4 seconds
         setTimeout(() => setEmailStatus("ready"), 4000);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setEmailError("Network transmission error sending email.");
-      setEmailStatus("failed");
+      if (err instanceof TypeError) {
+        setEmailError("Network error. Please check your connection and try again.");
+      } else {
+        setEmailError("Something went wrong. Please try again.");
+      }
     }
   };
 

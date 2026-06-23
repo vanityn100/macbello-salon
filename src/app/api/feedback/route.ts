@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logError } from '@/lib/logger';
 import { Resend } from "resend";
 
 // In-memory rate limiting store (sliding window)
@@ -296,11 +297,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    // Catch-all with generic responses to ensure client doesn't receive stack traces
-    console.error("Unhandled feedback routing error:", err);
-    return NextResponse.json(
-      { success: false, error: "Feedback submission failed." },
-      { status: 500 }
-    );
+    logError("Unhandled feedback routing error:", err, { req: request });
+    return NextResponse.json({ success: false, error: "An unexpected error occurred. Please try again later." }, { status: 500 });
   }
 }

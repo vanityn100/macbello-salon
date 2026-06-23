@@ -51,8 +51,13 @@ export default function ServicesManagement() {
       } else {
         setAuthError(data.error || "Failed to load database items.");
       }
-    } catch {
-      setAuthError("Network error connecting to administrative database.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        setAuthError("Network error. Please check your connection and try again.");
+      } else {
+        setAuthError("Something went wrong. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -136,8 +141,13 @@ export default function ServicesManagement() {
         setEditingId(null);
         loadItems(sessionToken!);
       }
-    } catch {
-      setFormError("Network error submitting form.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        setFormError("Network error. Please check your connection and try again.");
+      } else {
+        setFormError("Something went wrong. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -190,8 +200,13 @@ export default function ServicesManagement() {
       } else {
         loadItems(sessionToken!);
       }
-    } catch {
-      alert("Network error deleting item.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     }
   };
 

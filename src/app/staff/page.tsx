@@ -96,8 +96,13 @@ export default function StaffPortal() {
       if (res.ok && data.success) {
         setStats(data.stats);
       }
-    } catch (err) {
-      console.error("Failed to load daily stats:", err);
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     }
   };
 
@@ -112,8 +117,13 @@ export default function StaffPortal() {
       if (res.ok && data.success) {
         setAppointmentsList(data.appointments || []);
       }
-    } catch (err) {
-      console.error("Failed to load appointments:", err);
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     } finally {
       setAppointmentsLoading(false);
     }
@@ -181,27 +191,33 @@ export default function StaffPortal() {
     setAuthLoading(true);
 
     try {
-      const { data, error } = await supabaseStaffClient.auth.signInWithPassword({
-        email: email.trim(),
-        password
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password, expectedRole: "staff" })
       });
+      const data = await res.json();
 
-      if (error) {
-        setAuthError(error.message);
+      if (!res.ok || !data.success) {
+        setAuthError(data.error || "Failed to sign in. Please try again.");
       } else if (data.session) {
+        await supabaseStaffClient.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token
+        });
+        
         const role = data.session.user?.app_metadata?.role;
-        // Staff portal accepts: staff AND admin (admin can view staff portal)
-        if (role !== "staff" && role !== "admin") {
-          await supabaseStaffClient.auth.signOut();
-          setAuthError("Access denied. This portal is for staff and admin accounts only.");
-        } else {
-          setSessionToken(data.session.access_token);
-          setStaffEmail(data.session.user?.email || null);
-          setUserRole(role);
-        }
+        setSessionToken(data.session.access_token);
+        setStaffEmail(data.session.user?.email || null);
+        setUserRole(role);
       }
-    } catch {
-      setAuthError("Failed to sign in. Please try again.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        setAuthError("Network error. Please check your connection and try again.");
+      } else {
+        setAuthError("Something went wrong. Please try again.");
+      }
     } finally {
       setAuthLoading(false);
     }
@@ -242,8 +258,13 @@ export default function StaffPortal() {
         setCustomer(result.customer);
         loadHistory(result.customer.id);
       }
-    } catch {
-      setSearchError("Failed to connect to administrative API.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        setSearchError("Network error. Please check your connection and try again.");
+      } else {
+        setSearchError("Something went wrong. Please try again.");
+      }
     } finally {
       setSearchLoading(false);
     }
@@ -262,8 +283,13 @@ export default function StaffPortal() {
       if (response.ok) {
         setHistory(result.transactions);
       }
-    } catch {
-      console.error("Failed to load audit history.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     } finally {
       setHistoryLoading(false);
     }
@@ -301,8 +327,13 @@ export default function StaffPortal() {
         setCustomer(result.customer);
         setHistory([]);
       }
-    } catch {
-      setCreateError("Failed to communicate with creation API.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        setCreateError("Network error. Please check your connection and try again.");
+      } else {
+        setCreateError("Something went wrong. Please try again.");
+      }
     } finally {
       setCreateLoading(false);
     }
@@ -352,8 +383,13 @@ export default function StaffPortal() {
         setCustomer((prev) => prev ? { ...prev, points: result.newBalance } : null);
         loadHistory(customer.id);
       }
-    } catch {
-      setAdjError("Network error modifying points.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        setAdjError("Network error. Please check your connection and try again.");
+      } else {
+        setAdjError("Something went wrong. Please try again.");
+      }
     } finally {
       setAdjLoading(false);
     }

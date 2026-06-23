@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logError } from '@/lib/logger';
 import { getSupabaseAdmin } from "@/lib/supabase";
 
 export async function POST(req: Request) {
@@ -245,7 +246,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: false, error: "Invalid action." }, { status: 400 });
   } catch (error: any) {
-    console.error("Inventory API Error:", error);
-    return NextResponse.json({ success: false, error: error.message || "Internal server error." }, { status: 500 });
+    logError("Inventory API", error, { req: req as any });
+    return NextResponse.json({ success: false, error: "An unexpected error occurred. Please try again later." }, { status: 500 });
   }
 }

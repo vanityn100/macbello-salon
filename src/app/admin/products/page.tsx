@@ -79,7 +79,14 @@ export default function AdminProductsPage() {
         ])) as string[];
         setBranches(unique);
       }
-    } catch {}
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    }
   };
 
   const loadReport = async () => {
@@ -100,8 +107,13 @@ export default function AdminProductsPage() {
       } else {
         alert(data.error || "Failed to load inventory.");
       }
-    } catch {
-      alert("Network error.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -140,8 +152,13 @@ export default function AdminProductsPage() {
       } else {
         alert(data.error || "Failed to update stock.");
       }
-    } catch {
-      alert("Network error.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     } finally {
       setAdjustLoading(false);
     }
@@ -169,8 +186,13 @@ export default function AdminProductsPage() {
       } else {
         alert(data.error || "Failed to create product.");
       }
-    } catch {
-      alert("Network error.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     } finally {
       setCreateLoading(false);
     }
@@ -183,7 +205,14 @@ export default function AdminProductsPage() {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
         body: JSON.stringify({ action: "log_export", exportFormat: format, branch }),
       });
-    } catch {}
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    }
   };
 
   const getExportData = async () => {

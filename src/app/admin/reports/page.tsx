@@ -76,8 +76,13 @@ export default function TaxComplianceReports() {
         ])) as string[];
         setBranches(uniqueBranches);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     }
   };
 
@@ -109,9 +114,13 @@ export default function TaxComplianceReports() {
       } else {
         alert(data.error || "Failed to query tax report.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Network error. Please try again.");
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     } finally {
       setReportLoading(false);
     }
@@ -134,8 +143,9 @@ export default function TaxComplianceReports() {
           branch
         })
       });
-    } catch (err) {
-      console.error("Failed to log export", err);
+    } catch (err: any) {
+      console.error(err);
+      alert("Export generation failed. Please try again later.");
     }
   };
 
@@ -310,9 +320,9 @@ export default function TaxComplianceReports() {
       }
 
       doc.save(`Monthly_Tax_Report_${exportBranch.replace(/ /g, "_")}_${endDate}.pdf`);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Failed to export PDF.");
+      alert("Export generation failed. Please try again later.");
     }
   };
 
@@ -420,9 +430,9 @@ export default function TaxComplianceReports() {
       const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
       const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
       saveAs(blob, `Monthly_Tax_Report_${exportBranch.replace(/ /g, "_")}_${endDate}.xlsx`);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Failed to export Excel.");
+      alert("Export generation failed. Please try again later.");
     }
   };
 

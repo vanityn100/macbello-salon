@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logError } from '@/lib/logger';
 import { getSupabaseAdmin } from "@/lib/supabase";
 
 // Sliding window IP rate limiter with automatic memory cleanup
@@ -122,10 +123,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (err) {
-    console.error("Unhandled error in loyalty lookup handler:", err);
-    return NextResponse.json(
-      { success: false, error: "Failed to process request." },
-      { status: 500 }
-    );
+    logError("Unhandled error in loyalty lookup handler:", err, { req: request });
+    return NextResponse.json({ success: false, error: "An unexpected error occurred. Please try again later." }, { status: 500 });
   }
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logError } from '@/lib/logger';
 import { Resend } from "resend";
 import { getSupabaseAdmin } from "@/lib/supabase";
 
@@ -269,7 +270,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
 
   } catch (err) {
-    console.error("Unhandled error in booking confirmation route:", err);
-    return NextResponse.json({ success: false, error: "Failed to process request." }, { status: 500 });
+    logError("Unhandled error in booking confirmation route:", err, { req: request });
+    return NextResponse.json({ success: false, error: "An unexpected error occurred. Please try again later." }, { status: 500 });
   }
 }
