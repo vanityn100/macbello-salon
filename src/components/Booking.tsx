@@ -14,7 +14,8 @@ export default function Booking() {
     service: "",
     date: "",
     time: "",
-    message: ""
+    message: "",
+    consent: false
   });
 
   // Honeypot: bots fill this, real users never see it (positioned off-screen, not display:none)
@@ -49,13 +50,17 @@ export default function Booking() {
     if (!formData.service) newErrors.service = "Please select a service.";
     if (!formData.date) newErrors.date = "Please select a preferred date.";
     if (!formData.time) newErrors.time = "Please select a preferred time.";
+    if (!formData.consent) newErrors.consent = "You must agree to the Privacy Policy and Terms & Conditions.";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+    const target = e.target;
+    const name = target.name;
+    const value = target.type === "checkbox" ? (target as HTMLInputElement).checked : target.value;
+
     setFormData((prev) => ({ ...prev, [name]: value }));
     // Clear error on change
     if (errors[name]) {
@@ -135,7 +140,8 @@ ${formData.message ? `*Message:* ${formData.message}` : ""}`;
       service: "",
       date: "",
       time: "",
-      message: ""
+      message: "",
+      consent: false
     });
   };
 
@@ -380,6 +386,43 @@ ${formData.message ? `*Message:* ${formData.message}` : ""}`;
                   className="bg-luxury-black border border-white/10 focus:border-gold-primary/50 px-4 py-3 text-xs tracking-wider text-white placeholder-ivory/20 rounded-none focus:outline-none transition-colors duration-300 resize-none"
                 />
               </div>
+            </div>
+
+            {/* Consent Checkbox */}
+            <div className="flex flex-col pt-2">
+              <label className="flex items-start space-x-3 cursor-pointer group">
+                <div className="relative flex items-center justify-center mt-0.5">
+                  <input
+                    type="checkbox"
+                    name="consent"
+                    checked={formData.consent}
+                    onChange={handleChange}
+                    className="peer appearance-none w-4 h-4 border border-white/20 bg-luxury-black checked:bg-gold-primary checked:border-gold-primary transition-all cursor-pointer"
+                  />
+                  <svg
+                    className="absolute w-3 h-3 pointer-events-none opacity-0 peer-checked:opacity-100 text-luxury-black transition-opacity"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M2.5 7.5L5.5 10.5L11.5 3.5"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <span className="text-[11px] text-ivory/60 font-light leading-relaxed group-hover:text-ivory/80 transition-colors">
+                  I agree to the <a href="/privacy-policy" target="_blank" className="text-gold-primary hover:text-gold-light underline underline-offset-2">Privacy Policy</a> and <a href="/terms-and-conditions" target="_blank" className="text-gold-primary hover:text-gold-light underline underline-offset-2">Terms & Conditions</a>. *
+                </span>
+              </label>
+              {errors.consent && (
+                <span className="text-[10px] text-red-400 mt-1.5 font-light tracking-wide">
+                  {errors.consent}
+                </span>
+              )}
             </div>
 
             {/* Submit CTA */}

@@ -65,29 +65,45 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Column 2: Navigation */}
-        <div className="space-y-4">
-          <h4 className="font-playfair text-sm text-white tracking-wider font-medium">
-            Quick Navigation
-          </h4>
-          <ul className="space-y-2.5 font-light">
-            {[
-              { label: "About Our Heritage", href: "#about" },
-              { label: "Premium Experiences", href: "#services" },
-              { label: "Our Branches", href: "#branches" },
-              { label: "Before & After Slider", href: "#transformations" },
-              { label: "Luxury Portfolio", href: "#portfolio" },
-              { label: "Loyalty Rewards", href: "#loyalty" },
-              { label: "Customer Feedback", href: "#feedback" },
-              { label: "Contact Us", href: "#contact" },
-            ].map((link) => (
-              <li key={link.href}>
-                <a href={link.href} className="hover:text-gold-primary transition-colors">
-                  {link.label}
-                </a>
+        {/* Column 2: Navigation & Legal */}
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <h4 className="font-playfair text-sm text-white tracking-wider font-medium">
+              Quick Navigation
+            </h4>
+            <ul className="space-y-2.5 font-light">
+              {[
+                { label: "About Our Heritage", href: "/#about" },
+                { label: "Premium Experiences", href: "/#services" },
+                { label: "Our Branches", href: "/#branches" },
+                { label: "Before & After Slider", href: "/#transformations" },
+                { label: "Luxury Portfolio", href: "/#portfolio" },
+                { label: "Loyalty Rewards", href: "/#loyalty" },
+                { label: "Customer Feedback", href: "/#feedback" },
+                { label: "Contact Us", href: "/#contact" },
+              ].map((link) => (
+                <li key={link.href}>
+                  <a href={link.href} className="hover:text-gold-primary transition-colors">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="font-playfair text-sm text-white tracking-wider font-medium">
+              Legal
+            </h4>
+            <ul className="space-y-2.5 font-light">
+              <li>
+                <a href="/privacy-policy" className="hover:text-gold-primary transition-colors">Privacy Policy</a>
               </li>
-            ))}
-          </ul>
+              <li>
+                <a href="/terms-and-conditions" className="hover:text-gold-primary transition-colors">Terms & Conditions</a>
+              </li>
+            </ul>
+          </div>
         </div>
 
         {/* Column 3: Services */}

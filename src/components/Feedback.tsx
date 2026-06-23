@@ -12,6 +12,7 @@ interface FormState {
   branch: string;
   rating: number;
   message: string;
+  consent: boolean;
 }
 
 const initialForm: FormState = {
@@ -21,6 +22,7 @@ const initialForm: FormState = {
   branch: "",
   rating: 0,
   message: "",
+  consent: false,
 };
 
 export default function Feedback() {
@@ -31,12 +33,15 @@ export default function Feedback() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const target = e.target;
+    const name = target.name;
+    const value = target.type === "checkbox" ? (target as HTMLInputElement).checked : target.value;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.rating) return;
+    if (!form.rating || !form.consent) return;
 
     setStatus("loading");
     try {
@@ -296,6 +301,39 @@ export default function Feedback() {
                       placeholder="Tell us about your experience at Macbello..."
                       className="w-full bg-white/[0.03] border border-white/8 hover:border-white/15 focus:border-gold-primary/50 focus:outline-none px-4 py-3.5 text-sm text-ivory placeholder-ivory/30 transition-colors duration-200 font-light resize-none leading-relaxed"
                     />
+                  </div>
+
+                  {/* Consent Checkbox */}
+                  <div className="flex flex-col mb-8 pt-2 border-t border-white/5">
+                    <label className="flex items-start space-x-3 cursor-pointer group mt-4">
+                      <div className="relative flex items-center justify-center mt-0.5">
+                        <input
+                          type="checkbox"
+                          name="consent"
+                          required
+                          checked={form.consent}
+                          onChange={handleChange}
+                          className="peer appearance-none w-4 h-4 border border-white/20 bg-luxury-black checked:bg-gold-primary checked:border-gold-primary transition-all cursor-pointer"
+                        />
+                        <svg
+                          className="absolute w-3 h-3 pointer-events-none opacity-0 peer-checked:opacity-100 text-luxury-black transition-opacity"
+                          viewBox="0 0 14 14"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M2.5 7.5L5.5 10.5L11.5 3.5"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </div>
+                      <span className="text-[11px] text-ivory/60 font-light leading-relaxed group-hover:text-ivory/80 transition-colors">
+                        I agree to the <a href="/privacy-policy" target="_blank" className="text-gold-primary hover:text-gold-light underline underline-offset-2">Privacy Policy</a> and <a href="/terms-and-conditions" target="_blank" className="text-gold-primary hover:text-gold-light underline underline-offset-2">Terms & Conditions</a>. *
+                      </span>
+                    </label>
                   </div>
 
                   {/* Submit Button */}
