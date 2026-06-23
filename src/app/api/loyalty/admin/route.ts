@@ -83,13 +83,8 @@ export async function GET(request: NextRequest) {
         .eq("status", "active")
         .ilike("phone", `%${cleanPhone}%`);
 
-      // Staff can only search/view customers of their own branch or global customers
-      if (user.role === "staff") {
-        if (!user.branch) {
-          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
-        }
-        query = query.or(`branch.is.null,branch.eq."${user.branch}"`);
-      }
+      // Customers are a global pool: any staff can search any customer
+      // (Removed branch restriction here so customers can visit any branch)
 
       const { data: customers, error } = await query.limit(1);
 
@@ -123,9 +118,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Customer profile not found." }, { status: 404 });
       }
 
-      if (user.role === "staff" && customer.branch && customer.branch !== user.branch) {
-        return NextResponse.json({ success: false, error: "Forbidden: Customer profile belongs to another branch." }, { status: 403 });
-      }
+      // Customers are a global pool, so no branch check is needed here
 
       // Retrieve full transaction logs
       const { data: transactions, error } = await adminSupabase
@@ -288,9 +281,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Customer not found." }, { status: 404 });
       }
 
-      if (user.role === "staff" && customer.branch && customer.branch !== user.branch) {
-        return NextResponse.json({ success: false, error: "Forbidden: Customer profile belongs to another branch." }, { status: 403 });
-      }
+      // Customers are a global pool, so no branch check is needed here
 
       let newBalance = customer.points;
       if (type === "add") {

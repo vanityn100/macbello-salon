@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { supabaseStaffClient } from "@/lib/supabase";
 import { 
   Phone, Award, ShieldAlert, LogOut, Search, Plus, 
-  Loader2, CheckCircle2, FileClock, History, ShoppingBag, FileText
+  Loader2, CheckCircle2, FileClock, History, ShoppingBag, FileText, ExternalLink, PackageSearch
 } from "lucide-react";
 import Link from "next/link";
 
@@ -126,21 +126,34 @@ export default function StaffPortal() {
     // Check initial active session
     supabaseStaffClient.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        setSessionToken(session.access_token);
-        setStaffEmail(session.user?.email || null);
-        setUserRole(session.user?.app_metadata?.role || null);
-        loadDailyStats(session.access_token);
-        loadAppointments(session.access_token, today);
+        const role = session.user?.app_metadata?.role;
+        // Admin can enter staff portal; staff cannot enter admin portal
+        if (role === "staff" || role === "admin") {
+          setSessionToken(session.access_token);
+          setStaffEmail(session.user?.email || null);
+          setUserRole(role);
+          loadDailyStats(session.access_token);
+          loadAppointments(session.access_token, today);
+        }
       }
     });
 
     const { data: { subscription } } = supabaseStaffClient.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        setSessionToken(session.access_token);
-        setStaffEmail(session.user?.email || null);
-        setUserRole(session.user?.app_metadata?.role || null);
-        loadDailyStats(session.access_token);
-        loadAppointments(session.access_token, appointmentsDate || today);
+        const role = session.user?.app_metadata?.role;
+        if (role === "staff" || role === "admin") {
+          setSessionToken(session.access_token);
+          setStaffEmail(session.user?.email || null);
+          setUserRole(role);
+          loadDailyStats(session.access_token);
+          loadAppointments(session.access_token, appointmentsDate || today);
+        } else {
+          // Unknown role — sign out
+          supabaseStaffClient.auth.signOut();
+          setSessionToken(null);
+          setStaffEmail(null);
+          setUserRole(null);
+        }
       } else {
         setSessionToken(null);
         setStaffEmail(null);
@@ -176,9 +189,16 @@ export default function StaffPortal() {
       if (error) {
         setAuthError(error.message);
       } else if (data.session) {
-        setSessionToken(data.session.access_token);
-        setStaffEmail(data.session.user?.email || null);
-        setUserRole(data.session.user?.app_metadata?.role || null);
+        const role = data.session.user?.app_metadata?.role;
+        // Staff portal accepts: staff AND admin (admin can view staff portal)
+        if (role !== "staff" && role !== "admin") {
+          await supabaseStaffClient.auth.signOut();
+          setAuthError("Access denied. This portal is for staff and admin accounts only.");
+        } else {
+          setSessionToken(data.session.access_token);
+          setStaffEmail(data.session.user?.email || null);
+          setUserRole(role);
+        }
       }
     } catch {
       setAuthError("Failed to sign in. Please try again.");
@@ -354,7 +374,7 @@ export default function StaffPortal() {
 
           <div className="text-center mb-8">
             <span className="text-[9px] uppercase tracking-[0.3em] text-gold-primary mb-2 font-medium block">
-              Staff Portal Login
+              Staff &amp; Admin Portal
             </span>
             <h1 className="font-playfair text-2xl text-white font-light tracking-wide">
               MACBELLO SALON
@@ -445,6 +465,25 @@ export default function StaffPortal() {
               <span>Manage Catalog</span>
             </Link>
 
+            <Link
+              href="/staff/products"
+              className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-white/10 hover:border-white/30 px-4 py-2 bg-white/5 transition-all duration-300 rounded-none"
+            >
+              <PackageSearch size={12} />
+              <span>Inventory</span>
+            </Link>
+
+            {/* Admin-only: escape back to Admin Portal */}
+            {userRole === "admin" && (
+              <Link
+                href="/admin"
+                className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-gold-primary bg-gold-primary/10 text-gold-primary hover:bg-gold-primary/20 px-4 py-2 transition-all duration-300 rounded-none"
+              >
+                <ExternalLink size={12} />
+                <span>Admin Portal</span>
+              </Link>
+            )}
+
             <button
               onClick={handleLogout}
               className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-white/10 hover:border-red-500/30 hover:text-red-400 px-4 py-2 bg-white/5 transition-all duration-300 rounded-none cursor-pointer"
@@ -520,7 +559,7 @@ export default function StaffPortal() {
                     {Object.entries(stats.staffBreakdown).map(([name, performance]) => (
                       <div key={name} className="flex justify-between items-center text-[10px] text-ivory/80">
                         <span className="font-medium truncate max-w-[90px]">{name}</span>
-                        <span className="text-gold-primary font-mono font-semibold">
+                        <span className="text-gold-primary font-semibold">
                           ₹{performance.revenue.toFixed(0)} ({performance.count} services)
                         </span>
                       </div>

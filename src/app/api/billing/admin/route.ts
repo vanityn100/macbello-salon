@@ -107,13 +107,8 @@ export async function GET(request: NextRequest) {
         .eq("status", "active")
         .ilike("phone", `%${cleanPhone}%`);
 
-      // Staff can only search/view customers of their own branch or global customers
-      if (user.role === "staff") {
-        if (!user.branch) {
-          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
-        }
-        query = query.or(`branch.is.null,branch.eq."${user.branch}"`);
-      }
+      // Customers are a global pool: any staff can search any customer
+      // (Removed branch restriction here so customers can visit any branch)
 
       const { data: customers, error } = await query.limit(15);
 
@@ -197,6 +192,88 @@ export async function GET(request: NextRequest) {
           invoiceCount: invoices?.length || 0,
           branchBreakdown,
           staffBreakdown
+        }
+      });
+    }
+
+    // 3.5 FINANCIAL DASHBOARD METRICS
+    if (action === "get_financial_stats") {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const monthStart = new Date(todayStart.getFullYear(), todayStart.getMonth(), 1);
+
+      let invoicesQuery = adminSupabase.from("invoices").select("grand_total, created_at").eq("status", "active");
+      let customersQuery = adminSupabase.from("customers").select("id", { count: "exact", head: true }).eq("status", "active");
+      let servicesQuery = adminSupabase.from("services").select("id", { count: "exact", head: true }).eq("status", "active");
+      let appointmentsQuery = adminSupabase.from("appointments").select("status").neq("status", "archived");
+
+      if (user.role === "staff") {
+        if (!user.branch) return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
+        invoicesQuery = invoicesQuery.eq("branch", user.branch);
+        customersQuery = customersQuery.eq("branch", user.branch);
+        servicesQuery = servicesQuery.or(`branch.is.null,branch.eq."${user.branch}"`);
+        appointmentsQuery = appointmentsQuery.eq("branch", user.branch);
+      }
+
+      // Paginate invoices to get accurate total revenue for large datasets
+      let allInvoices: any[] = [];
+      let page = 0;
+      let hasMore = true;
+      while (hasMore) {
+        const { data, error } = await invoicesQuery.range(page * 1000, (page + 1) * 1000 - 1);
+        if (error) {
+          return NextResponse.json({ success: false, error: "Failed to query invoices." }, { status: 500 });
+        }
+        if (data && data.length > 0) {
+          allInvoices = allInvoices.concat(data);
+          page++;
+        } else {
+          hasMore = false;
+        }
+      }
+
+      const [custRes, servRes, apptRes] = await Promise.all([
+        customersQuery,
+        servicesQuery,
+        appointmentsQuery
+      ]);
+
+      if (custRes.error || servRes.error || apptRes.error) {
+        return NextResponse.json({ success: false, error: "Failed to aggregate financial stats." }, { status: 500 });
+      }
+
+      let todayRevenue = 0;
+      let monthlyRevenue = 0;
+      let totalRevenue = 0;
+
+      const tISO = todayStart.toISOString();
+      const mISO = monthStart.toISOString();
+
+      allInvoices.forEach(inv => {
+        const amt = parseFloat(inv.grand_total as string) || 0;
+        totalRevenue += amt;
+        if (inv.created_at >= mISO) monthlyRevenue += amt;
+        if (inv.created_at >= tISO) todayRevenue += amt;
+      });
+
+      let completedAppointments = 0;
+      let pendingAppointments = 0;
+      apptRes.data?.forEach(a => {
+        if (a.status === "completed") completedAppointments++;
+        else if (a.status === "pending" || a.status === "confirmed") pendingAppointments++;
+      });
+
+      return NextResponse.json({
+        success: true,
+        stats: {
+          todayRevenue,
+          monthlyRevenue,
+          totalRevenue,
+          totalCustomers: custRes.count || 0,
+          totalServices: servRes.count || 0,
+          totalAppointments: apptRes.data?.length || 0,
+          completedAppointments,
+          pendingAppointments
         }
       });
     }
@@ -611,7 +688,7 @@ export async function POST(request: NextRequest) {
 
     // 4. CREATE CUSTOMER
     if (action === "create_customer") {
-      const { name, phone, email, branch } = body;
+      const { name, phone, email, branch, gstin } = body;
 
       let targetBranch = branch;
       if (user.role === "staff") {
@@ -663,6 +740,17 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      // Validate GSTIN format if provided
+      let cleanGstin: string | null = null;
+      if (gstin && typeof gstin === "string" && gstin.trim() !== "") {
+        const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+        const normalized = gstin.trim().toUpperCase();
+        if (!gstinRegex.test(normalized)) {
+          return NextResponse.json({ success: false, error: "Invalid GSTIN format. Expected 15-character GST Identification Number." }, { status: 400 });
+        }
+        cleanGstin = normalized;
+      }
+
       const { data: newCustomer, error } = await adminSupabase
         .from("customers")
         .insert([{
@@ -670,10 +758,11 @@ export async function POST(request: NextRequest) {
           phone: cleanPhone,
           email: cleanEmail,
           branch: targetBranch,
+          gstin: cleanGstin,
           points: 0,
           status: "active"
         }])
-        .select("id, name, phone, email, points")
+        .select("id, name, phone, email, points, gstin")
         .single();
 
       if (error) {
@@ -703,10 +792,10 @@ export async function POST(request: NextRequest) {
 
       const redeemAmt = parseInt(pointsToRedeem, 10) || 0;
 
-      // Verify customer exist & ownership (IDOR check)
+      // Verify customer exists
       const { data: customer, error: customerErr } = await adminSupabase
         .from("customers")
-        .select("id, name, points, branch")
+        .select("id, name, phone, gstin, points, branch")
         .eq("id", customerId)
         .eq("status", "active")
         .maybeSingle();
@@ -715,10 +804,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Customer profile not found." }, { status: 404 });
       }
 
-      // Staff branch customer check
-      if (user.role === "staff" && customer.branch !== user.branch) {
-        return NextResponse.json({ success: false, error: "Forbidden: Customer profile belongs to another branch." }, { status: 403 });
-      }
+      // Customers are a global pool, so no branch check is needed here
+
 
       if (redeemAmt > customer.points) {
         return NextResponse.json({ success: false, error: "Insufficient points balance." }, { status: 400 });
@@ -804,6 +891,10 @@ export async function POST(request: NextRequest) {
         .insert([{
           invoice_number: invoiceNumber,
           customer_id: customerId,
+          // Immutable snapshot — future customer edits cannot alter tax history
+          customer_name: customer.name,
+          customer_phone: customer.phone || null,
+          customer_gstin: customer.gstin || null,
           subtotal: parseFloat(subtotal.toFixed(2)),
           service_tax: parseFloat(serviceTax.toFixed(2)),
           retail_tax: parseFloat(retailTax.toFixed(2)),

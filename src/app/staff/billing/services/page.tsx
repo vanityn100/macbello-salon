@@ -446,7 +446,7 @@ export default function ServicesManagement() {
                       {filteredServices.map((item) => (
                         <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                           <td className="py-3 text-white font-medium">{item.name}</td>
-                          <td className="py-3 text-ivory/60 font-mono text-[10px]">{item.item_code || "-"}</td>
+                          <td className="py-3 text-ivory/60 text-[10px]">{item.item_code || "-"}</td>
                           <td className="py-3 text-ivory/60 pr-8">{item.hsn || "-"}</td>
                           <td className="py-3 text-ivory/80">₹{item.price.toFixed(2)}</td>
                           <td className="py-3 text-ivory/40">{(item.tax_rate * 100).toFixed(0)}%</td>
@@ -506,7 +506,7 @@ export default function ServicesManagement() {
                       {filteredRetail.map((item) => (
                         <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                           <td className="py-3 text-white font-medium">{item.name}</td>
-                          <td className="py-3 text-ivory/60 font-mono text-[10px]">{item.item_code || "-"}</td>
+                          <td className="py-3 text-ivory/60 text-[10px]">{item.item_code || "-"}</td>
                           <td className="py-3 text-ivory/60 pr-8">{item.hsn || "-"}</td>
                           <td className="py-3 text-ivory/80">₹{item.price.toFixed(2)}</td>
                           <td className="py-3 text-ivory/40">{(item.tax_rate * 100).toFixed(0)}%</td>

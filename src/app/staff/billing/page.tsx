@@ -48,6 +48,7 @@ export default function BillingModule() {
   const [createName, setCreateName] = useState("");
   const [createPhone, setCreatePhone] = useState("");
   const [createEmail, setCreateEmail] = useState("");
+  const [createGstin, setCreateGstin] = useState("");
   const [createError, setCreateError] = useState("");
   const [createSuccess, setCreateSuccess] = useState("");
   const [createLoading, setCreateLoading] = useState(false);
@@ -172,7 +173,8 @@ export default function BillingModule() {
           action: "create_customer",
           name: createName,
           phone: createPhone,
-          email: createEmail
+          email: createEmail,
+          gstin: createGstin || undefined
         })
       });
 
@@ -186,6 +188,7 @@ export default function BillingModule() {
         setCreateName("");
         setCreatePhone("");
         setCreateEmail("");
+        setCreateGstin("");
       }
     } catch {
       setCreateError("Network error creating customer.");
@@ -912,6 +915,14 @@ export default function BillingModule() {
                       onChange={(e) => setCreateEmail(e.target.value)}
                       className="w-full bg-luxury-black border border-white/10 px-3 py-2 text-xs text-white placeholder-ivory/20 rounded-none focus:outline-none focus:border-gold-primary/50"
                     />
+                    <input
+                      type="text"
+                      placeholder="GSTIN (Optional — 15 chars)"
+                      value={createGstin}
+                      onChange={(e) => setCreateGstin(e.target.value.toUpperCase())}
+                      maxLength={15}
+                      className="w-full bg-luxury-black border border-white/10 px-3 py-2 text-xs text-white placeholder-ivory/20 rounded-none focus:outline-none focus:border-gold-primary/50 tracking-wider"
+                    />
                     {createError && <p className="text-[10px] text-red-400 font-light">{createError}</p>}
                     {createSuccess && <p className="text-[10px] text-green-400 font-light">{createSuccess}</p>}
                     <button
@@ -1074,7 +1085,7 @@ export default function BillingModule() {
                         return (
                           <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                             <td className="py-3 font-medium text-white">{item.name}</td>
-                            <td className="py-3 text-ivory/70 font-mono">{item.item_code || "-"}</td>
+                            <td className="py-3 text-ivory/70 ">{item.item_code || "-"}</td>
                             <td className="py-3 text-ivory/60 text-[10px]">
                               {item.category === "Service" ? (
                                 <span className="flex items-center text-sky-400"><Scissors size={10} className="mr-1" /> Service</span>
