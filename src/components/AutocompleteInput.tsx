@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 
 interface AutocompleteInputProps {
   id?: string;
@@ -11,7 +12,6 @@ interface AutocompleteInputProps {
   placeholder?: string;
   className?: string;
   type?: string;
-  hint?: string;
 }
 
 export default function AutocompleteInput({
@@ -23,25 +23,53 @@ export default function AutocompleteInput({
   placeholder,
   className = "",
   type = "text",
-  hint,
 }: AutocompleteInputProps) {
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState(-1);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  // Position of the dropdown in screen coordinates
+  const [dropPos, setDropPos] = useState({ top: 0, left: 0, width: 0 });
 
-  // Filter suggestions: only show if there is typed text
-  const filtered = value.trim().length > 0
-    ? suggestions.filter(s =>
-        s.toLowerCase().includes(value.toLowerCase()) && s !== value
-      ).slice(0, 8)
-    : [];
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+
+  // Filter suggestions — only when user has typed something
+  const filtered =
+    value.trim().length > 0
+      ? suggestions
+          .filter(
+            (s) =>
+              s.toLowerCase().includes(value.toLowerCase()) && s !== value
+          )
+          .slice(0, 8)
+      : [];
 
   const showDropdown = open && filtered.length > 0;
 
-  // Close on outside click
+  // Recalculate dropdown position whenever it becomes visible
+  const updatePosition = useCallback(() => {
+    if (!inputRef.current) return;
+    const rect = inputRef.current.getBoundingClientRect();
+    setDropPos({
+      top: rect.bottom + window.scrollY + 2,
+      left: rect.left + window.scrollX,
+      width: rect.width,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (showDropdown) updatePosition();
+  }, [showDropdown, updatePosition]);
+
+  // Close when clicking outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        inputRef.current &&
+        !inputRef.current.contains(target) &&
+        listRef.current &&
+        !listRef.current.contains(target)
+      ) {
         setOpen(false);
         setHighlighted(-1);
       }
@@ -55,15 +83,15 @@ export default function AutocompleteInput({
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setHighlighted(h => Math.min(h + 1, filtered.length - 1));
+      setHighlighted((h) => Math.min(h + 1, filtered.length - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setHighlighted(h => Math.max(h - 1, 0));
+      setHighlighted((h) => Math.max(h - 1, 0));
     } else if ((e.key === "Enter" || e.key === "Tab") && highlighted >= 0) {
       e.preventDefault();
-      // Only fill on explicit keyboard selection
+      // ✅ Only fills on EXPLICIT keyboard selection
       onChange(filtered[highlighted]);
-      onSelect?.(filtered[highlighted]); // notify parent of explicit selection
+      onSelect?.(filtered[highlighted]);
       setOpen(false);
       setHighlighted(-1);
     } else if (e.key === "Escape") {
@@ -73,59 +101,76 @@ export default function AutocompleteInput({
   };
 
   const handleSelect = (suggestion: string) => {
-    // Only fill on explicit mouse click selection
+    // ✅ Only fills on EXPLICIT mouse click
     onChange(suggestion);
-    onSelect?.(suggestion); // notify parent of explicit selection
+    onSelect?.(suggestion);
     setOpen(false);
     setHighlighted(-1);
   };
 
-  return (
-    <div ref={wrapperRef} className="relative w-full">
-      <input
-        id={id}
-        type={type}
-        value={value}
-        // User's typed text is preserved exactly — no auto-fill
-        onChange={e => {
-          onChange(e.target.value);
-          setOpen(true);
-          setHighlighted(-1);
-        }}
-        onFocus={() => setOpen(true)}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        autoComplete="off"
-        className={className}
-      />
-
-      {/* Suggestion Dropdown */}
-      {showDropdown && (
-        <ul className="absolute z-50 left-0 right-0 top-full mt-0.5 bg-[#1a1a1a] border border-white/10 shadow-2xl max-h-56 overflow-auto">
+  const dropdown = showDropdown
+    ? createPortal(
+        <ul
+          ref={listRef}
+          style={{
+            position: "absolute",
+            top: dropPos.top,
+            left: dropPos.left,
+            width: dropPos.width,
+            zIndex: 9999,
+          }}
+          className="bg-[#1c1c1c] border border-white/15 shadow-2xl max-h-56 overflow-auto"
+        >
           {filtered.map((s, i) => (
             <li
               key={s}
-              onMouseDown={e => e.preventDefault()} // prevent blur before click
+              onMouseDown={(e) => e.preventDefault()} // prevent blur before click
               onClick={() => handleSelect(s)}
-              className={`px-3 py-2 text-xs cursor-pointer select-none flex items-center justify-between transition-colors
-                ${i === highlighted
-                  ? "bg-gold-primary/20 text-gold-primary"
-                  : "text-gray-200 hover:bg-white/5"
+              className={`px-3 py-2.5 text-xs cursor-pointer select-none flex items-center justify-between transition-colors
+                ${
+                  i === highlighted
+                    ? "bg-gold-primary/20 text-gold-primary"
+                    : "text-gray-200 hover:bg-white/5"
                 }`}
             >
               <span>{s}</span>
               {i === highlighted && (
-                <span className="text-[9px] text-gold-primary/60 uppercase tracking-widest ml-2">↵</span>
+                <span className="text-[9px] text-gold-primary/50 uppercase tracking-widest ml-2 flex-shrink-0">
+                  ↵ select
+                </span>
               )}
             </li>
           ))}
-        </ul>
-      )}
+        </ul>,
+        document.body
+      )
+    : null;
 
-      {/* Optional hint row below input — display only, never auto-fills */}
-      {hint && (
-        <p className="mt-1 text-[9px] text-gray-500 leading-tight">{hint}</p>
-      )}
-    </div>
+  return (
+    <>
+      <input
+        ref={inputRef}
+        id={id}
+        type={type}
+        value={value}
+        onChange={(e) => {
+          // ✅ Field always shows exactly what the user typed — never auto-replaced
+          onChange(e.target.value);
+          setOpen(true);
+          setHighlighted(-1);
+          updatePosition();
+        }}
+        onFocus={() => {
+          setOpen(true);
+          updatePosition();
+        }}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        autoComplete="off"
+        spellCheck={false}
+        className={className}
+      />
+      {dropdown}
+    </>
   );
 }
