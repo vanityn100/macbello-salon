@@ -65,23 +65,73 @@ export default function StockPurchasesPage() {
     }
   };
 
+  const getFlattenedItems = () => {
+    let rows: any[] = [];
+    filteredPurchases.forEach(p => {
+      p.stock_purchase_items.forEach((item, index) => {
+        rows.push({
+          isFirstItem: index === 0,
+          purchase: p,
+          item: item
+        });
+      });
+      // Add a summary row for the invoice? No, they have an empty row with totals at the bottom of each invoice group in their screenshot
+      // Let's add the subtotal row
+      rows.push({
+        isSummaryRow: true,
+        purchase: p
+      });
+    });
+    return rows;
+  };
+
   const handleExportExcel = () => {
-    const dataToExport = purchases.map(p => ({
-      "Date": formatDate(p.purchase_date),
-      "Purchase No": p.purchase_number,
-      "Supplier": p.supplier_name,
-      "Invoice No": p.invoice_number || "-",
-      "Branch": p.branch,
-      "Total Items": p.stock_purchase_items.length,
-      "Grand Total (INR)": p.grand_total
-    }));
+    const dataToExport: any[] = [];
+    
+    filteredPurchases.forEach(p => {
+      p.stock_purchase_items.forEach((item: any, i: number) => {
+        dataToExport.push({
+          "Date": i === 0 ? formatDate(p.purchase_date) : "",
+          "SELLER": i === 0 ? p.supplier_name : "",
+          "Invoice No": i === 0 ? (p.invoice_number || "-") : "",
+          "Description Of Goods": item.services?.name || item.product_id.substring(0,8),
+          "MRP": item.mrp,
+          "Quantity": item.quantity,
+          "Rate": item.purchase_rate,
+          "Total": item.purchase_rate * item.quantity,
+          "Disc%": item.discount_percent,
+          "Amount": item.taxable_amount,
+          "GST 18%": item.gst_amount,
+          "Grand Total": item.line_total
+        });
+      });
+      
+      // Invoice Summary Row
+      dataToExport.push({
+        "Date": "",
+        "SELLER": "",
+        "Invoice No": "",
+        "Description Of Goods": "",
+        "MRP": "",
+        "Quantity": "",
+        "Rate": "",
+        "Total": "",
+        "Disc%": p.stock_purchase_items.reduce((s:number, i:any)=>s+i.discount_percent, 0).toFixed(2), // just mirroring their layout
+        "Amount": p.stock_purchase_items.reduce((s:number, i:any)=>s+i.taxable_amount, 0).toFixed(2),
+        "GST 18%": p.stock_purchase_items.reduce((s:number, i:any)=>s+i.gst_amount, 0).toFixed(2),
+        "Grand Total": p.grand_total.toFixed(2)
+      });
+      
+      // Blank spacer row
+      dataToExport.push({});
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Stock Purchases");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Purchase Of Stock");
     const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     const dataBlob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    saveAs(dataBlob, `Stock_Purchases_${new Date().toISOString().slice(0,10)}.xlsx`);
+    saveAs(dataBlob, `Purchase_Of_Stock_${new Date().toISOString().slice(0,10)}.xlsx`);
   };
 
   const handleExportPDF = (purchase: StockPurchase) => {
@@ -145,26 +195,39 @@ export default function StockPurchasesPage() {
     doc.text(dateStr, 148, y, { align: "center" });
 
     y += 15;
-    const tableData = filteredPurchases.map(p => [
-      formatDate(p.purchase_date),
-      p.purchase_number,
-      p.supplier_name,
-      p.invoice_number || "-",
-      p.branch,
-      p.stock_purchase_items.length.toString(),
-      p.grand_total.toFixed(2)
-    ]);
-
-    const totalAmount = filteredPurchases.reduce((sum, p) => sum + p.grand_total, 0);
-    tableData.push(["", "", "", "", "", "TOTAL", totalAmount.toFixed(2)]);
+    const tableData: any[] = [];
+    filteredPurchases.forEach(p => {
+      p.stock_purchase_items.forEach((item: any, i: number) => {
+        tableData.push([
+          i === 0 ? formatDate(p.purchase_date) : "",
+          i === 0 ? p.supplier_name : "",
+          i === 0 ? (p.invoice_number || "-") : "",
+          item.services?.name || item.product_id.substring(0,8),
+          item.mrp.toFixed(2),
+          item.quantity.toString(),
+          item.purchase_rate.toFixed(2),
+          (item.purchase_rate * item.quantity).toFixed(2),
+          item.taxable_amount.toFixed(2),
+          item.gst_amount.toFixed(2),
+          item.line_total.toFixed(2)
+        ]);
+      });
+      // Summary row
+      tableData.push([
+        "", "", "", "", "", "", "", "", 
+        p.stock_purchase_items.reduce((s:number, i:any)=>s+i.taxable_amount, 0).toFixed(2),
+        p.stock_purchase_items.reduce((s:number, i:any)=>s+i.gst_amount, 0).toFixed(2),
+        p.grand_total.toFixed(2)
+      ]);
+    });
 
     autoTable(doc, {
       startY: y,
-      head: [["Date", "Purchase No", "Supplier", "Invoice No", "Branch", "Items", "Grand Total"]],
+      head: [["Date", "SELLER", "Invoice No", "Description", "MRP", "Qty", "Rate", "Total", "Amount", "GST 18%", "Grand Total"]],
       body: tableData,
       theme: "grid",
-      headStyles: { fillColor: [40, 40, 40] },
-      columnStyles: { 6: { halign: 'right' }, 5: { halign: 'right' } }
+      headStyles: { fillColor: [40, 40, 40], fontSize: 7 },
+      bodyStyles: { fontSize: 7 }
     });
 
     doc.save(`Stock_Purchases_Report_${new Date().toISOString().slice(0,10)}.pdf`);
@@ -266,48 +329,76 @@ export default function StockPurchasesPage() {
         </div>
 
         {/* Data Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm whitespace-nowrap">
+        <div className="overflow-x-auto pb-20">
+          <table className="w-full text-left text-sm whitespace-nowrap table-fixed min-w-[1200px]">
             <thead>
               <tr className="border-b border-white/10 text-gray-400 text-[10px] uppercase tracking-widest bg-white/5">
-                <th className="px-4 py-4 font-normal">Date</th>
-                <th className="px-4 py-4 font-normal">Purchase No</th>
-                <th className="px-4 py-4 font-normal">Supplier</th>
-                <th className="px-4 py-4 font-normal">Invoice No</th>
-                <th className="px-4 py-4 font-normal">Branch</th>
-                <th className="px-4 py-4 font-normal text-right">Items</th>
-                <th className="px-4 py-4 font-normal text-right">Grand Total</th>
-                <th className="px-4 py-4 font-normal text-center">Actions</th>
+                <th className="px-3 py-3 font-normal w-24">Date</th>
+                <th className="px-3 py-3 font-normal w-48 truncate">SELLER</th>
+                <th className="px-3 py-3 font-normal w-32">Invoice No</th>
+                <th className="px-3 py-3 font-normal w-48 truncate">Description Of Goods</th>
+                <th className="px-3 py-3 font-normal text-right w-20">MRP</th>
+                <th className="px-3 py-3 font-normal text-right w-16">Qty</th>
+                <th className="px-3 py-3 font-normal text-right w-20">Rate</th>
+                <th className="px-3 py-3 font-normal text-right w-24">Total</th>
+                <th className="px-3 py-3 font-normal text-right w-16">Disc%</th>
+                <th className="px-3 py-3 font-normal text-right w-24">Amount</th>
+                <th className="px-3 py-3 font-normal text-right w-24">GST 18%</th>
+                <th className="px-3 py-3 font-normal text-right w-24">Grand Total</th>
+                <th className="px-3 py-3 font-normal text-center w-20">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {filteredPurchases.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={13} className="px-4 py-8 text-center text-gray-500">
                     <PackageOpen className="w-8 h-8 mx-auto mb-3 opacity-20" />
                     <p>No stock purchases found.</p>
                   </td>
                 </tr>
               ) : (
-                filteredPurchases.map((p) => (
-                  <tr key={p.id} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="px-4 py-4 text-gray-300">{formatDate(p.purchase_date)}</td>
-                    <td className="px-4 py-4 font-mono text-xs text-gold-primary">{p.purchase_number}</td>
-                    <td className="px-4 py-4">{p.supplier_name}</td>
-                    <td className="px-4 py-4 text-gray-400">{p.invoice_number || "-"}</td>
-                    <td className="px-4 py-4 text-gray-300">{p.branch}</td>
-                    <td className="px-4 py-4 text-right">{p.stock_purchase_items.length}</td>
-                    <td className="px-4 py-4 text-right text-gold-primary">{formatINR(p.grand_total)}</td>
-                    <td className="px-4 py-4 text-center">
-                      <button 
-                        onClick={() => handleExportPDF(p)}
-                        className="text-[10px] uppercase tracking-widest text-gold-primary hover:text-white transition-colors border border-gold-primary/30 hover:border-white/50 px-3 py-1 bg-gold-primary/5"
-                      >
-                        PDF
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                getFlattenedItems().map((row, idx) => {
+                  if (row.isSummaryRow) {
+                    return (
+                      <tr key={`summary-${row.purchase.id}-${idx}`} className="bg-white/[0.01]">
+                        <td colSpan={8} className="px-3 py-3"></td>
+                        <td className="px-3 py-3 text-right text-gray-400 font-mono text-[10px]">{row.purchase.stock_purchase_items.reduce((s:number, i:any)=>s+i.discount_percent, 0).toFixed(2)}</td>
+                        <td className="px-3 py-3 text-right text-gray-400 font-mono text-xs">{row.purchase.stock_purchase_items.reduce((s:number, i:any)=>s+i.taxable_amount, 0).toFixed(2)}</td>
+                        <td className="px-3 py-3 text-right text-gray-400 font-mono text-xs">{row.purchase.stock_purchase_items.reduce((s:number, i:any)=>s+i.gst_amount, 0).toFixed(2)}</td>
+                        <td className="px-3 py-3 text-right text-gold-primary font-bold font-mono text-sm">{formatINR(row.purchase.grand_total)}</td>
+                        <td className="px-3 py-3"></td>
+                      </tr>
+                    );
+                  }
+
+                  const { item, purchase, isFirstItem } = row;
+                  return (
+                    <tr key={`${item.id}-${idx}`} className="hover:bg-white/[0.02] transition-colors text-gray-300 text-xs">
+                      <td className="px-3 py-3 font-mono">{isFirstItem ? formatDate(purchase.purchase_date) : ""}</td>
+                      <td className="px-3 py-3 truncate max-w-[12rem] text-white" title={purchase.supplier_name}>{isFirstItem ? purchase.supplier_name : ""}</td>
+                      <td className="px-3 py-3 font-mono text-gold-primary/80">{isFirstItem ? (purchase.invoice_number || "-") : ""}</td>
+                      <td className="px-3 py-3 truncate max-w-[12rem]" title={item.services?.name}>{item.services?.name || item.product_id.substring(0,8)}</td>
+                      <td className="px-3 py-3 text-right font-mono">{item.mrp.toFixed(2)}</td>
+                      <td className="px-3 py-3 text-right font-mono text-white">{item.quantity}</td>
+                      <td className="px-3 py-3 text-right font-mono">{item.purchase_rate.toFixed(2)}</td>
+                      <td className="px-3 py-3 text-right font-mono">{(item.purchase_rate * item.quantity).toFixed(2)}</td>
+                      <td className="px-3 py-3 text-right font-mono">{item.discount_percent.toFixed(2)}</td>
+                      <td className="px-3 py-3 text-right font-mono">{item.taxable_amount.toFixed(2)}</td>
+                      <td className="px-3 py-3 text-right font-mono text-gray-400">{item.gst_amount.toFixed(2)}</td>
+                      <td className="px-3 py-3 text-right font-mono text-white">{item.line_total.toFixed(2)}</td>
+                      <td className="px-3 py-3 text-center">
+                        {isFirstItem && (
+                          <button 
+                            onClick={() => handleExportPDF(purchase)}
+                            className="text-[9px] uppercase tracking-widest text-gold-primary hover:text-white transition-colors border border-gold-primary/30 hover:border-white/50 px-2 py-1 bg-gold-primary/5"
+                          >
+                            PDF
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })
               )}
             </tbody>
           </table>

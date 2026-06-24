@@ -34,7 +34,12 @@ export async function GET(req: Request) {
         .from("stock_purchases")
         .select(`
           *,
-          stock_purchase_items (*)
+          stock_purchase_items (
+            *,
+            services (
+              name
+            )
+          )
         `)
         .order("created_at", { ascending: false });
 
