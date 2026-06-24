@@ -14,6 +14,7 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { formatINR, formatDate } from "@/lib/format";
+import { getBranchInfo } from "@/lib/branchInfo";
 
 // PDF-safe currency: jsPDF Helvetica cannot render ₹
 function pdfINR(v: number) {
@@ -415,12 +416,14 @@ export default function GSTR1Page() {
       const wb = XLSX.utils.book_new();
       const periodLabel = `${MONTHS[selectedMonth - 1]} ${selectedYear}`;
 
+      const branchInfo = getBranchInfo(selectedBranch === "All Branches" ? "Kaduthuruthy" : selectedBranch);
+
       // 1. INVOICE REGISTER (OFFICIAL FORMAT)
       const invoiceSheetData = [
         ["Period", `${periodLabel} - ${periodLabel}`],
         [],
-        ["1. GSTIN", BUSINESS_INFO.gstin],
-        ["2.a Legal name of the registered person.", BUSINESS_INFO.name],
+        ["1. GSTIN", branchInfo.gstin],
+        ["2.a Legal name of the registered person.", branchInfo.name],
         ["2.b Trade name, if any", ""],
         ["3.a Aggregate turnover of the preceeding Financial Year", ""],
         ["3.b Aggregate turnover, April to June 2017", ""],
