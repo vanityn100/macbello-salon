@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { supabaseAdminClient } from '@/lib/supabase';
+import { supabaseAdminClient, getSupabaseAdmin } from '@/lib/supabase';
 import { logError } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
 
     // GET / Fetch
     if (action === 'fetch') {
-      let query = supabaseAdminClient.from('purchase_stock_entries').select('*').order('date', { ascending: false });
+      const serverAdmin = getSupabaseAdmin();
+      let query = serverAdmin.from('purchase_stock_entries').select('*').order('date', { ascending: false });
       
       if (startDate) query = query.gte('date', startDate);
       if (endDate) query = query.lte('date', endDate);
@@ -38,22 +39,25 @@ export async function POST(request: NextRequest) {
 
     // CREATE
     if (action === 'create') {
+      const serverAdmin = getSupabaseAdmin();
       const dataToInsert = Array.isArray(rowData) ? rowData : [rowData];
-      const { error } = await supabaseAdminClient.from('purchase_stock_entries').insert(dataToInsert);
+      const { error } = await serverAdmin.from('purchase_stock_entries').insert(dataToInsert);
       if (error) throw error;
       return NextResponse.json({ success: true });
     }
 
     // UPDATE
     if (action === 'update') {
-      const { error } = await supabaseAdminClient.from('purchase_stock_entries').update(rowData).eq('id', id);
+      const serverAdmin = getSupabaseAdmin();
+      const { error } = await serverAdmin.from('purchase_stock_entries').update(rowData).eq('id', id);
       if (error) throw error;
       return NextResponse.json({ success: true });
     }
 
     // DELETE
     if (action === 'delete') {
-      const { error } = await supabaseAdminClient.from('purchase_stock_entries').delete().eq('id', id);
+      const serverAdmin = getSupabaseAdmin();
+      const { error } = await serverAdmin.from('purchase_stock_entries').delete().eq('id', id);
       if (error) throw error;
       return NextResponse.json({ success: true });
     }

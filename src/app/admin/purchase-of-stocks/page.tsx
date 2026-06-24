@@ -299,6 +299,11 @@ export default function PurchaseOfStocksPage() {
       </div>
 
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {error && (
+          <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            ERROR: {error}
+          </div>
+        )}
         
         {/* Dashboard Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
