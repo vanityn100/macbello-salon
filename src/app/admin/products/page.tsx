@@ -396,7 +396,7 @@ export default function AdminProductsPage() {
                     <p className="text-[9px] text-ivory/40 mt-0.5">HSN: {p.hsn} · GST: {p.gstRate}</p>
                   </td>
                   <td className="p-4">
-                    {p.status === "OUT_OF_STOCK" || p.currentStock <= 0 ? (
+                    {p.currentStock <= 0 ? (
                       <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider text-red-400 bg-red-400/10 px-2 py-1 rounded">
                         OUT OF STOCK
                       </span>
