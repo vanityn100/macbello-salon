@@ -31,7 +31,9 @@ export default function StockPurchasesPage() {
   
   // Filters
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterBranch, setFilterBranch] = useState("All");
+  const [filterBranch, setFilterBranch] = useState("All Branches");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
     supabaseAdminClient.auth.getSession().then(({ data: { session } }) => {
@@ -104,7 +106,7 @@ export default function StockPurchasesPage() {
 
     y += 15;
     const tableData = purchase.stock_purchase_items.map((item: any) => [
-      item.product_id.substring(0, 8), // We don't have product name joined easily in the list query right now
+      item.product_id.substring(0, 8), 
       item.quantity,
       `INR ${item.purchase_rate.toFixed(2)}`,
       `${item.discount_percent}%`,
@@ -128,12 +130,63 @@ export default function StockPurchasesPage() {
     doc.save(`Purchase_${purchase.purchase_number}.pdf`);
   };
 
+  const handleExportPDFReport = () => {
+    const doc = new jsPDF("l", "mm", "a4");
+    let y = 20;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("STOCK PURCHASES REPORT", 148, y, { align: "center" });
+
+    y += 10;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    const dateStr = (startDate && endDate) ? `From: ${startDate} To: ${endDate}` : `Generated: ${new Date().toLocaleDateString()}`;
+    doc.text(dateStr, 148, y, { align: "center" });
+
+    y += 15;
+    const tableData = filteredPurchases.map(p => [
+      formatDate(p.purchase_date),
+      p.purchase_number,
+      p.supplier_name,
+      p.invoice_number || "-",
+      p.branch,
+      p.stock_purchase_items.length.toString(),
+      p.grand_total.toFixed(2)
+    ]);
+
+    const totalAmount = filteredPurchases.reduce((sum, p) => sum + p.grand_total, 0);
+    tableData.push(["", "", "", "", "", "TOTAL", totalAmount.toFixed(2)]);
+
+    autoTable(doc, {
+      startY: y,
+      head: [["Date", "Purchase No", "Supplier", "Invoice No", "Branch", "Items", "Grand Total"]],
+      body: tableData,
+      theme: "grid",
+      headStyles: { fillColor: [40, 40, 40] },
+      columnStyles: { 6: { halign: 'right' }, 5: { halign: 'right' } }
+    });
+
+    doc.save(`Stock_Purchases_Report_${new Date().toISOString().slice(0,10)}.pdf`);
+  };
+
   const filteredPurchases = purchases.filter(p => {
     const matchesSearch = p.supplier_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           p.purchase_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           (p.invoice_number && p.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesBranch = filterBranch === "All" || p.branch === filterBranch;
-    return matchesSearch && matchesBranch;
+    
+    const matchesBranch = filterBranch === "All Branches" || p.branch === filterBranch;
+
+    let matchesDate = true;
+    if (startDate && endDate) {
+      matchesDate = p.purchase_date >= startDate && p.purchase_date <= endDate;
+    } else if (startDate) {
+      matchesDate = p.purchase_date >= startDate;
+    } else if (endDate) {
+      matchesDate = p.purchase_date <= endDate;
+    }
+
+    return matchesSearch && matchesBranch && matchesDate;
   });
 
   if (loading) {
@@ -163,9 +216,13 @@ export default function StockPurchasesPage() {
               <PackageOpen className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Low Stock</span>
             </Link>
-            <button onClick={handleExportExcel} className="flex items-center space-x-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-[10px] uppercase tracking-widest transition-all">
+            <button onClick={handleExportPDFReport} className="flex items-center space-x-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-[10px] uppercase tracking-widest transition-all border border-white/10">
               <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Export</span>
+              <span className="hidden sm:inline">PDF Report</span>
+            </button>
+            <button onClick={handleExportExcel} className="flex items-center space-x-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-[10px] uppercase tracking-widest transition-all border border-white/10">
+              <Download className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Excel Report</span>
             </button>
             <Link href="/admin/inventory/purchases/new" className="flex items-center space-x-2 px-4 py-2 bg-gold-primary/10 hover:bg-gold-primary/20 text-gold-primary border border-gold-primary/30 text-[10px] uppercase tracking-widest transition-all">
               <Plus className="w-3.5 h-3.5" />
