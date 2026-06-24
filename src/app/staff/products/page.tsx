@@ -51,16 +51,31 @@ export default function StaffProductsPage() {
   const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
-    supabaseStaffClient.auth.getSession().then(({ data: { session } }) => {
+    const handleSession = (session: any) => {
       const role = session?.user?.app_metadata?.role;
       if (session && (role === "staff" || role === "admin")) {
         setSessionToken(session.access_token);
         setStaffEmail(session.user?.email || null);
         setStaffBranch(session.user?.app_metadata?.branch || "All Branches");
         setUserRole(role);
+      } else {
+        setSessionToken(null);
+        setStaffEmail(null);
+        setStaffBranch(null);
+        setUserRole(null);
       }
       setAuthLoading(false);
+    };
+
+    supabaseStaffClient.auth.getSession().then(({ data: { session } }) => {
+      handleSession(session);
     });
+
+    const { data: { subscription } } = supabaseStaffClient.auth.onAuthStateChange((_event, session) => {
+      handleSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const loadReport = async () => {
@@ -237,7 +252,7 @@ export default function StaffProductsPage() {
   };
 
   if (authLoading) return <div className="min-h-screen bg-luxury-black flex items-center justify-center text-white"><Loader2 className="animate-spin" /></div>;
-  if (!sessionToken || (!staffBranch && userRole !== "admin")) return <div className="min-h-screen bg-luxury-black text-white p-10">Access Denied. You must be assigned to a branch.</div>;
+  if (!sessionToken || (!staffBranch && userRole !== "admin")) return <div className="min-h-screen bg-luxury-black text-white p-10">Access Denied. Admin or Staff access required.</div>;
 
   const filtered = reportData.filter(p => p.productName.toLowerCase().includes(searchQuery.toLowerCase()));
 
