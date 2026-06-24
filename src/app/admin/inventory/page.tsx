@@ -36,6 +36,10 @@ export default function AdminInventoryPage() {
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Branch selection — admin can switch; staff is locked to their own branch
+  const BRANCHES = ["Kaduthuruthy", "Ettumanoor", "Peruva"];
+  const [selectedBranch, setSelectedBranch] = useState<string>("Kaduthuruthy");
   
   // Stock adjustment modal
   const [adjustModal, setAdjustModal] = useState<any | null>(null);
@@ -56,8 +60,13 @@ export default function AdminInventoryPage() {
       if (session && (role === "staff" || role === "admin")) {
         setSessionToken(session.access_token);
         setStaffEmail(session.user?.email || null);
-        setStaffBranch(session.user?.app_metadata?.branch || "All Branches");
+        const branch = session.user?.app_metadata?.branch || null;
+        setStaffBranch(branch);
         setUserRole(role);
+        // For staff, lock the selectedBranch to their branch
+        if (role === "staff" && branch) {
+          setSelectedBranch(branch);
+        }
       } else {
         setSessionToken(null);
         setStaffEmail(null);
@@ -79,7 +88,8 @@ export default function AdminInventoryPage() {
   }, []);
 
   const loadReport = async () => {
-    if (!sessionToken || !staffBranch) return;
+    if (!sessionToken) return;
+    const branchToLoad = userRole === "admin" ? selectedBranch : (staffBranch || "Kaduthuruthy");
     setLoading(true);
     try {
       const res = await fetch("/api/inventory", {
@@ -87,7 +97,7 @@ export default function AdminInventoryPage() {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
         body: JSON.stringify({
           action: "get_summary_report",
-          startDate, endDate, branch: staffBranch
+          startDate, endDate, branch: branchToLoad
         }),
       });
       const data = await res.json();
@@ -109,10 +119,10 @@ export default function AdminInventoryPage() {
   };
 
   useEffect(() => {
-    if (sessionToken && staffBranch) {
+    if (sessionToken) {
       loadReport();
     }
-  }, [sessionToken, staffBranch]);
+  }, [sessionToken, selectedBranch]);
 
   const handleDeleteProduct = async (p: any) => {
     if (!confirm(`Are you sure you want to delete ${p.productName}?\nThis action cannot be undone.`)) return;
@@ -147,7 +157,7 @@ export default function AdminInventoryPage() {
         body: JSON.stringify({
           action: "update_stock",
           productId: adjustModal.productId,
-          targetBranch: staffBranch,
+          targetBranch: userRole === "admin" ? selectedBranch : staffBranch,
           quantity: signedQty,
           transactionType: adjustType
         }),
@@ -182,7 +192,7 @@ export default function AdminInventoryPage() {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
         body: JSON.stringify({
           action: "create_product",
-          targetBranch: staffBranch,
+          targetBranch: userRole === "admin" ? selectedBranch : staffBranch,
           ...createData
         }),
       });
@@ -207,11 +217,12 @@ export default function AdminInventoryPage() {
   };
 
   const logExport = async (format: string) => {
+    const branchToExport = userRole === "admin" ? selectedBranch : (staffBranch || "Kaduthuruthy");
     try {
       await fetch("/api/inventory", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
-        body: JSON.stringify({ action: "log_export", exportFormat: format, branch: staffBranch }),
+        body: JSON.stringify({ action: "log_export", exportFormat: format, branch: branchToExport }),
       });
     } catch (err: any) {
       console.error(err);
@@ -224,6 +235,7 @@ export default function AdminInventoryPage() {
   };
 
   const exportPDF = async () => {
+    const branchLabel = userRole === "admin" ? selectedBranch : (staffBranch || "Kaduthuruthy");
     await logExport("PDF");
     const doc = new jsPDF("l", "mm", "a4");
     const pw = 297;
@@ -235,7 +247,7 @@ export default function AdminInventoryPage() {
     doc.setFontSize(13); doc.text(BUSINESS_INFO.name, 8, 12);
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(10); doc.text("PRODUCT SUMMARY REPORT", pw - 8, 12, { align: "right" });
-    doc.setFontSize(7); doc.text(`Period: ${startDate} to ${endDate} | Branch: ${staffBranch}`, pw - 8, 18, { align: "right" });
+    doc.setFontSize(7); doc.text(`Period: ${startDate} to ${endDate} | Branch: ${branchLabel}`, pw - 8, 18, { align: "right" });
 
     autoTable(doc, {
       startY: 33,
@@ -248,10 +260,11 @@ export default function AdminInventoryPage() {
       headStyles: { fillColor: [20, 20, 20], textColor: [212, 175, 55] },
       styles: { fontSize: 7 }
     });
-    doc.save(`Product_Summary_${staffBranch}_${endDate}.pdf`);
+    doc.save(`Product_Summary_${branchLabel}_${endDate}.pdf`);
   };
 
   const exportExcel = async () => {
+    const branchLabel = userRole === "admin" ? selectedBranch : (staffBranch || "Kaduthuruthy");
     await logExport("Excel");
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(reportData.map(p => ({
@@ -267,7 +280,7 @@ export default function AdminInventoryPage() {
       "Revenue": p.revenue
     })));
     XLSX.utils.book_append_sheet(wb, ws, "Product Summary");
-    saveAs(new Blob([XLSX.write(wb, { bookType: "xlsx", type: "array" })]), `Product_Summary_${staffBranch}_${endDate}.xlsx`);
+    saveAs(new Blob([XLSX.write(wb, { bookType: "xlsx", type: "array" })]), `Product_Summary_${branchLabel}_${endDate}.xlsx`);
   };
 
   if (authLoading) return <div className="min-h-screen bg-luxury-black flex items-center justify-center text-white"><Loader2 className="animate-spin" /></div>;
@@ -286,7 +299,9 @@ export default function AdminInventoryPage() {
             <h1 className="font-playfair text-3xl font-light tracking-wide flex items-center">
               <PackageSearch className="mr-3 text-gold-primary" size={28} /> Branch Inventory
             </h1>
-            <p className="text-ivory/50 mt-1">{staffBranch}</p>
+            <p className="text-ivory/50 mt-1">
+              {userRole === "admin" ? selectedBranch : (staffBranch || "")} Branch
+            </p>
           </div>
           <div className="flex gap-3">
             <button onClick={exportExcel} className="flex items-center text-[10px] uppercase tracking-wider border border-green-600 text-green-400 px-4 py-2 hover:bg-green-600/10">
@@ -302,7 +317,24 @@ export default function AdminInventoryPage() {
         </div>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 bg-white/[0.01] border border-white/5 p-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-white/[0.01] border border-white/5 p-4">
+          {/* Branch Dropdown — visible only to admins */}
+          {userRole === "admin" && (
+            <div>
+              <label className="block text-[9px] uppercase tracking-wider text-ivory/60 mb-2 flex items-center gap-1">
+                <Building2 size={10} /> Branch
+              </label>
+              <select
+                value={selectedBranch}
+                onChange={e => setSelectedBranch(e.target.value)}
+                className="w-full bg-luxury-black border border-gold-primary/30 px-3 py-2 text-xs text-white outline-none focus:border-gold-primary appearance-none"
+              >
+                {BRANCHES.map(b => (
+                  <option key={b} value={b} className="bg-black">{b}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div>
             <label className="block text-[9px] uppercase tracking-wider text-ivory/60 mb-2">Start Date</label>
             <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full bg-luxury-black border border-white/10 px-3 py-2 text-xs text-white outline-none" />
