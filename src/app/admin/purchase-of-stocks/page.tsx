@@ -37,8 +37,7 @@ export default function PurchaseOfStocksPage() {
   const [error, setError] = useState<string | null>(null);
 
   const today = new Date();
-  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-  const [startDate, setStartDate] = useState(firstDay.toISOString().slice(0, 10));
+  const [startDate, setStartDate] = useState("2026-01-01");
   const [endDate, setEndDate] = useState(today.toISOString().slice(0, 10));
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBranch, setFilterBranch] = useState("All");
@@ -291,10 +290,10 @@ export default function PurchaseOfStocksPage() {
               <Download className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">PDF</span>
             </button>
-            <button onClick={handleAddRow} className="flex items-center space-x-2 px-4 py-2 bg-gold-primary/10 hover:bg-gold-primary/20 text-gold-primary border border-gold-primary/30 text-[10px] uppercase tracking-widest transition-all">
+            <Link href="/admin/purchase-of-stocks/new" className="flex items-center space-x-2 px-4 py-2 bg-gold-primary/10 hover:bg-gold-primary/20 text-gold-primary border border-gold-primary/30 text-[10px] uppercase tracking-widest transition-all">
               <Plus className="w-3.5 h-3.5" />
-              <span>Add Row</span>
-            </button>
+              <span>New Entry</span>
+            </Link>
           </div>
         </div>
       </div>

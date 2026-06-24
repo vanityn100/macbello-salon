@@ -38,7 +38,8 @@ export async function POST(request: NextRequest) {
 
     // CREATE
     if (action === 'create') {
-      const { error } = await supabaseAdminClient.from('purchase_stock_entries').insert([rowData]);
+      const dataToInsert = Array.isArray(rowData) ? rowData : [rowData];
+      const { error } = await supabaseAdminClient.from('purchase_stock_entries').insert(dataToInsert);
       if (error) throw error;
       return NextResponse.json({ success: true });
     }
