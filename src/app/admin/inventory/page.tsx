@@ -3,259 +3,485 @@
 import { useState, useEffect } from "react";
 import { supabaseAdminClient } from "@/lib/supabase";
 import { 
-  ArrowLeft, Search, Plus, FileSpreadsheet, Loader2, Download, PackageOpen
+  ShieldAlert, Loader2, Download, FileSpreadsheet, Building2, Calendar, ChevronLeft, 
+  PackageSearch, AlertTriangle, ArrowDownRight, ArrowUpRight, Search, Plus, Minus
 } from "lucide-react";
 import Link from "next/link";
-import { formatINR, formatDate } from "@/lib/format";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
+import { formatINR, formatDate } from "@/lib/format";
 
-interface StockPurchase {
-  id: string;
-  purchase_number: string;
-  invoice_number: string;
-  supplier_name: string;
-  purchase_date: string;
-  branch: string;
-  grand_total: number;
-  stock_purchase_items: any[];
+function pdfINR(v: number) {
+  return "Rs." + new Intl.NumberFormat("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(v) || 0);
 }
 
-export default function StockPurchasesPage() {
+const BUSINESS_INFO = {
+  name: "MacBello Family Salon",
+  gstin: "32AABCM1029F1Z4",
+};
+
+export default function AdminInventoryPage() {
   const [sessionToken, setSessionToken] = useState<string | null>(null);
-  const [purchases, setPurchases] = useState<StockPurchase[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [staffEmail, setStaffEmail] = useState<string | null>(null);
+  const [staffBranch, setStaffBranch] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  const today = new Date();
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  const [startDate, setStartDate] = useState(firstDay.toISOString().slice(0, 10));
+  const [endDate, setEndDate] = useState(today.toISOString().slice(0, 10));
+
+  const [loading, setLoading] = useState(false);
+  const [reportData, setReportData] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   
-  // Filters
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterBranch, setFilterBranch] = useState("All");
+  // Stock adjustment modal
+  const [adjustModal, setAdjustModal] = useState<any | null>(null);
+  const [adjustQty, setAdjustQty] = useState("");
+  const [adjustType, setAdjustType] = useState<"STOCK_IN" | "ADJUSTMENT">("STOCK_IN");
+  const [adjustLoading, setAdjustLoading] = useState(false);
+
+  // Create Product modal
+  const [createModal, setCreateModal] = useState(false);
+  const [createData, setCreateData] = useState({ name: "", price: "", hsn: "999729", gstRate: "18", initialStock: "0", minimumStock: "5" });
+  const [createLoading, setCreateLoading] = useState(false);
+
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
-    supabaseAdminClient.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+    const handleSession = (session: any) => {
+      const role = session?.user?.app_metadata?.role;
+      if (session && (role === "staff" || role === "admin")) {
         setSessionToken(session.access_token);
-        fetchPurchases(session.access_token);
+        setStaffEmail(session.user?.email || null);
+        setStaffBranch(session.user?.app_metadata?.branch || "All Branches");
+        setUserRole(role);
       } else {
-        setLoading(false);
-        setError("Unauthorized access.");
+        setSessionToken(null);
+        setStaffEmail(null);
+        setStaffBranch(null);
+        setUserRole(null);
       }
+      setAuthLoading(false);
+    };
+
+    supabaseAdminClient.auth.getSession().then(({ data: { session } }) => {
+      handleSession(session);
     });
+
+    const { data: { subscription } } = supabaseAdminClient.auth.onAuthStateChange((_event, session) => {
+      handleSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const fetchPurchases = async (token: string) => {
+  const loadReport = async () => {
+    if (!sessionToken || !staffBranch) return;
+    setLoading(true);
     try {
-      const res = await fetch("/api/inventory/purchases?action=list", {
-        headers: { "Authorization": `Bearer ${token}` }
+      const res = await fetch("/api/inventory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+        body: JSON.stringify({
+          action: "get_summary_report",
+          startDate, endDate, branch: staffBranch
+        }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setPurchases(data.purchases || []);
+        setReportData(data.report);
       } else {
-        setError(data.error || "Failed to load purchases.");
+        alert(data.error || "Failed to load inventory.");
       }
-    } catch (err) {
-      setError("Network error. Could not fetch purchases.");
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleExportExcel = () => {
-    const dataToExport = purchases.map(p => ({
-      "Date": formatDate(p.purchase_date),
-      "Purchase No": p.purchase_number,
-      "Supplier": p.supplier_name,
-      "Invoice No": p.invoice_number || "-",
-      "Branch": p.branch,
-      "Total Items": p.stock_purchase_items.length,
-      "Grand Total (INR)": p.grand_total
-    }));
+  useEffect(() => {
+    if (sessionToken && staffBranch) {
+      loadReport();
+    }
+  }, [sessionToken, staffBranch]);
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Stock Purchases");
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-    const dataBlob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    saveAs(dataBlob, `Stock_Purchases_${new Date().toISOString().slice(0,10)}.xlsx`);
+  const handleDeleteProduct = async (p: any) => {
+    if (!confirm(`Are you sure you want to delete ${p.productName}?\nThis action cannot be undone.`)) return;
+    try {
+      const res = await fetch("/api/inventory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+        body: JSON.stringify({ action: "delete_product", productId: p.productId })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        loadReport();
+      } else {
+        alert(data.error || "Failed to delete product.");
+      }
+    } catch (err) {
+      alert("Something went wrong. Please try again.");
+    }
   };
 
-  const handleExportPDF = (purchase: StockPurchase) => {
-    const doc = new jsPDF("p", "mm", "a4");
-    let y = 20;
+  const handleAdjustSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sessionToken || !adjustModal) return;
+    setAdjustLoading(true);
+    try {
+      const qty = parseInt(adjustQty, 10);
+      const signedQty = adjustType === "STOCK_IN" ? Math.abs(qty) : -Math.abs(qty);
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text("PURCHASE INVOICE RECORD", 105, y, { align: "center" });
+      const res = await fetch("/api/inventory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+        body: JSON.stringify({
+          action: "update_stock",
+          productId: adjustModal.productId,
+          targetBranch: staffBranch,
+          quantity: signedQty,
+          transactionType: adjustType
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setAdjustModal(null);
+        setAdjustQty("");
+        loadReport(); // refresh
+      } else {
+        alert(data.error || "Failed to update stock.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    } finally {
+      setAdjustLoading(false);
+    }
+  };
 
-    y += 15;
-    doc.setFontSize(10);
-    doc.text(`Purchase No: ${purchase.purchase_number}`, 20, y);
-    doc.text(`Date: ${formatDate(purchase.purchase_date)}`, 140, y);
-    
-    y += 8;
-    doc.text(`Supplier: ${purchase.supplier_name}`, 20, y);
-    if (purchase.invoice_number) doc.text(`Invoice No: ${purchase.invoice_number}`, 140, y);
+  const handleCreateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sessionToken) return;
+    setCreateLoading(true);
+    try {
+      const res = await fetch("/api/inventory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+        body: JSON.stringify({
+          action: "create_product",
+          targetBranch: staffBranch,
+          ...createData
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setCreateModal(false);
+        setCreateData({ name: "", price: "", hsn: "999729", gstRate: "18", initialStock: "0", minimumStock: "5" });
+        loadReport();
+      } else {
+        alert(data.error || "Failed to create product.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    } finally {
+      setCreateLoading(false);
+    }
+  };
 
-    y += 8;
-    doc.text(`Branch Receiving: ${purchase.branch}`, 20, y);
+  const logExport = async (format: string) => {
+    try {
+      await fetch("/api/inventory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+        body: JSON.stringify({ action: "log_export", exportFormat: format, branch: staffBranch }),
+      });
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    }
+  };
 
-    y += 15;
-    const tableData = purchase.stock_purchase_items.map((item: any) => [
-      item.product_id.substring(0, 8), // We don't have product name joined easily in the list query right now
-      item.quantity,
-      `INR ${item.purchase_rate.toFixed(2)}`,
-      `${item.discount_percent}%`,
-      `${item.gst_percent}%`,
-      `INR ${item.line_total.toFixed(2)}`
-    ]);
+  const exportPDF = async () => {
+    await logExport("PDF");
+    const doc = new jsPDF("l", "mm", "a4");
+    const pw = 297;
+    doc.setFillColor(20, 20, 20);
+    doc.rect(0, 0, pw, 28, "F");
+    doc.setFillColor(212, 175, 55);
+    doc.rect(0, 0, 3, 28, "F");
+    doc.setTextColor(212, 175, 55);
+    doc.setFontSize(13); doc.text(BUSINESS_INFO.name, 8, 12);
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10); doc.text("PRODUCT SUMMARY REPORT", pw - 8, 12, { align: "right" });
+    doc.setFontSize(7); doc.text(`Period: ${startDate} to ${endDate} | Branch: ${staffBranch}`, pw - 8, 18, { align: "right" });
 
     autoTable(doc, {
-      startY: y,
-      head: [["Item Code", "Qty", "Rate", "Disc %", "GST %", "Line Total"]],
-      body: tableData,
+      startY: 33,
+      head: [["Product", "HSN", "GST", "Status", "In Stock", "Qty Sold", "Taxable (Rs)", "GST (Rs)", "Revenue (Rs)"]],
+      body: reportData.map(p => [
+        p.productName, p.hsn, p.gstRate, p.status, p.currentStock, p.quantitySold,
+        pdfINR(p.taxableValue), pdfINR(p.gstCollected), pdfINR(p.revenue)
+      ]),
       theme: "grid",
-      headStyles: { fillColor: [40, 40, 40] }
+      headStyles: { fillColor: [20, 20, 20], textColor: [212, 175, 55] },
+      styles: { fontSize: 7 }
     });
-
-    const finalY = (doc as any).lastAutoTable.finalY + 15;
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text(`Grand Total: INR ${purchase.grand_total.toFixed(2)}`, 140, finalY);
-
-    doc.save(`Purchase_${purchase.purchase_number}.pdf`);
+    doc.save(`Product_Summary_${staffBranch}_${endDate}.pdf`);
   };
 
-  const filteredPurchases = purchases.filter(p => {
-    const matchesSearch = p.supplier_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          p.purchase_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          (p.invoice_number && p.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesBranch = filterBranch === "All" || p.branch === filterBranch;
-    return matchesSearch && matchesBranch;
-  });
+  const exportExcel = async () => {
+    await logExport("Excel");
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(reportData.map(p => ({
+      "Product Name": p.productName,
+      "Category": p.category,
+      "HSN": p.hsn,
+      "GST Rate": p.gstRate,
+      "Current Stock": p.currentStock,
+      "Status": p.status,
+      "Quantity Sold": p.quantitySold,
+      "Taxable Value": p.taxableValue,
+      "GST Collected": p.gstCollected,
+      "Revenue": p.revenue
+    })));
+    XLSX.utils.book_append_sheet(wb, ws, "Product Summary");
+    saveAs(new Blob([XLSX.write(wb, { bookType: "xlsx", type: "array" })]), `Product_Summary_${staffBranch}_${endDate}.xlsx`);
+  };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-gold-primary animate-spin" />
-      </div>
-    );
-  }
+  if (authLoading) return <div className="min-h-screen bg-luxury-black flex items-center justify-center text-white"><Loader2 className="animate-spin" /></div>;
+  if (!sessionToken || (!staffBranch && userRole !== "admin")) return <div className="min-h-screen bg-luxury-black text-white p-10">Access Denied. Admin or Staff access required.</div>;
+
+  const filtered = reportData.filter(p => p.productName.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
-      {/* Header */}
-      <div className="sticky top-0 z-40 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link href="/admin" className="p-2 hover:bg-white/5 rounded-full transition-colors">
-              <ArrowLeft className="w-5 h-5" />
+    <main className="min-h-screen bg-luxury-black text-white px-6 py-12 md:py-16">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex justify-between items-end border-b border-white/5 pb-6 mb-8">
+          <div>
+            <Link href="/admin" className="text-gold-primary/70 hover:text-gold-primary text-[10px] uppercase tracking-widest flex items-center mb-3">
+              <ChevronLeft className="w-3 h-3 mr-1" /> Back to Dashboard
             </Link>
-            <div>
-              <h1 className="text-lg font-light tracking-wide uppercase">Stock Purchases</h1>
-              <p className="text-[10px] text-gray-400 uppercase tracking-widest">Inventory Management</p>
-            </div>
+            <h1 className="font-playfair text-3xl font-light tracking-wide flex items-center">
+              <PackageSearch className="mr-3 text-gold-primary" size={28} /> Branch Inventory
+            </h1>
+            <p className="text-ivory/50 mt-1">{staffBranch}</p>
           </div>
-          <div className="flex items-center space-x-3">
-            <Link href="/admin/inventory/low-stock" className="flex items-center space-x-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] uppercase tracking-widest transition-all">
-              <PackageOpen className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Low Stock</span>
-            </Link>
-            <button onClick={handleExportExcel} className="flex items-center space-x-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-[10px] uppercase tracking-widest transition-all">
-              <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Export</span>
+          <div className="flex gap-3">
+            <button onClick={exportExcel} className="flex items-center text-[10px] uppercase tracking-wider border border-green-600 text-green-400 px-4 py-2 hover:bg-green-600/10">
+              <FileSpreadsheet size={12} className="mr-2" /> Excel
             </button>
-            <Link href="/admin/inventory/purchases/new" className="flex items-center space-x-2 px-4 py-2 bg-gold-primary/10 hover:bg-gold-primary/20 text-gold-primary border border-gold-primary/30 text-[10px] uppercase tracking-widest transition-all">
-              <Plus className="w-3.5 h-3.5" />
-              <span>New Entry</span>
-            </Link>
+            <button onClick={exportPDF} className="flex items-center text-[10px] uppercase tracking-wider bg-red-700 text-white px-4 py-2 hover:bg-red-800">
+              <Download size={12} className="mr-2" /> PDF
+            </button>
+            <button onClick={() => setCreateModal(true)} className="flex items-center text-[10px] font-bold uppercase tracking-wider bg-gold-primary text-black px-4 py-2 hover:bg-gold-dark transition-colors ml-2">
+              <Plus size={12} className="mr-2" /> Manual Entry
+            </button>
           </div>
         </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {error && (
-          <div className="p-4 mb-6 bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-            {error}
-          </div>
-        )}
 
         {/* Filters */}
-        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search Supplier, Invoice or PO Number..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-none pl-10 pr-4 py-2.5 text-sm focus:border-gold-primary/50 focus:ring-1 focus:ring-gold-primary/50 transition-all outline-none"
-            />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 bg-white/[0.01] border border-white/5 p-4">
+          <div>
+            <label className="block text-[9px] uppercase tracking-wider text-ivory/60 mb-2">Start Date</label>
+            <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full bg-luxury-black border border-white/10 px-3 py-2 text-xs text-white outline-none" />
           </div>
           <div>
-            <select
-              value={filterBranch}
-              onChange={(e) => setFilterBranch(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-none px-4 py-2.5 text-sm focus:border-gold-primary/50 focus:ring-1 focus:ring-gold-primary/50 transition-all outline-none appearance-none"
-            >
-              <option value="All" className="bg-black">All Branches</option>
-              <option value="Kaduthuruthy" className="bg-black">Kaduthuruthy</option>
-              <option value="Ettumanoor" className="bg-black">Ettumanoor</option>
-              <option value="Peruva" className="bg-black">Peruva</option>
-            </select>
+            <label className="block text-[9px] uppercase tracking-wider text-ivory/60 mb-2">End Date</label>
+            <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full bg-luxury-black border border-white/10 px-3 py-2 text-xs text-white outline-none" />
+          </div>
+          <div className="flex items-end">
+            <button onClick={loadReport} disabled={loading} className="w-full bg-gold-primary text-black text-[10px] font-bold uppercase tracking-widest px-4 py-2.5 hover:bg-gold-dark">
+              {loading ? "Loading..." : "Generate Report"}
+            </button>
           </div>
         </div>
 
-        {/* Data Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm whitespace-nowrap">
+        {/* Search */}
+        <div className="mb-6 relative">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ivory/40" />
+          <input type="text" placeholder="Search products..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+            className="w-full bg-white/[0.02] border border-white/10 pl-9 pr-4 py-3 text-sm text-white focus:outline-none focus:border-gold-primary/50" />
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto border border-white/5">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/10 text-gray-400 text-[10px] uppercase tracking-widest bg-white/5">
-                <th className="px-4 py-4 font-normal">Date</th>
-                <th className="px-4 py-4 font-normal">Purchase No</th>
-                <th className="px-4 py-4 font-normal">Supplier</th>
-                <th className="px-4 py-4 font-normal">Invoice No</th>
-                <th className="px-4 py-4 font-normal">Branch</th>
-                <th className="px-4 py-4 font-normal text-right">Items</th>
-                <th className="px-4 py-4 font-normal text-right">Grand Total</th>
-                <th className="px-4 py-4 font-normal text-center">Actions</th>
+              <tr className="bg-white/[0.02] border-b border-white/5">
+                <th className="p-4 text-[10px] uppercase tracking-wider text-ivory/50 font-normal">Product</th>
+                <th className="p-4 text-[10px] uppercase tracking-wider text-ivory/50 font-normal">Status</th>
+                <th className="p-4 text-[10px] uppercase tracking-wider text-ivory/50 font-normal text-right">Stock</th>
+                <th className="p-4 text-[10px] uppercase tracking-wider text-ivory/50 font-normal text-right">Sold</th>
+                <th className="p-4 text-[10px] uppercase tracking-wider text-ivory/50 font-normal text-right">Revenue</th>
+                <th className="p-4 text-[10px] uppercase tracking-wider text-ivory/50 font-normal text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
-              {filteredPurchases.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
-                    <PackageOpen className="w-8 h-8 mx-auto mb-3 opacity-20" />
-                    <p>No stock purchases found.</p>
+            <tbody>
+              {filtered.map(p => (
+                <tr key={p.productId} className="border-b border-white/5 hover:bg-white/[0.01]">
+                  <td className="p-4">
+                    <p className="text-sm font-medium text-white">{p.productName}</p>
+                    <p className="text-[9px] text-ivory/40 mt-0.5">HSN: {p.hsn} · GST: {p.gstRate}</p>
+                  </td>
+                  <td className="p-4">
+                    {p.status === "OUT_OF_STOCK" || p.currentStock <= 0 ? (
+                      <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider text-red-400 bg-red-400/10 px-2 py-1 rounded">
+                        OUT OF STOCK
+                      </span>
+                    ) : p.currentStock <= p.minimumStock ? (
+                      <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-400/10 px-2 py-1 rounded">
+                        <AlertTriangle size={10} className="mr-1" /> LOW STOCK
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider text-green-400 bg-green-400/10 px-2 py-1 rounded">
+                        ACTIVE
+                      </span>
+                    )}
+                  </td>
+                  <td className="p-4 text-right">
+                    <span className={`metric-value text-sm ${p.currentStock <= p.minimumStock ? "text-orange-400" : "text-white"}`}>{p.currentStock}</span>
+                  </td>
+                  <td className="metric-value p-4 text-right text-sm text-ivory/70">{p.quantitySold}</td>
+                  <td className="currency-value p-4 text-right text-sm text-gold-primary">{formatINR(p.revenue)}</td>
+                  <td className="p-4 text-right whitespace-nowrap">
+                    <button onClick={() => setAdjustModal(p)} className="text-[10px] uppercase tracking-wider text-gold-primary hover:underline">
+                      Adjust
+                    </button>
+                    {userRole === "admin" && (
+                      <button onClick={() => handleDeleteProduct(p)} className="text-[10px] uppercase tracking-wider text-red-500 hover:underline ml-4">
+                        Delete
+                      </button>
+                    )}
                   </td>
                 </tr>
-              ) : (
-                filteredPurchases.map((p) => (
-                  <tr key={p.id} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="px-4 py-4 text-gray-300">{formatDate(p.purchase_date)}</td>
-                    <td className="px-4 py-4 font-mono text-xs text-gold-primary">{p.purchase_number}</td>
-                    <td className="px-4 py-4">{p.supplier_name}</td>
-                    <td className="px-4 py-4 text-gray-400">{p.invoice_number || "-"}</td>
-                    <td className="px-4 py-4 text-gray-300">{p.branch}</td>
-                    <td className="px-4 py-4 text-right">{p.stock_purchase_items.length}</td>
-                    <td className="px-4 py-4 text-right text-gold-primary">{formatINR(p.grand_total)}</td>
-                    <td className="px-4 py-4 text-center">
-                      <button 
-                        onClick={() => handleExportPDF(p)}
-                        className="text-[10px] uppercase tracking-widest text-gold-primary hover:text-white transition-colors border border-gold-primary/30 hover:border-white/50 px-3 py-1 bg-gold-primary/5"
-                      >
-                        PDF
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
+              ))}
             </tbody>
           </table>
+          {filtered.length === 0 && !loading && (
+            <div className="p-8 text-center text-ivory/40 text-sm">No products found for this period.</div>
+          )}
         </div>
       </div>
-    </div>
+
+      {/* Adjust Modal */}
+      {adjustModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-luxury-black border border-white/10 w-full max-w-sm p-6 relative">
+            <h3 className="font-playfair text-xl text-white mb-1">Adjust Stock</h3>
+            <p className="text-xs text-ivory/60 mb-6">{adjustModal.productName}</p>
+            
+            <form onSubmit={handleAdjustSubmit} className="space-y-4">
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setAdjustType("STOCK_IN")} 
+                  className={`flex-1 flex items-center justify-center py-2 text-xs border transition-colors ${adjustType === "STOCK_IN" ? "border-green-500 text-green-400 bg-green-500/10" : "border-white/10 text-ivory/50"}`}>
+                  <Plus size={12} className="mr-1" /> Restock
+                </button>
+                <button type="button" onClick={() => setAdjustType("ADJUSTMENT")} 
+                  className={`flex-1 flex items-center justify-center py-2 text-xs border transition-colors ${adjustType === "ADJUSTMENT" ? "border-red-500 text-red-400 bg-red-500/10" : "border-white/10 text-ivory/50"}`}>
+                  <Minus size={12} className="mr-1" /> Damage/Loss
+                </button>
+              </div>
+
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider text-ivory/60 mb-2">Quantity</label>
+                <input type="number" min="1" value={adjustQty} onChange={e => setAdjustQty(e.target.value)} required
+                  className="w-full bg-white/[0.02] border border-white/10 px-3 py-2 text-white outline-none focus:border-gold-primary" />
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button type="button" onClick={() => setAdjustModal(null)} className="flex-1 py-2 text-xs border border-white/10 hover:bg-white/5">Cancel</button>
+                <button type="submit" disabled={adjustLoading} className="flex-1 py-2 text-xs bg-gold-primary text-black font-bold uppercase">
+                  {adjustLoading ? "Saving..." : "Confirm"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Create Modal */}
+      {createModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-luxury-black border border-white/10 w-full max-w-md p-6 relative">
+            <h3 className="text-xl text-white mb-6">Add Manual Entry (Product)</h3>
+            
+            <form onSubmit={handleCreateSubmit} className="space-y-4">
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider text-ivory/60 mb-2">Product Name</label>
+                <input type="text" value={createData.name} onChange={e => setCreateData({...createData, name: e.target.value})} required
+                  className="w-full bg-white/[0.02] border border-white/10 px-3 py-2 text-white outline-none focus:border-gold-primary" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-ivory/60 mb-2">Price (Rs)</label>
+                  <input type="number" min="0" step="0.01" value={createData.price} onChange={e => setCreateData({...createData, price: e.target.value})} required
+                    className="w-full bg-white/[0.02] border border-white/10 px-3 py-2 text-white outline-none focus:border-gold-primary" />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-ivory/60 mb-2">GST Rate (%)</label>
+                  <select value={createData.gstRate} onChange={e => setCreateData({...createData, gstRate: e.target.value})}
+                    className="w-full bg-white/[0.02] border border-white/10 px-3 py-2 text-white outline-none focus:border-gold-primary">
+                    <option value="0">0%</option>
+                    <option value="5">5%</option>
+                    <option value="12">12%</option>
+                    <option value="18">18%</option>
+                    <option value="28">28%</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-ivory/60 mb-2">Initial Stock</label>
+                  <input type="number" min="0" value={createData.initialStock} onChange={e => setCreateData({...createData, initialStock: e.target.value})} required
+                    className="w-full bg-white/[0.02] border border-white/10 px-3 py-2 text-white outline-none focus:border-gold-primary" />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-ivory/60 mb-2">Min Stock Alert</label>
+                  <input type="number" min="0" value={createData.minimumStock} onChange={e => setCreateData({...createData, minimumStock: e.target.value})} required
+                    className="w-full bg-white/[0.02] border border-white/10 px-3 py-2 text-white outline-none focus:border-gold-primary" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider text-ivory/60 mb-2">HSN Code</label>
+                <input type="text" value={createData.hsn} onChange={e => setCreateData({...createData, hsn: e.target.value})} required
+                  className="w-full bg-white/[0.02] border border-white/10 px-3 py-2 text-white outline-none focus:border-gold-primary" />
+              </div>
+
+              <div className="flex gap-3 mt-6 pt-4 border-t border-white/10">
+                <button type="button" onClick={() => setCreateModal(false)} className="flex-1 py-2 text-xs border border-white/10 hover:bg-white/5">Cancel</button>
+                <button type="submit" disabled={createLoading} className="flex-1 py-2 text-xs bg-gold-primary text-black font-bold uppercase">
+                  {createLoading ? "Saving..." : "Create Product"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </main>
   );
 }
