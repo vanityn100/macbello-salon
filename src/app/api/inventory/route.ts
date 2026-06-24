@@ -211,11 +211,10 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: false, error: "Only administrators can delete products." }, { status: 403 });
       }
 
-      // Check if product is used in any invoices before deleting, or just delete if cascaded
-      // For safety, we will just delete it from services. If there's an FK constraint, it will fail gracefully.
+      // Safe soft delete to prevent historical report breaks and cascading issues
       const { error: delError } = await adminSupabase
         .from("services")
-        .delete()
+        .update({ status: "archived" })
         .eq("id", productId);
 
       if (delError) {
@@ -226,7 +225,7 @@ export async function POST(req: Request) {
         user_id: user.email,
         role: role,
         action: "inventory_delete_product",
-        details: `Deleted product with ID ${productId}`
+        details: `Soft-deleted product with ID ${productId} (set status to archived)`
       });
 
       return NextResponse.json({ success: true });

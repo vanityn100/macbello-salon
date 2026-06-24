@@ -769,6 +769,9 @@ export async function POST(request: NextRequest) {
 
       if (error) {
         console.error("Create customer error:", error);
+        if (error.code === "23505") {
+          return NextResponse.json({ success: false, error: "Customer profile already exists for this number or email." }, { status: 409 });
+        }
         return NextResponse.json({ success: false, error: "Failed to register customer." }, { status: 500 });
       }
 
@@ -879,65 +882,63 @@ export async function POST(request: NextRequest) {
       const finalPoints = customer.points - redeemAmt + pointsEarned;
       const invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-      const [ptRes, invRes] = await Promise.all([
-        adminSupabase
-          .from("customers")
-          .update({ points: finalPoints })
-          .eq("id", customerId)
-          .gte("points", redeemAmt),
-        adminSupabase
-          .from("invoices")
-          .insert([{
-            invoice_number: invoiceNumber,
-            customer_id: customerId,
-            customer_name: customer.name,
-            customer_phone: customer.phone || null,
-            customer_gstin: customer.gstin || null,
-            subtotal: parseFloat(subtotal.toFixed(2)),
-            service_tax: parseFloat(serviceTax.toFixed(2)),
-            retail_tax: parseFloat(retailTax.toFixed(2)),
-            total_tax: parseFloat(totalTax.toFixed(2)),
-            grand_total: grandTotal,
-            points_earned: pointsEarned,
-            points_redeemed: redeemAmt,
-            created_by: user.email,
-            branch: targetBranch,
-            payment_method: paymentMethod || "Cash",
-            status: "active"
-          }])
-          .select("*")
-          .single()
-      ]);
-
-      const { error: ptErr } = ptRes;
-      const { data: invoice, error: invErr } = invRes;
-
-      if (ptErr) {
-        return NextResponse.json({ success: false, error: "Concurrency conflict during points redemption." }, { status: 409 });
-      }
+      // Save to database in a safe transaction sequence:
+      // 1. Insert invoice first (so we get a valid invoice.id)
+      const { data: invoice, error: invErr } = await adminSupabase
+        .from("invoices")
+        .insert([{
+          invoice_number: invoiceNumber,
+          customer_id: customerId,
+          customer_name: customer.name,
+          customer_phone: customer.phone || null,
+          customer_gstin: customer.gstin || null,
+          subtotal: parseFloat(subtotal.toFixed(2)),
+          service_tax: parseFloat(serviceTax.toFixed(2)),
+          retail_tax: parseFloat(retailTax.toFixed(2)),
+          total_tax: parseFloat(totalTax.toFixed(2)),
+          grand_total: grandTotal,
+          points_earned: pointsEarned,
+          points_redeemed: redeemAmt,
+          created_by: user.email,
+          branch: targetBranch,
+          payment_method: paymentMethod || "Cash",
+          status: "active"
+        }])
+        .select("*")
+        .single();
 
       if (invErr) {
-        // Rollback points
-        await adminSupabase.from("customers").update({ points: customer.points }).eq("id", customerId);
         return NextResponse.json({ success: false, error: "Failed to write invoice records." }, { status: 500 });
       }
 
       const itemsToInsert = invoiceItemsToInsert.map((item) => ({ ...item, invoice_id: invoice.id }));
-      
-      // Parallelize Invoice Items Insertion and Security Audit Logging
-      const [itemsRes] = await Promise.all([
-        adminSupabase.from("invoice_items").insert(itemsToInsert),
-        logSecurityAction(adminSupabase, user, "checkout_invoice", `Generated Invoice #${invoiceNumber} for amount INR ${grandTotal} at branch ${targetBranch}`)
-      ]);
-      
-      const { error: itemsErr } = itemsRes;
+
+      // 2. Insert invoice items next
+      const { error: itemsErr } = await adminSupabase.from("invoice_items").insert(itemsToInsert);
 
       if (itemsErr) {
-        // Rollback invoice and points
+        // Rollback inserted invoice
         await adminSupabase.from("invoices").delete().eq("id", invoice.id);
-        await adminSupabase.from("customers").update({ points: customer.points }).eq("id", customerId);
         return NextResponse.json({ success: false, error: "Failed to write items to database." }, { status: 500 });
       }
+
+      // 3. Update customer points only after invoice records are safely stored
+      const { error: ptErr } = await adminSupabase
+        .from("customers")
+        .update({ points: finalPoints })
+        .eq("id", customerId)
+        .gte("points", redeemAmt);
+
+      if (ptErr) {
+        // Rollback invoice items and invoice
+        await adminSupabase.from("invoice_items").delete().eq("invoice_id", invoice.id);
+        await adminSupabase.from("invoices").delete().eq("id", invoice.id);
+        return NextResponse.json({ success: false, error: "Concurrency conflict during points redemption." }, { status: 409 });
+      }
+
+      // 4. Log audit log asynchronously (does not block checkout completion)
+      logSecurityAction(adminSupabase, user, "checkout_invoice", `Generated Invoice #${invoiceNumber} for amount INR ${grandTotal} at branch ${targetBranch}`);
+
       return NextResponse.json({ success: true, invoice, items: itemsToInsert, newPoints: finalPoints });
     }
 
