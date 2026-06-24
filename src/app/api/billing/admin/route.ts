@@ -794,31 +794,32 @@ export async function POST(request: NextRequest) {
 
       const redeemAmt = parseInt(pointsToRedeem, 10) || 0;
 
-      // Verify customer exists
-      const { data: customer, error: customerErr } = await adminSupabase
-        .from("customers")
-        .select("id, name, phone, gstin, points, branch")
-        .eq("id", customerId)
-        .eq("status", "active")
-        .maybeSingle();
+      // Parallelize customer profile fetch and service items fetch for faster billing
+      const itemIds = items.map((i) => i.id);
+      
+      const [customerRes, dbItemsRes] = await Promise.all([
+        adminSupabase
+          .from("customers")
+          .select("id, name, phone, gstin, points, branch")
+          .eq("id", customerId)
+          .eq("status", "active")
+          .maybeSingle(),
+        adminSupabase
+          .from("services")
+          .select("*")
+          .in("id", itemIds)
+      ]);
+
+      const { data: customer, error: customerErr } = customerRes;
+      const { data: dbItems, error: dbItemsErr } = dbItemsRes;
 
       if (customerErr || !customer) {
         return NextResponse.json({ success: false, error: "Customer profile not found." }, { status: 404 });
       }
 
-      // Customers are a global pool, so no branch check is needed here
-
-
       if (redeemAmt > customer.points) {
         return NextResponse.json({ success: false, error: "Insufficient points balance." }, { status: 400 });
       }
-
-      // Verify items and compute totals
-      const itemIds = items.map((i) => i.id);
-      const { data: dbItems, error: dbItemsErr } = await adminSupabase
-        .from("services")
-        .select("*")
-        .in("id", itemIds);
 
       if (dbItemsErr || !dbItems || dbItems.length === 0) {
         return NextResponse.json({ success: false, error: "Failed to query checkout items." }, { status: 500 });
@@ -874,43 +875,46 @@ export async function POST(request: NextRequest) {
       const grandTotal = parseFloat((preDiscountTotal - discount).toFixed(2));
       const pointsEarned = Math.floor(grandTotal / 10);
 
-      // Save to database atomically
+      // Save to database atomically - Parallelize Points Update and Invoice Creation
       const finalPoints = customer.points - redeemAmt + pointsEarned;
-      const { error: ptErr } = await adminSupabase
-        .from("customers")
-        .update({ points: finalPoints })
-        .eq("id", customerId)
-        .gte("points", redeemAmt);
+      const invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      const [ptRes, invRes] = await Promise.all([
+        adminSupabase
+          .from("customers")
+          .update({ points: finalPoints })
+          .eq("id", customerId)
+          .gte("points", redeemAmt),
+        adminSupabase
+          .from("invoices")
+          .insert([{
+            invoice_number: invoiceNumber,
+            customer_id: customerId,
+            customer_name: customer.name,
+            customer_phone: customer.phone || null,
+            customer_gstin: customer.gstin || null,
+            subtotal: parseFloat(subtotal.toFixed(2)),
+            service_tax: parseFloat(serviceTax.toFixed(2)),
+            retail_tax: parseFloat(retailTax.toFixed(2)),
+            total_tax: parseFloat(totalTax.toFixed(2)),
+            grand_total: grandTotal,
+            points_earned: pointsEarned,
+            points_redeemed: redeemAmt,
+            created_by: user.email,
+            branch: targetBranch,
+            payment_method: paymentMethod || "Cash",
+            status: "active"
+          }])
+          .select("*")
+          .single()
+      ]);
+
+      const { error: ptErr } = ptRes;
+      const { data: invoice, error: invErr } = invRes;
 
       if (ptErr) {
         return NextResponse.json({ success: false, error: "Concurrency conflict during points redemption." }, { status: 409 });
       }
-
-      const invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(1000 + Math.random() * 9000)}`;
-
-      const { data: invoice, error: invErr } = await adminSupabase
-        .from("invoices")
-        .insert([{
-          invoice_number: invoiceNumber,
-          customer_id: customerId,
-          // Immutable snapshot — future customer edits cannot alter tax history
-          customer_name: customer.name,
-          customer_phone: customer.phone || null,
-          customer_gstin: customer.gstin || null,
-          subtotal: parseFloat(subtotal.toFixed(2)),
-          service_tax: parseFloat(serviceTax.toFixed(2)),
-          retail_tax: parseFloat(retailTax.toFixed(2)),
-          total_tax: parseFloat(totalTax.toFixed(2)),
-          grand_total: grandTotal,
-          points_earned: pointsEarned,
-          points_redeemed: redeemAmt,
-          created_by: user.email,
-          branch: targetBranch,
-          payment_method: paymentMethod || "Cash",
-          status: "active"
-        }])
-        .select("*")
-        .single();
 
       if (invErr) {
         // Rollback points
@@ -919,7 +923,14 @@ export async function POST(request: NextRequest) {
       }
 
       const itemsToInsert = invoiceItemsToInsert.map((item) => ({ ...item, invoice_id: invoice.id }));
-      const { error: itemsErr } = await adminSupabase.from("invoice_items").insert(itemsToInsert);
+      
+      // Parallelize Invoice Items Insertion and Security Audit Logging
+      const [itemsRes] = await Promise.all([
+        adminSupabase.from("invoice_items").insert(itemsToInsert),
+        logSecurityAction(adminSupabase, user, "checkout_invoice", `Generated Invoice #${invoiceNumber} for amount INR ${grandTotal} at branch ${targetBranch}`)
+      ]);
+      
+      const { error: itemsErr } = itemsRes;
 
       if (itemsErr) {
         // Rollback invoice and points
@@ -927,8 +938,6 @@ export async function POST(request: NextRequest) {
         await adminSupabase.from("customers").update({ points: customer.points }).eq("id", customerId);
         return NextResponse.json({ success: false, error: "Failed to write items to database." }, { status: 500 });
       }
-
-      await logSecurityAction(adminSupabase, user, "checkout_invoice", `Generated Invoice #${invoiceNumber} for amount INR ${grandTotal} at branch ${targetBranch}`);
       return NextResponse.json({ success: true, invoice, items: itemsToInsert, newPoints: finalPoints });
     }
 

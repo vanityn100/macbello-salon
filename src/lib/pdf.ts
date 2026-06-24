@@ -174,29 +174,27 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
   // Table Rows
   items.forEach((item) => {
     const hasStaff = !!item.staff_contribution;
-    const rowHeight = hasStaff ? 11 : 8;
+
+    doc.setFont("helvetica", "bold");
+    const rawDesc = item.item_code ? `${item.item_name} [${item.item_code}]` : item.item_name;
+    const descLines = doc.splitTextToSize(rawDesc, 70); // 70 points max width
+    
+    const extraLines = descLines.length - 1;
+    const rowHeight = (hasStaff ? 11 : 8) + (extraLines * 4.5);
 
     doc.setDrawColor(245, 245, 245);
     doc.setLineWidth(0.3);
     doc.line(20, y + rowHeight, 190, y + rowHeight);
 
-    doc.setFont("helvetica", "bold");
-    let desc = item.item_code ? `${item.item_name} [${item.item_code}]` : item.item_name;
-    
-    // Truncate description to prevent column overlap (max 30 characters to account for wide uppercase letters)
-    if (desc.length > 30) {
-      desc = desc.substring(0, 27) + "...";
-    }
-
     // Center alignment adjustment for dual-line text if staff exists
     const textY = y + (hasStaff ? 4.5 : 5);
-    doc.text(desc, 20, textY);
+    doc.text(descLines, 20, textY);
     
     if (hasStaff) {
       doc.setFont("helvetica", "italic");
       doc.setFontSize(7.5);
       doc.setTextColor(120, 120, 120);
-      doc.text(`Staff: ${item.staff_contribution}`, 20, textY + 3.5);
+      doc.text(`Staff: ${item.staff_contribution}`, 20, textY + (extraLines * 4.5) + 3.5);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(17, 17, 17);
