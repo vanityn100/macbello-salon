@@ -67,6 +67,7 @@ export default function BillingModule() {
   const [redeemError, setRedeemError] = useState("");
 
   // Checkout
+  const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
   const [completedInvoice, setCompletedInvoice] = useState<CompletedInvoice | null>(null);
@@ -290,7 +291,8 @@ export default function BillingModule() {
             staffContribution: c.staffContribution || null
           })),
           pointsToRedeem: redeemPointsNum,
-          branch
+          branch,
+          paymentMethod
         })
       });
 
@@ -552,6 +554,7 @@ export default function BillingModule() {
               <div className="text-right">
                 <span className="block"><strong className="text-gold-primary print-text-gold font-semibold uppercase">Date:</strong> {new Date(invoice.created_at).toLocaleDateString()}</span>
                 <span className="block mt-1"><strong className="text-gold-primary print-text-gold font-semibold uppercase">Time:</strong> {new Date(invoice.created_at).toLocaleTimeString()}</span>
+                <span className="block mt-1"><strong className="text-gold-primary print-text-gold font-semibold uppercase">Payment Mode:</strong> {invoice.payment_method || 'Cash'}</span>
               </div>
             </div>
           </div>
@@ -1232,6 +1235,26 @@ export default function BillingModule() {
                 <div className="flex justify-between border-t border-gold-primary/20 pt-3 font-playfair text-lg text-white">
                   <span className="text-gold-primary font-semibold">GRAND TOTAL:</span>
                   <span className="currency-value font-semibold">₹{grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {/* Payment Method Selector */}
+              <div className="mb-6 border-t border-white/5 pt-4">
+                <label className="block text-[10px] uppercase tracking-wider text-ivory/60 mb-3">Payment Method</label>
+                <div className="flex gap-3">
+                  {["Cash", "UPI", "Card"].map((method) => (
+                    <button
+                      key={method}
+                      onClick={() => setPaymentMethod(method)}
+                      className={`flex-1 py-2.5 text-xs tracking-widest font-medium transition-colors border ${
+                        paymentMethod === method
+                          ? "border-gold-primary text-gold-primary bg-gold-primary/5"
+                          : "border-white/10 text-ivory/50 hover:bg-white/5"
+                      }`}
+                    >
+                      {method}
+                    </button>
+                  ))}
                 </div>
               </div>
 

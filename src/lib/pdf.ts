@@ -11,6 +11,7 @@ export interface CompletedInvoice {
     points_earned: number;
     created_by: string;
     points_redeemed: number;
+    payment_method?: string;
   };
   items: Array<{
     item_name: string;
@@ -108,11 +109,12 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
   doc.text(`Invoice ID: ${invoice.id.toUpperCase()}`, 115, 38);
   doc.text(`Invoice #: ${invoice.invoice_number}`, 115, 43);
   doc.text(`Date & Time: ${new Date(invoice.created_at).toLocaleString()}`, 115, 48);
+  doc.text(`Payment Mode: ${invoice.payment_method || 'Cash'}`, 115, 53);
 
   // Divider Line
   doc.setDrawColor(230, 230, 230);
   doc.setLineWidth(0.5);
-  doc.line(20, 54, 190, 54);
+  doc.line(20, 56, 190, 56);
 
   // Client and Staff Metadata Grid
   doc.setFont("helvetica", "bold");

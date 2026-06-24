@@ -778,7 +778,7 @@ export async function POST(request: NextRequest) {
 
     // 5. SECURE INVOICING CHECKOUT
     if (action === "create_invoice") {
-      const { customerId, items, pointsToRedeem, branch } = body;
+      const { customerId, items, pointsToRedeem, branch, paymentMethod } = body;
 
       let targetBranch = branch;
       if (user.role === "staff") {
@@ -906,6 +906,7 @@ export async function POST(request: NextRequest) {
           points_redeemed: redeemAmt,
           created_by: user.email,
           branch: targetBranch,
+          payment_method: paymentMethod || "Cash",
           status: "active"
         }])
         .select("*")
