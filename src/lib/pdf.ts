@@ -181,8 +181,13 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
     doc.line(20, y + rowHeight, 190, y + rowHeight);
 
     doc.setFont("helvetica", "bold");
-    const desc = item.item_code ? `${item.item_name} [${item.item_code}]` : item.item_name;
+    let desc = item.item_code ? `${item.item_name} [${item.item_code}]` : item.item_name;
     
+    // Truncate description to prevent column overlap (max ~32 characters)
+    if (desc.length > 32) {
+      desc = desc.substring(0, 29) + "...";
+    }
+
     // Center alignment adjustment for dual-line text if staff exists
     const textY = y + (hasStaff ? 4.5 : 5);
     doc.text(desc, 23, textY);
