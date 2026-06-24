@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       let query = adminSupabase
         .from("services")
         .select("*")
-        .eq("status", "active");
+        .neq("status", "archived");
 
       // Staff can only see services belonging to their branch or global (null branch)
       if (user.role === "staff") {
