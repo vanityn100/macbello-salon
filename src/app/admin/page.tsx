@@ -725,7 +725,7 @@ export default function AdminPortal() {
                   <span className="text-[10px] uppercase tracking-wider text-ivory/50">Today's Revenue</span>
                   <Award size={14} className="text-gold-primary" />
                 </div>
-                <span className="font-sans text-xl text-white font-medium tracking-wide">
+                <span className="metric-value text-xl text-white font-medium tracking-wide">
                   {formatINR(finStats.todayRevenue)}
                 </span>
               </div>
@@ -735,7 +735,7 @@ export default function AdminPortal() {
                   <span className="text-[10px] uppercase tracking-wider text-ivory/50">This Month</span>
                   <TrendingUp size={14} className="text-gold-primary" />
                 </div>
-                <span className="font-sans text-xl text-white font-medium tracking-wide">
+                <span className="metric-value text-xl text-white font-medium tracking-wide">
                   {formatINR(finStats.monthlyRevenue)}
                 </span>
               </div>
@@ -745,7 +745,7 @@ export default function AdminPortal() {
                   <span className="text-[10px] uppercase tracking-wider text-ivory/50">Total Revenue</span>
                   <Award size={14} className="text-gold-primary" />
                 </div>
-                <span className="font-sans text-xl text-white font-medium tracking-wide">
+                <span className="metric-value text-xl text-white font-medium tracking-wide">
                   {formatINR(finStats.totalRevenue)}
                 </span>
               </div>
@@ -755,7 +755,7 @@ export default function AdminPortal() {
                   <span className="text-[10px] uppercase tracking-wider text-ivory/50">Customers</span>
                   <Users size={14} className="text-gold-primary" />
                 </div>
-                <span className="font-sans text-xl text-white font-medium tracking-wide">
+                <span className="metric-value text-xl text-white font-medium tracking-wide">
                   {formatNumber(finStats.totalCustomers)}
                 </span>
               </div>
@@ -765,7 +765,7 @@ export default function AdminPortal() {
                   <span className="text-[10px] uppercase tracking-wider text-ivory/50">Services</span>
                   <Scissors size={14} className="text-gold-primary" />
                 </div>
-                <span className="font-sans text-xl text-white font-medium tracking-wide">
+                <span className="metric-value text-xl text-white font-medium tracking-wide">
                   {formatNumber(finStats.totalServices)}
                 </span>
               </div>
@@ -776,7 +776,7 @@ export default function AdminPortal() {
                   <Clock size={14} className="text-gold-primary" />
                 </div>
                 <div className="flex items-end justify-between">
-                  <span className="font-sans text-xl text-white font-medium tracking-wide">
+                  <span className="metric-value text-xl text-white font-medium tracking-wide">
                     {formatNumber(finStats.totalAppointments)}
                   </span>
                   <span className="text-[9px] text-ivory/40">
@@ -817,7 +817,7 @@ export default function AdminPortal() {
                 </div>
                 <div>
                   <span className="text-[10px] uppercase tracking-wider text-ivory/50 block">Today&apos;s Revenue</span>
-                  <span className="font-playfair text-2xl text-white font-medium tracking-wide mt-0.5 block">
+                  <span className="currency-value text-2xl text-white font-medium tracking-wide mt-0.5 block">
                     ₹{stats.totalSales.toFixed(2)}
                   </span>
                 </div>
@@ -834,7 +834,7 @@ export default function AdminPortal() {
                 </div>
                 <div>
                   <span className="text-[10px] uppercase tracking-wider text-ivory/50 block">Invoices Generated</span>
-                  <span className="font-playfair text-2xl text-white font-medium tracking-wide mt-0.5 block">
+                  <span className="metric-value text-2xl text-white font-medium tracking-wide mt-0.5 block">
                     {stats.invoiceCount} Invoices
                   </span>
                 </div>
@@ -854,15 +854,15 @@ export default function AdminPortal() {
                   <div className="grid grid-cols-3 gap-3 text-xs text-ivory/70">
                     <div className="bg-white/[0.02] border border-white/5 p-3 text-center">
                       <span className="block font-medium text-white/90 truncate mb-1 text-[10px]">Branch A</span>
-                      <span className="text-xs text-gold-primary font-bold">₹{(stats.branchBreakdown["Branch A"] || 0).toFixed(0)}</span>
+                      <span className="currency-value text-xs text-gold-primary font-bold">₹{(stats.branchBreakdown["Branch A"] || 0).toFixed(0)}</span>
                     </div>
                     <div className="bg-white/[0.02] border border-white/5 p-3 text-center">
                       <span className="block font-medium text-white/90 truncate mb-1 text-[10px]">Branch B</span>
-                      <span className="text-xs text-gold-primary font-bold">₹{(stats.branchBreakdown["Branch B"] || 0).toFixed(0)}</span>
+                      <span className="currency-value text-xs text-gold-primary font-bold">₹{(stats.branchBreakdown["Branch B"] || 0).toFixed(0)}</span>
                     </div>
                     <div className="bg-white/[0.02] border border-white/5 p-3 text-center">
                       <span className="block font-medium text-white/90 truncate mb-1 text-[10px]">Branch C</span>
-                      <span className="text-xs text-gold-primary font-bold">₹{(stats.branchBreakdown["Branch C"] || 0).toFixed(0)}</span>
+                      <span className="currency-value text-xs text-gold-primary font-bold">₹{(stats.branchBreakdown["Branch C"] || 0).toFixed(0)}</span>
                     </div>
                   </div>
                 </div>
@@ -881,7 +881,7 @@ export default function AdminPortal() {
                       {Object.entries(stats.staffBreakdown).map(([name, performance]) => (
                         <div key={name} className="flex justify-between items-center text-[11px] text-ivory/80 border-b border-white/5 pb-1.5 last:border-0 last:pb-0">
                           <span className="font-medium truncate max-w-[130px]">{name}</span>
-                          <span className="text-gold-primary font-semibold">
+                          <span className="metric-value text-gold-primary font-semibold">
                             ₹{performance.revenue.toFixed(0)} ({performance.count} services)
                           </span>
                         </div>

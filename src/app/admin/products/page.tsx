@@ -384,10 +384,10 @@ export default function AdminProductsPage() {
                     )}
                   </td>
                   <td className="p-4 text-right">
-                    <span className={`text-sm ${p.currentStock <= p.minimumStock ? "text-orange-400" : "text-white"}`}>{p.currentStock}</span>
+                    <span className={`metric-value text-sm ${p.currentStock <= p.minimumStock ? "text-orange-400" : "text-white"}`}>{p.currentStock}</span>
                   </td>
-                  <td className="p-4 text-right text-sm text-ivory/70">{p.quantitySold}</td>
-                  <td className="p-4 text-right text-sm text-gold-primary">{formatINR(p.revenue)}</td>
+                  <td className="metric-value p-4 text-right text-sm text-ivory/70">{p.quantitySold}</td>
+                  <td className="currency-value p-4 text-right text-sm text-gold-primary">{formatINR(p.revenue)}</td>
                   <td className="p-4 text-right">
                     <button onClick={() => setAdjustModal(p)} className="text-[10px] uppercase tracking-wider text-gold-primary hover:underline">
                       Adjust

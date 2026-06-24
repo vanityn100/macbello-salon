@@ -7,6 +7,7 @@ import {
   Loader2, CheckCircle2, FileClock, History, ShoppingBag, FileText, ExternalLink, PackageSearch
 } from "lucide-react";
 import Link from "next/link";
+import { formatINR } from "@/lib/format";
 
 interface Customer {
   id: string;
@@ -546,8 +547,8 @@ export default function StaffPortal() {
               </div>
               <div>
                 <span className="text-[10px] uppercase tracking-wider text-ivory/50 block">Today&apos;s Profit / Income</span>
-                <span className="font-playfair text-2xl text-white font-medium tracking-wide mt-0.5 block">
-                  ₹{stats.totalSales.toFixed(2)}
+                <span className="currency-value text-2xl text-white font-medium tracking-wide mt-0.5 block">
+                  {formatINR(stats.totalSales)}
                 </span>
               </div>
             </div>
@@ -559,7 +560,7 @@ export default function StaffPortal() {
               </div>
               <div>
                 <span className="text-[10px] uppercase tracking-wider text-ivory/50 block">Invoices Generated</span>
-                <span className="font-playfair text-2xl text-white font-medium tracking-wide mt-0.5 block">
+                <span className="metric-value text-2xl text-white font-medium tracking-wide mt-0.5 block">
                   {stats.invoiceCount} Invoices
                 </span>
               </div>
@@ -776,7 +777,7 @@ export default function StaffPortal() {
 
                     <div className="text-left md:text-right bg-gold-primary/5 border border-gold-primary/20 px-5 py-3 shrink-0">
                       <span className="text-[9px] uppercase tracking-wider text-gold-primary block">Current Balance</span>
-                      <span className="font-playfair text-2xl text-white font-medium tracking-wide mt-1 block">{customer.points} Points</span>
+                      <span className="metric-value text-2xl text-white font-medium tracking-wide mt-1 block">{customer.points} Points</span>
                     </div>
                   </div>
 

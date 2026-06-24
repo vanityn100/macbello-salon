@@ -559,7 +559,7 @@ export default function TaxComplianceReports() {
             <div className="flex flex-col sm:flex-row justify-between items-center bg-white/[0.02] border border-white/10 p-4">
               <div>
                 <p className="text-xs text-ivory/70">
-                  Generated reports for <strong className="text-white">{reportData.summary.totalInvoices}</strong> invoices from {startDate} to {endDate}.
+                  Generated reports for <strong className="metric-value text-white">{reportData.summary.totalInvoices}</strong> invoices from {startDate} to {endDate}.
                 </p>
               </div>
               <div className="flex items-center gap-3 mt-4 sm:mt-0">
@@ -596,19 +596,19 @@ export default function TaxComplianceReports() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="bg-white/[0.01] border border-white/5 p-5">
                 <p className="text-[10px] text-ivory/50 uppercase tracking-widest mb-1">Total Sales</p>
-                <p className="text-xl text-white">{formatINR(reportData.summary.totalSales)}</p>
+                <p className="currency-value text-xl text-white">{formatINR(reportData.summary.totalSales)}</p>
               </div>
               <div className="bg-white/[0.01] border border-white/5 p-5">
                 <p className="text-[10px] text-ivory/50 uppercase tracking-widest mb-1">Taxable Value</p>
-                <p className="text-xl text-white">{formatINR(reportData.summary.totalTaxable)}</p>
+                <p className="currency-value text-xl text-white">{formatINR(reportData.summary.totalTaxable)}</p>
               </div>
               <div className="bg-white/[0.01] border border-white/5 p-5">
                 <p className="text-[10px] text-ivory/50 uppercase tracking-widest mb-1">Total GST Collected</p>
-                <p className="text-xl text-gold-primary">{formatINR(reportData.summary.totalGstCollected)}</p>
+                <p className="currency-value text-xl text-gold-primary">{formatINR(reportData.summary.totalGstCollected)}</p>
               </div>
               <div className="bg-white/[0.01] border border-white/5 p-5">
                 <p className="text-[10px] text-ivory/50 uppercase tracking-widest mb-1">Total CGST</p>
-                <p className="text-xl text-white">{formatINR(reportData.summary.totalCgst)}</p>
+                <p className="currency-value text-xl text-white">{formatINR(reportData.summary.totalCgst)}</p>
               </div>
             </div>
 
@@ -630,8 +630,8 @@ export default function TaxComplianceReports() {
                       <tr key={idx} className="border-b border-white/5 hover:bg-white/[0.02]">
                         <td className="py-3 text-white">{item.itemName}</td>
                         <td className="py-3 text-ivory/70">{item.category}</td>
-                        <td className="py-3 text-right text-white font-medium">{item.quantity}</td>
-                        <td className="py-3 text-right text-gold-primary">{formatINR(item.revenue)}</td>
+                        <td className="metric-value py-3 text-right text-white font-medium">{item.quantity}</td>
+                        <td className="currency-value py-3 text-right text-gold-primary">{formatINR(item.revenue)}</td>
                       </tr>
                     ))}
                     {reportData.itemSummary.length === 0 && (

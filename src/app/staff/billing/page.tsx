@@ -619,15 +619,15 @@ export default function BillingModule() {
                   </td>
                   <td className="py-3.5 pr-8 text-white print-text-black">{item.hsn || "-"}</td>
                   <td className="py-3.5 text-gold-primary/70 print-text-gold font-medium">{item.category}</td>
-                  <td className="py-3.5 text-center font-medium text-white print-text-black">{item.quantity}</td>
-                  <td className="py-3.5 text-white print-text-black">₹{parseFloat(item.unit_price).toFixed(2)}</td>
-                  <td className="py-3.5 text-ivory/60 print-text-muted">
+                  <td className="metric-value py-3.5 text-center font-medium text-white print-text-black">{item.quantity}</td>
+                  <td className="currency-value py-3.5 text-white print-text-black">₹{parseFloat(item.unit_price).toFixed(2)}</td>
+                  <td className="metric-value py-3.5 text-ivory/60 print-text-muted">
                     {item.tax_rate * 100}%
                     <span className="block text-[9px] text-ivory/40">
                       ({(item.tax_rate * 50).toFixed(1)}% CGST + {(item.tax_rate * 50).toFixed(1)}% SGST)
                     </span>
                   </td>
-                  <td className="py-3.5 text-right font-medium text-white print-text-black">₹{parseFloat(item.line_total).toFixed(2)}</td>
+                  <td className="currency-value py-3.5 text-right font-medium text-white print-text-black">₹{parseFloat(item.line_total).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -648,19 +648,19 @@ export default function BillingModule() {
                 
                 <div className="flex justify-between border-t border-white/5 pt-2 print-border-gray">
                   <span>Points Earned:</span>
-                  <span className="font-semibold text-green-400 print-text-black">+{invoice.points_earned}</span>
+                  <span className="metric-value font-semibold text-green-400 print-text-black">+{invoice.points_earned}</span>
                 </div>
                 
                 {invoice.points_redeemed > 0 && (
                   <div className="flex justify-between">
                     <span>Points Redeemed:</span>
-                    <span className="font-semibold text-red-400 print-text-black">-{invoice.points_redeemed}</span>
+                    <span className="metric-value font-semibold text-red-400 print-text-black">-{invoice.points_redeemed}</span>
                   </div>
                 )}
                 
                 <div className="border-t border-gold-primary/20 pt-2 mt-2 flex justify-between print-border-gray">
                   <span className="font-medium text-gold-primary print-text-gold">New Loyalty Balance:</span>
-                  <span className="font-bold text-white print-text-black">{newPoints} Pts</span>
+                  <span className="metric-value font-bold text-white print-text-black">{newPoints} Pts</span>
                 </div>
               </div>
             </div>
@@ -669,17 +669,17 @@ export default function BillingModule() {
             <div className="space-y-2 text-ivory/70 print-text-black">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
-                <span className="text-white print-text-black">₹{completedInvoice.subtotal.toFixed(2)}</span>
+                <span className="currency-value text-white print-text-black">₹{completedInvoice.subtotal.toFixed(2)}</span>
               </div>
               {completedInvoice.serviceTax > 0 && (
                 <>
                   <div className="flex justify-between text-[11px] pl-2 border-l border-white/5 print-border-gray">
                     <span>Service CGST (2.5%):</span>
-                    <span className="text-white print-text-black">₹{(completedInvoice.serviceTax / 2).toFixed(2)}</span>
+                    <span className="currency-value text-white print-text-black">₹{(completedInvoice.serviceTax / 2).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-[11px] pl-2 border-l border-white/5 print-border-gray">
                     <span>Service SGST (2.5%):</span>
-                    <span className="text-white print-text-black">₹{(completedInvoice.serviceTax / 2).toFixed(2)}</span>
+                    <span className="currency-value text-white print-text-black">₹{(completedInvoice.serviceTax / 2).toFixed(2)}</span>
                   </div>
                 </>
               )}
@@ -687,27 +687,27 @@ export default function BillingModule() {
                 <>
                   <div className="flex justify-between text-[11px] pl-2 border-l border-white/5 print-border-gray">
                     <span>Retail CGST (9%):</span>
-                    <span className="text-white print-text-black">₹{(completedInvoice.retailTax / 2).toFixed(2)}</span>
+                    <span className="currency-value text-white print-text-black">₹{(completedInvoice.retailTax / 2).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-[11px] pl-2 border-l border-white/5 print-border-gray">
                     <span>Retail SGST (9%):</span>
-                    <span className="text-white print-text-black">₹{(completedInvoice.retailTax / 2).toFixed(2)}</span>
+                    <span className="currency-value text-white print-text-black">₹{(completedInvoice.retailTax / 2).toFixed(2)}</span>
                   </div>
                 </>
               )}
               <div className="flex justify-between font-medium border-t border-white/5 pt-1.5 mt-1">
                 <span>Total Tax (CGST + SGST):</span>
-                <span className="text-white print-text-black">₹{completedInvoice.totalTax.toFixed(2)}</span>
+                <span className="currency-value text-white print-text-black">₹{completedInvoice.totalTax.toFixed(2)}</span>
               </div>
               {invoice.points_redeemed > 0 && (
                 <div className="flex justify-between text-red-400 print-text-black font-medium">
                   <span>Loyalty Discount:</span>
-                  <span>-₹{invoice.points_redeemed.toFixed(2)}</span>
+                  <span className="currency-value">-₹{invoice.points_redeemed.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between border-t border-gold-primary/30 pt-2 mt-2 font-playfair text-base text-gold-primary print-text-gold">
                 <span className="font-bold">GRAND TOTAL:</span>
-                <span className="font-bold text-white print-text-black">₹{parseFloat(invoice.grand_total).toFixed(2)}</span>
+                <span className="currency-value font-bold text-white print-text-black">₹{parseFloat(invoice.grand_total).toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -904,7 +904,7 @@ export default function BillingModule() {
                             <span className="text-white font-medium block">{cust.name}</span>
                             <span className="text-[10px] text-ivory/50">{cust.phone}</span>
                           </div>
-                          <span className="text-[10px] text-gold-primary font-semibold">{cust.points} Points</span>
+                          <span className="metric-value text-[10px] text-gold-primary font-semibold">{cust.points} Points</span>
                         </div>
                       ))}
                     </div>
@@ -977,7 +977,7 @@ export default function BillingModule() {
                   </div>
                   <div className="text-right bg-luxury-black px-4 py-2 border border-white/5 self-stretch sm:self-auto flex sm:flex-col items-center sm:items-end justify-between sm:justify-center">
                     <span className="text-[9px] uppercase tracking-wider text-gold-primary/75">Points Balance</span>
-                    <span className="font-playfair text-lg text-white font-semibold tracking-wide sm:mt-0.5">{selectedCustomer.points} Pts</span>
+                    <span className="metric-value text-lg text-white font-semibold tracking-wide sm:mt-0.5">{selectedCustomer.points} Pts</span>
                   </div>
                 </div>
               )}
@@ -1052,7 +1052,7 @@ export default function BillingModule() {
                           </span>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
-                          <span className="text-xs md:text-sm text-white font-medium">₹{item.price.toFixed(2)}</span>
+                          <span className="currency-value text-xs md:text-sm text-white font-medium">₹{item.price.toFixed(2)}</span>
                           <button
                             type="button"
                             onClick={() => {
@@ -1130,15 +1130,15 @@ export default function BillingModule() {
                                 className="bg-luxury-black border border-white/10 px-2 py-1 text-[11px] text-white w-28 rounded-none focus:outline-none focus:border-gold-primary/50 transition-colors"
                               />
                             </td>
-                            <td className="py-3 font-medium">{quantity}</td>
-                            <td className="py-3">₹{item.price.toFixed(2)}</td>
-                            <td className="py-3">
+                            <td className="metric-value py-3 font-medium">{quantity}</td>
+                            <td className="currency-value py-3">₹{item.price.toFixed(2)}</td>
+                            <td className="metric-value py-3">
                               {item.tax_rate * 100}%
                               <span className="block text-[9px] text-ivory/45">
                                 ({(item.tax_rate * 50).toFixed(1)}% CGST + {(item.tax_rate * 50).toFixed(1)}% SGST)
                               </span>
                             </td>
-                            <td className="py-3 text-white font-medium">₹{lineTotal.toFixed(2)}</td>
+                            <td className="currency-value py-3 text-white font-medium">₹{lineTotal.toFixed(2)}</td>
                             <td className="py-3 text-right">
                               <button
                                 onClick={() => removeFromCart(item.id)}
@@ -1214,43 +1214,43 @@ export default function BillingModule() {
               <div className="space-y-3.5 text-xs font-light border-b border-white/5 pb-5">
                 <div className="flex justify-between">
                   <span className="text-ivory/50">Services Subtotal:</span>
-                  <span className="font-medium">₹{serviceSubtotal.toFixed(2)}</span>
+                  <span className="currency-value font-medium">₹{serviceSubtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pl-3 text-[11px] text-ivory/40 border-l border-white/5">
                   <span>Service Tax (5%):</span>
-                  <span>₹{serviceTax.toFixed(2)}</span>
+                  <span className="currency-value">₹{serviceTax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-ivory/50">Retail Subtotal:</span>
-                  <span className="font-medium">₹{retailSubtotal.toFixed(2)}</span>
+                  <span className="currency-value font-medium">₹{retailSubtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pl-3 text-[11px] text-ivory/40 border-l border-white/5">
                   <span>Retail Tax (18%):</span>
-                  <span>₹{retailTax.toFixed(2)}</span>
+                  <span className="currency-value">₹{retailTax.toFixed(2)}</span>
                 </div>
 
                 <div className="flex justify-between border-t border-white/5 pt-3">
                   <span className="text-ivory/50">Combined Tax Total:</span>
-                  <span className="font-medium">₹{totalTax.toFixed(2)}</span>
+                  <span className="currency-value font-medium">₹{totalTax.toFixed(2)}</span>
                 </div>
 
                 {discount > 0 && (
                   <div className="flex justify-between text-red-400">
                     <span>Points Discount (1 Pt = ₹1):</span>
-                    <span className="font-semibold">-₹{discount.toFixed(2)}</span>
+                    <span className="currency-value font-semibold">-₹{discount.toFixed(2)}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between border-t border-gold-primary/20 pt-3 font-playfair text-lg text-white">
                   <span className="text-gold-primary font-semibold">GRAND TOTAL:</span>
-                  <span className="font-semibold">₹{grandTotal.toFixed(2)}</span>
+                  <span className="currency-value font-semibold">₹{grandTotal.toFixed(2)}</span>
                 </div>
               </div>
 
               {/* Loyalty Reward preview */}
               <div className="py-4 text-[10px] font-light text-ivory/50 flex justify-between items-center">
                 <span>Loyalty Points to Earn:</span>
-                <span className="text-green-400 font-semibold flex items-center">
+                <span className="metric-value text-green-400 font-semibold flex items-center">
                   <Award size={10} className="mr-1" /> +{pointsEarned} Points
                 </span>
               </div>

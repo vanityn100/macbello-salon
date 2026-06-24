@@ -155,3 +155,15 @@ body {
     overflow-x: hidden;
   }
 }
+
+/* Global Numeric Typography Standardization */
+.metric-value,
+.currency-value,
+.stat-value,
+.number-value {
+  font-family: var(--font-inter), system-ui, sans-serif !important;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
