@@ -491,67 +491,6 @@ export default function ServicesManagement() {
                 </div>
               )}
             </div>
-
-            {/* Retail Products List */}
-            <div className="border border-white/5 bg-white/[0.01] p-6 relative">
-              <h2 className="font-playfair text-lg text-white font-medium tracking-wide mb-6 flex items-center border-b border-white/5 pb-3">
-                <ShoppingBag size={16} className="text-gold-primary mr-2" />
-                <span>Retail Products Inventory</span>
-              </h2>
-
-              {filteredRetail.length === 0 ? (
-                <p className="text-xs text-ivory/40 font-light py-6 text-center">
-                  {searchQuery ? "No matching products found." : "No retail products created yet."}
-                </p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-[11px] font-light">
-                    <thead>
-                      <tr className="border-b border-white/10 uppercase tracking-wider text-gold-primary text-[9px]">
-                        <th className="pb-3 font-semibold">Name</th>
-                        <th className="pb-3 font-semibold">Code</th>
-                        <th className="pb-3 font-semibold pr-8">HSN</th>
-                        <th className="pb-3 font-semibold">Base Price</th>
-                        <th className="pb-3 font-semibold">Tax Rate</th>
-                        <th className="pb-3 font-semibold">Sale Price</th>
-                        <th className="pb-3 font-semibold text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredRetail.map((item) => (
-                        <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
-                          <td className="py-3 text-white font-medium">{item.name}</td>
-                          <td className="py-3 text-ivory/60 text-[10px]">{item.item_code || "-"}</td>
-                          <td className="py-3 text-ivory/60 pr-8">{item.hsn || "-"}</td>
-                          <td className="py-3 text-ivory/80">₹{item.price.toFixed(2)}</td>
-                          <td className="py-3 text-ivory/40">{(item.tax_rate * 100).toFixed(0)}%</td>
-                          <td className="py-3 text-white font-semibold">₹{(item.price * (1 + item.tax_rate)).toFixed(2)}</td>
-                          <td className="py-3 text-right">
-                            <div className="inline-flex gap-2">
-                              <button
-                                onClick={() => handleEditInit(item)}
-                                className="p-1.5 text-ivory/60 hover:text-gold-primary transition-colors cursor-pointer"
-                                title="Edit"
-                              >
-                                <Edit2 size={12} />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(item.id, item.name)}
-                                className="p-1.5 text-ivory/60 hover:text-red-400 transition-colors cursor-pointer"
-                                title="Delete"
-                              >
-                                <Trash2 size={12} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-
           </div>
 
         </div>
