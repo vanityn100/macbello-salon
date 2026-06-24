@@ -687,7 +687,7 @@ export default function AdminPortal() {
             </Link>
             <Link href="/admin/inventory" className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-white/10 hover:border-gold-primary/40 hover:text-gold-primary px-4 py-2 bg-white/[0.02] transition-all duration-300 rounded-none">
               <FileSpreadsheet className="w-3.5 h-3.5" />
-              <span>Stock Purchases</span>
+              <span>Inventory</span>
             </Link>
             <Link href="/admin/purchase-of-stocks" className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-white/10 hover:border-gold-primary/40 hover:text-gold-primary px-4 py-2 bg-white/[0.02] transition-all duration-300 rounded-none">
               <PackageOpen className="w-3.5 h-3.5" />
