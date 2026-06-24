@@ -48,12 +48,16 @@ export default function StaffProductsPage() {
   const [createData, setCreateData] = useState({ name: "", price: "", hsn: "999729", gstRate: "18", initialStock: "0", minimumStock: "5" });
   const [createLoading, setCreateLoading] = useState(false);
 
+  const [userRole, setUserRole] = useState<string | null>(null);
+
   useEffect(() => {
     supabaseStaffClient.auth.getSession().then(({ data: { session } }) => {
-      if (session && session.user?.app_metadata?.role === "staff") {
+      const role = session?.user?.app_metadata?.role;
+      if (session && (role === "staff" || role === "admin")) {
         setSessionToken(session.access_token);
         setStaffEmail(session.user?.email || null);
-        setStaffBranch(session.user?.app_metadata?.branch || null);
+        setStaffBranch(session.user?.app_metadata?.branch || "All Branches");
+        setUserRole(role);
       }
       setAuthLoading(false);
     });
@@ -232,8 +236,8 @@ export default function StaffProductsPage() {
     saveAs(new Blob([XLSX.write(wb, { bookType: "xlsx", type: "array" })]), `Product_Summary_${staffBranch}_${endDate}.xlsx`);
   };
 
-  if (authLoading) return <div className="min-h-screen bg-luxury-black flex items-center justify-center"><Loader2 className="animate-spin text-gold-primary" /></div>;
-  if (!sessionToken || !staffBranch) return <div className="min-h-screen bg-luxury-black text-white p-10">Access Denied. You must be assigned to a branch.</div>;
+  if (authLoading) return <div className="min-h-screen bg-luxury-black flex items-center justify-center text-white"><Loader2 className="animate-spin" /></div>;
+  if (!sessionToken || (!staffBranch && userRole !== "admin")) return <div className="min-h-screen bg-luxury-black text-white p-10">Access Denied. You must be assigned to a branch.</div>;
 
   const filtered = reportData.filter(p => p.productName.toLowerCase().includes(searchQuery.toLowerCase()));
 
