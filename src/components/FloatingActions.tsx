@@ -55,7 +55,10 @@ export default function FloatingActions() {
       </AnimatePresence>
 
       {/* Floating Mobile WhatsApp Bubble */}
-      <div className="fixed bottom-24 right-4 z-40 lg:hidden">
+      <div 
+        className="fixed right-4 z-[95] lg:hidden"
+        style={{ bottom: "calc(110px + env(safe-area-inset-bottom))" }}
+      >
         <motion.a
           href={whatsappUrl}
           target="_blank"
@@ -70,15 +73,15 @@ export default function FloatingActions() {
       </div>
 
       {/* Sticky Mobile Bottom Bar */}
-      <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden border-t border-gold-primary/20 bg-luxury-dark/95 backdrop-blur-xl px-4 py-3 shadow-[0_-10px_25px_rgba(0,0,0,0.8)]">
-        <div className="grid grid-cols-3 gap-2">
+      <div className="fixed bottom-0 inset-x-0 z-[90] lg:hidden border-t border-gold-primary/20 bg-luxury-dark/95 backdrop-blur-xl px-2 sm:px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] shadow-[0_-10px_25px_rgba(0,0,0,0.8)]">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
           {/* Call Now */}
           <a
             href="tel:+919562514002"
             className="flex flex-col items-center justify-center py-2.5 border border-white/5 bg-white/5 active:bg-gold-primary/10 text-ivory active:text-gold-primary transition-colors"
           >
             <Phone size={18} className="mb-1 text-gold-primary" />
-            <span className="text-[9px] uppercase tracking-[0.1em]">Call Now</span>
+            <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-center min-w-0 truncate w-full px-1">Call Now</span>
           </a>
 
           {/* WhatsApp Book */}
@@ -89,7 +92,7 @@ export default function FloatingActions() {
             className="flex flex-col items-center justify-center py-2.5 border border-gold-primary/20 bg-gold-primary text-luxury-black font-semibold"
           >
             <MessageSquare size={18} className="mb-1" />
-            <span className="text-[9px] uppercase tracking-[0.1em]">WhatsApp</span>
+            <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-center min-w-0 truncate w-full px-1">WhatsApp</span>
           </a>
 
           {/* Directions */}
@@ -100,7 +103,7 @@ export default function FloatingActions() {
             className="flex flex-col items-center justify-center py-2.5 border border-white/5 bg-white/5 active:bg-gold-primary/10 text-ivory active:text-gold-primary transition-colors"
           >
             <MapPin size={18} className="mb-1 text-gold-primary" />
-            <span className="text-[9px] uppercase tracking-[0.1em]">Directions</span>
+            <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-center min-w-0 truncate w-full px-1">Directions</span>
           </a>
         </div>
       </div>

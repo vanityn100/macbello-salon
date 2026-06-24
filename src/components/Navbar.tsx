@@ -31,6 +31,18 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Scroll locking for mobile menu
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   return (
     <>
       {/* Scroll Progress Indicator */}
@@ -42,7 +54,9 @@ export default function Navbar() {
       </div>
 
       <nav
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 transition-all duration-300 ${
+          isOpen ? "z-[9999]" : "z-[100]"
+        } ${
           scrolled
             ? "bg-luxury-black/85 backdrop-blur-md border-b border-gold-primary/10 py-4"
             : "bg-transparent py-6"
@@ -94,7 +108,7 @@ export default function Navbar() {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden text-ivory hover:text-gold-primary transition-colors focus:outline-none"
+            className="lg:hidden text-ivory hover:text-gold-primary transition-colors focus:outline-none relative z-[10000]"
             aria-label="Toggle menu"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -109,9 +123,10 @@ export default function Navbar() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-x-0 top-[72px] bottom-0 z-40 bg-luxury-black/97 backdrop-blur-xl border-t border-white/5 flex flex-col justify-between p-8 lg:hidden"
+              className="fixed inset-0 z-[9998] bg-luxury-black/97 backdrop-blur-xl flex flex-col lg:hidden h-[100dvh] overflow-y-auto pt-[calc(80px+env(safe-area-inset-top))] pb-[env(safe-area-inset-bottom)] px-8"
+              style={{ WebkitOverflowScrolling: "touch" }}
             >
-              <div className="flex flex-col space-y-5 mt-4">
+              <div className="flex flex-col gap-6 mt-4">
                 {navLinks.map((link, idx) => (
                   <motion.a
                     initial={{ opacity: 0, x: -25 }}
@@ -127,7 +142,7 @@ export default function Navbar() {
                 ))}
               </div>
 
-              <div className="flex flex-col space-y-4 mb-12">
+              <div className="mt-auto flex flex-col gap-4 py-8">
                 <a
                   href="tel:+919562514002"
                   className="flex items-center justify-center space-x-3 text-sm uppercase tracking-[0.15em] border border-gold-primary/30 px-6 py-4 bg-white/5 text-ivory"

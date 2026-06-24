@@ -64,32 +64,32 @@ export default function Contact() {
 
                   {/* Info */}
                   <div className="space-y-3">
-                    <div className="flex items-start space-x-3">
+                    <div className="flex items-start space-x-3 min-w-0">
                       <div className="p-1.5 border border-gold-primary/20 bg-gold-primary/5 text-gold-primary mt-0.5 shrink-0">
                         <MapPin size={11} />
                       </div>
-                      <p className="text-xs text-ivory/60 leading-relaxed font-light">
+                      <p className="text-xs text-ivory/60 leading-relaxed font-light break-words min-w-0">
                         {branch.address}
                       </p>
                     </div>
 
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3 min-w-0">
                       <div className="p-1.5 border border-gold-primary/20 bg-gold-primary/5 text-gold-primary shrink-0">
                         <Phone size={11} />
                       </div>
                       <a
                         href={`tel:+${branch.phoneRaw}`}
-                        className="text-xs text-ivory/75 hover:text-gold-primary transition-colors font-medium tracking-wide"
+                        className="text-xs text-ivory/75 hover:text-gold-primary transition-colors font-medium tracking-wide break-all min-w-0"
                       >
                         {branch.phone}
                       </a>
                     </div>
 
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3 min-w-0">
                       <div className="p-1.5 border border-gold-primary/20 bg-gold-primary/5 text-gold-primary shrink-0">
                         <Clock size={11} />
                       </div>
-                      <p className="text-xs text-ivory/60 font-light">
+                      <p className="text-xs text-ivory/60 font-light break-words min-w-0">
                         {branch.hours} · {branch.hoursNote}
                       </p>
                     </div>

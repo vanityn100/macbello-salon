@@ -56,10 +56,13 @@ html {
   background-color: #050505;
   color: #F5F5F0;
   -webkit-font-smoothing: antialiased;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
   font-family: var(--font-inter), sans-serif;
+  max-width: 100%;
   overflow-x: hidden;
   background-color: #050505;
   animation: pageFadeIn 0.8s ease-out forwards;
