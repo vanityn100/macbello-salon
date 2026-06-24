@@ -1313,10 +1313,10 @@ export default function BillingModule() {
               <button
                 onClick={handleCheckout}
                 disabled={checkoutLoading || cart.length === 0 || !selectedCustomer || !!redeemError}
-                className="w-full text-center text-xs uppercase tracking-[0.2em] bg-gold-primary hover:bg-gold-dark disabled:bg-gold-primary/40 text-luxury-black font-semibold py-3.5 transition-colors cursor-pointer flex items-center justify-center"
+                className="w-full text-center text-xs uppercase tracking-[0.2em] bg-gold-primary hover:bg-gold-dark disabled:bg-gold-primary/40 disabled:cursor-not-allowed text-luxury-black font-semibold py-3.5 transition-colors flex items-center justify-center cursor-pointer"
               >
                 {checkoutLoading ? <Loader2 size={14} className="animate-spin mr-2" /> : null}
-                <span>Process Payment & Generate Invoice</span>
+                <span>{checkoutLoading ? "Processing Payment..." : "Process Payment & Generate Invoice"}</span>
               </button>
             </div>
 
