@@ -38,6 +38,7 @@ export default function BillingModule() {
   const [staffEmail, setStaffEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState("");
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   // Customer Management
   const [searchPhone, setSearchPhone] = useState("");
@@ -119,9 +120,14 @@ export default function BillingModule() {
 
       if (session) {
         const role = session.user?.app_metadata?.role;
+        const userBranch = session.user?.app_metadata?.branch || "Kaduthuruthy";
         if (role === "staff" || role === "admin") {
           setSessionToken(session.access_token);
           setStaffEmail(session.user?.email || null);
+          setUserRole(role);
+          if (role === "staff") {
+            setBranch(userBranch);
+          }
           loadCatalog(session.access_token);
         } else {
           setLoading(false);
@@ -139,14 +145,20 @@ export default function BillingModule() {
     const subStaff = supabaseStaffClient.auth.onAuthStateChange((_event, session) => {
       if (session) {
         const role = session.user?.app_metadata?.role;
+        const userBranch = session.user?.app_metadata?.branch || "Kaduthuruthy";
         if (role === "staff" || role === "admin") {
           setSessionToken(session.access_token);
           setStaffEmail(session.user?.email || null);
+          setUserRole(role);
+          if (role === "staff") {
+            setBranch(userBranch);
+          }
           loadCatalog(session.access_token);
         }
       } else {
         setSessionToken(null);
         setStaffEmail(null);
+        setUserRole(null);
         setCatalog([]);
         setLoading(false);
       }
@@ -158,6 +170,7 @@ export default function BillingModule() {
         if (role === "admin") {
           setSessionToken(session.access_token);
           setStaffEmail(session.user?.email || null);
+          setUserRole(role);
           loadCatalog(session.access_token);
         }
       }
@@ -871,15 +884,21 @@ export default function BillingModule() {
 
           <div className="flex items-center gap-3">
             <span className="text-[10px] text-ivory/50 uppercase tracking-wider">Branch Location:</span>
-            <select
-              value={branch}
-              onChange={(e) => setBranch(e.target.value)}
-              className="bg-neutral-900 border border-white/10 px-4 py-2 text-xs text-white rounded-none focus:outline-none cursor-pointer appearance-none"
-            >
-              <option value="Kaduthuruthy">Kaduthuruthy</option>
-              <option value="Ettumanoor">Ettumanoor</option>
-              <option value="Peruva">Peruva</option>
-            </select>
+            {userRole === "admin" ? (
+              <select
+                value={branch}
+                onChange={(e) => setBranch(e.target.value)}
+                className="bg-neutral-900 border border-white/10 px-4 py-2 text-xs text-white rounded-none focus:outline-none cursor-pointer appearance-none"
+              >
+                <option value="Kaduthuruthy">Kaduthuruthy</option>
+                <option value="Ettumanoor">Ettumanoor</option>
+                <option value="Peruva">Peruva</option>
+              </select>
+            ) : (
+              <span className="text-xs text-white border border-white/10 px-4 py-2 bg-neutral-900/50 uppercase tracking-wider font-semibold">
+                {branch}
+              </span>
+            )}
           </div>
         </div>
 
