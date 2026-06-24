@@ -43,6 +43,7 @@ export default function AdminProductsPage() {
   
   // Stock adjustment modal
   const [adjustModal, setAdjustModal] = useState<any | null>(null);
+  const [adjustBranch, setAdjustBranch] = useState("");
   const [adjustQty, setAdjustQty] = useState("");
   const [adjustType, setAdjustType] = useState<"STOCK_IN" | "ADJUSTMENT">("STOCK_IN");
   const [adjustLoading, setAdjustLoading] = useState(false);
@@ -152,13 +153,20 @@ export default function AdminProductsPage() {
       const qty = parseInt(adjustQty, 10);
       const signedQty = adjustType === "STOCK_IN" ? Math.abs(qty) : -Math.abs(qty);
 
+      const targetBranch = adjustBranch || (selectedBranch !== "All Branches" ? selectedBranch : null);
+      if (!targetBranch) {
+        alert("Please select a branch to adjust stock for.");
+        setAdjustLoading(false);
+        return;
+      }
+
       const res = await fetch("/api/inventory", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
         body: JSON.stringify({
           action: "update_stock",
           productId: adjustModal.productId,
-          targetBranch: adjustModal.branch || selectedBranch === "All Branches" ? null : selectedBranch,
+          targetBranch: targetBranch,
           quantity: signedQty,
           transactionType: adjustType
         }),
@@ -443,6 +451,21 @@ export default function AdminProductsPage() {
                   <Minus size={12} className="mr-1" /> Damage/Loss
                 </button>
               </div>
+
+              {(selectedBranch === "All Branches") && (
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-ivory/60 mb-2">Target Branch</label>
+                  <select 
+                    value={adjustBranch} 
+                    onChange={e => setAdjustBranch(e.target.value)} 
+                    required 
+                    className="w-full bg-white/[0.02] border border-white/10 px-3 py-2 text-white outline-none focus:border-gold-primary"
+                  >
+                    <option value="" disabled>Select a branch</option>
+                    {branches.map(b => <option key={b} value={b}>{b}</option>)}
+                  </select>
+                </div>
+              )}
 
               <div>
                 <label className="block text-[10px] uppercase tracking-wider text-ivory/60 mb-2">Quantity</label>

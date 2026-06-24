@@ -32,17 +32,45 @@ export async function POST(req: Request) {
 
       let query = adminSupabase
         .from("services")
-        .select("*")
+        .select(`
+          *,
+          branch_inventory (
+            branch,
+            current_stock,
+            minimum_stock
+          )
+        `)
         .eq("category", "Retail")
         .order("name", { ascending: true });
 
-      if (targetBranch && targetBranch !== "All Branches") {
-        query = query.or(`branch.is.null,branch.eq."${targetBranch}"`);
-      }
-
       const { data, error } = await query;
       if (error) throw error;
-      return NextResponse.json({ success: true, products: data });
+
+      const formattedProducts = data.map((item: any) => {
+        let currentStock = 0;
+        let minimumStock = 5;
+
+        if (targetBranch === "All Branches" || !targetBranch) {
+          currentStock = item.branch_inventory?.reduce((sum: number, b: any) => sum + (b.current_stock || 0), 0) || 0;
+          minimumStock = item.branch_inventory?.reduce((sum: number, b: any) => sum + (b.minimum_stock || 0), 0) || 0;
+        } else {
+          const branchRecord = item.branch_inventory?.find((b: any) => b.branch === targetBranch);
+          if (branchRecord) {
+            currentStock = branchRecord.current_stock;
+            minimumStock = branchRecord.minimum_stock;
+          }
+        }
+
+        // We clean up branch_inventory from response to keep payload small
+        const { branch_inventory, ...rest } = item;
+        return {
+          ...rest,
+          current_stock: currentStock,
+          minimum_stock: minimumStock
+        };
+      });
+
+      return NextResponse.json({ success: true, products: formattedProducts });
     }
 
     // ── 1.5 CREATE PRODUCT (MANUAL ENTRY) ───────────────────
@@ -59,22 +87,41 @@ export async function POST(req: Request) {
         name: name.trim(),
         category: "Retail",
         price: Number(price),
-        branch: branchToAssign || null,
+        branch: null, // Retail products are globally defined
         hsn: hsn || "999729",
         tax_rate: Number(gstRate) / 100,
         status: "active",
-        current_stock: Number(initialStock) || 0,
-        minimum_stock: Number(minimumStock) || 5
+        current_stock: 0,
+        minimum_stock: 5
       }).select().single();
 
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
       }
 
+      // Generate branch_inventory records for all 3 branches
+      const minStockNum = Number(minimumStock) || 5;
+      await adminSupabase.from("branch_inventory").insert([
+        { service_id: data.id, branch: "Kaduthuruthy", current_stock: 0, minimum_stock: minStockNum },
+        { service_id: data.id, branch: "Ettumanoor", current_stock: 0, minimum_stock: minStockNum },
+        { service_id: data.id, branch: "Peruva", current_stock: 0, minimum_stock: minStockNum }
+      ]);
+
       if (Number(initialStock) > 0) {
+        // Find the specific branch inventory record to update
+        if (targetBranch && targetBranch !== "All Branches") {
+          await adminSupabase.from("branch_inventory")
+            .update({ current_stock: Number(initialStock) })
+            .eq("service_id", data.id)
+            .eq("branch", targetBranch);
+        } else {
+          // If admin adds without branch, add to all? No, just keep as 0, or add to first. 
+          // Usually they must select a branch. If All Branches, maybe we don't add initial stock.
+        }
+
         await adminSupabase.from("inventory_transactions").insert({
           product_id: data.id,
-          branch: branchToAssign,
+          branch: targetBranch,
           transaction_type: "STOCK_IN",
           quantity: Number(initialStock),
           created_by: user.email
@@ -105,24 +152,35 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: false, error: "Invalid quantity." }, { status: 400 });
       }
 
-      // 1. Fetch current product
-      const { data: product, error: fetchErr } = await adminSupabase
-        .from("services")
-        .select("id, current_stock, branch")
-        .eq("id", productId)
-        .single();
+      // 1. Fetch current product inventory for this branch
+      let { data: branchInv, error: fetchErr } = await adminSupabase
+        .from("branch_inventory")
+        .select("id, current_stock")
+        .eq("service_id", productId)
+        .eq("branch", targetBranch)
+        .maybeSingle();
         
-      if (fetchErr || !product) throw fetchErr;
+      let newStock = numQty;
 
-      const newStock = product.current_stock + numQty;
-
-      // 2. Update stock
-      const { error: updateErr } = await adminSupabase
-        .from("services")
-        .update({ current_stock: newStock })
-        .eq("id", productId);
-        
-      if (updateErr) throw updateErr;
+      if (!branchInv) {
+        // Upsert if missing
+        const { error: insertErr } = await adminSupabase.from("branch_inventory").insert({
+          service_id: productId,
+          branch: targetBranch,
+          current_stock: newStock,
+          minimum_stock: 5
+        });
+        if (insertErr) throw insertErr;
+      } else {
+        newStock = branchInv.current_stock + numQty;
+        // 2. Update stock
+        const { error: updateErr } = await adminSupabase
+          .from("branch_inventory")
+          .update({ current_stock: newStock })
+          .eq("id", branchInv.id);
+          
+        if (updateErr) throw updateErr;
+      }
 
       // 3. Log transaction
       await adminSupabase.from("inventory_transactions").insert({
@@ -190,13 +248,13 @@ export async function POST(req: Request) {
 
       let productQuery = adminSupabase
         .from("services")
-        .select("*")
+        .select(`
+          *,
+          branch_inventory ( branch, current_stock, minimum_stock )
+        `)
         .eq("category", "Retail")
         .order("name", { ascending: true });
 
-      if (targetBranch && targetBranch !== "All Branches") {
-        productQuery = productQuery.or(`branch.is.null,branch.eq."${targetBranch}"`);
-      }
       const { data: products, error: pErr } = await productQuery;
       if (pErr) throw pErr;
 
@@ -241,14 +299,29 @@ export async function POST(req: Request) {
 
       const report = products.map((p: any) => {
         const sales = salesMap[p.name] || { qty: 0, taxable: 0, gst: 0, revenue: 0 };
+        
+        let currentStock = 0;
+        let minimumStock = 5;
+
+        if (targetBranch === "All Branches" || !targetBranch) {
+          currentStock = p.branch_inventory?.reduce((sum: number, b: any) => sum + (b.current_stock || 0), 0) || 0;
+          minimumStock = p.branch_inventory?.reduce((sum: number, b: any) => sum + (b.minimum_stock || 0), 0) || 0;
+        } else {
+          const branchRecord = p.branch_inventory?.find((b: any) => b.branch === targetBranch);
+          if (branchRecord) {
+            currentStock = branchRecord.current_stock;
+            minimumStock = branchRecord.minimum_stock;
+          }
+        }
+
         return {
           productId: p.id,
           productName: p.name,
           category: p.category,
           hsn: p.hsn || "—",
           gstRate: (parseFloat(p.tax_rate) * 100).toFixed(0) + "%",
-          currentStock: p.current_stock || 0,
-          minimumStock: p.minimum_stock || 0,
+          currentStock: currentStock,
+          minimumStock: minimumStock,
           status: p.status,
           quantitySold: sales.qty,
           revenue: sales.revenue,
