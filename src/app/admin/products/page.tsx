@@ -75,7 +75,7 @@ export default function AdminProductsPage() {
       const data = await res.json();
       if (res.ok && data.success && data.staff) {
         const unique = Array.from(new Set([
-          "Branch A", "Branch B", "Branch C",
+          "Kaduthuruthy", "Ettumanoor", "Peruva",
           ...data.staff.map((s: any) => s.app_metadata?.branch).filter(Boolean)
         ])) as string[];
         setBranches(unique);

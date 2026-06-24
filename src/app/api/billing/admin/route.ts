@@ -150,9 +150,9 @@ export async function GET(request: NextRequest) {
 
       let totalSales = 0;
       const branchBreakdown: Record<string, number> = {
-        "Branch A": 0,
-        "Branch B": 0,
-        "Branch C": 0
+        "Kaduthuruthy": 0,
+        "Ettumanoor": 0,
+        "Peruva": 0
       };
       const staffBreakdown: Record<string, { revenue: number; count: number }> = {};
 
@@ -1089,9 +1089,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Password must be at least 6 characters long." }, { status: 400 });
       }
 
-      const allowedBranches = ["Branch A", "Branch B", "Branch C"];
+      const allowedBranches = ["Kaduthuruthy", "Ettumanoor", "Peruva"];
       if (typeof branch !== "string" || !allowedBranches.includes(branch.trim())) {
-        return NextResponse.json({ success: false, error: "Invalid branch name. Must be Branch A, Branch B, or Branch C." }, { status: 400 });
+        return NextResponse.json({ success: false, error: "Invalid branch name. Must be Kaduthuruthy, Ettumanoor, or Peruva." }, { status: 400 });
       }
 
       const cleanBranch = branch.trim();

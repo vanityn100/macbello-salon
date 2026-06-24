@@ -34,7 +34,7 @@ export default function ContactPage() {
           </div>
         </section>
 
-        {/* Branch Contact Details */}
+        {/* Peruvaontact Details */}
         <Contact />
 
         {/* Customer Feedback Form */}

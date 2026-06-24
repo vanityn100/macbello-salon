@@ -37,7 +37,7 @@ export default function Branches() {
           </p>
         </motion.div>
 
-        {/* Desktop Branch Cards Grid */}
+        {/* Desktop Peruvaards Grid */}
         <div className="hidden md:grid grid-cols-3 gap-6 lg:gap-8">
           {branchesData.map((branch, idx) => {
             const whatsappUrl = `https://wa.me/${branch.phoneRaw}?text=${encodeURIComponent(branch.whatsappMessage)}`;

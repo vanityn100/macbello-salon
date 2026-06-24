@@ -60,7 +60,7 @@ export default function BillingModule() {
   const [cart, setCart] = useState<CartItem[]>([]);
 
   // Branch
-  const [branch, setBranch] = useState("Branch A");
+  const [branch, setBranch] = useState("Kaduthuruthy");
 
   // Loyalty Redemption
   const [pointsToRedeem, setPointsToRedeem] = useState("");
@@ -457,18 +457,6 @@ export default function BillingModule() {
 
     // Branch Details lookup
     const branchInfo: Record<string, { address: string; phone: string }> = {
-      "Branch A": {
-        address: "Market Junction, Branch A, Kerala 686604",
-        phone: "+91 95625 14002"
-      },
-      "Branch B": {
-        address: "Ground Floor, Panthaplackil Buildings, MC Road, Branch B, Kottayam, Kerala 686632",
-        phone: "+91 97469 14003"
-      },
-      "Branch C": {
-        address: "Macbello Family Salon, Branch C, Kerala 686610",
-        phone: "+91 95448 14003"
-      },
       Kaduthuruthy: {
         address: "Market Junction, Kaduthuruthy, Kerala 686604",
         phone: "+91 95625 14002"
@@ -850,9 +838,9 @@ export default function BillingModule() {
               onChange={(e) => setBranch(e.target.value)}
               className="bg-neutral-900 border border-white/10 px-4 py-2 text-xs text-white rounded-none focus:outline-none cursor-pointer appearance-none"
             >
-              <option value="Branch A">Branch A</option>
-              <option value="Branch B">Branch B</option>
-              <option value="Branch C">Branch C</option>
+              <option value="Kaduthuruthy">Kaduthuruthy</option>
+              <option value="Ettumanoor">Ettumanoor</option>
+              <option value="Peruva">Peruva</option>
             </select>
           </div>
         </div>

@@ -67,7 +67,7 @@ export default function StaffPortal() {
   // Points adjustment inputs
   const [pointsChange, setPointsChange] = useState("");
   const [adjType, setAdjType] = useState<"add" | "redeem">("add");
-  const [branch, setBranch] = useState("Branch A");
+  const [branch, setBranch] = useState("Kaduthuruthy");
   const [notes, setNotes] = useState("");
   const [adjError, setAdjError] = useState("");
   const [adjSuccess, setAdjSuccess] = useState("");
@@ -569,19 +569,19 @@ export default function StaffPortal() {
             {/* Branch-wise breakdown */}
             {userRole === "admin" && stats.branchBreakdown && (
               <div className="flex flex-col justify-center space-y-1.5 border-t md:border-t-0 md:pr-6 border-white/5 pt-4 md:pt-0">
-                <span className="text-[10px] uppercase tracking-wider text-gold-primary block font-bold">Branch Contribution</span>
+                <span className="text-[10px] uppercase tracking-wider text-gold-primary block font-bold">Peruvaontribution</span>
                 <div className="grid grid-cols-3 gap-2 text-[10px] text-ivory/70 pt-0.5">
                   <div>
-                    <span className="block font-medium text-white/90 truncate">Branch A</span>
-                    <span className="text-[11px] text-gold-primary font-bold">₹{(stats.branchBreakdown["Branch A"] || 0).toFixed(0)}</span>
+                    <span className="block font-medium text-white/90 truncate">Kaduthuruthy</span>
+                    <span className="text-[11px] text-gold-primary font-bold">₹{(stats.branchBreakdown["Kaduthuruthy"] || 0).toFixed(0)}</span>
                   </div>
                   <div>
-                    <span className="block font-medium text-white/90 truncate">Branch B</span>
-                    <span className="text-[11px] text-gold-primary font-bold">₹{(stats.branchBreakdown["Branch B"] || 0).toFixed(0)}</span>
+                    <span className="block font-medium text-white/90 truncate">Ettumanoor</span>
+                    <span className="text-[11px] text-gold-primary font-bold">₹{(stats.branchBreakdown["Ettumanoor"] || 0).toFixed(0)}</span>
                   </div>
                   <div>
-                    <span className="block font-medium text-white/90 truncate">Branch C</span>
-                    <span className="text-[11px] text-gold-primary font-bold">₹{(stats.branchBreakdown["Branch C"] || 0).toFixed(0)}</span>
+                    <span className="block font-medium text-white/90 truncate">Peruva</span>
+                    <span className="text-[11px] text-gold-primary font-bold">₹{(stats.branchBreakdown["Peruva"] || 0).toFixed(0)}</span>
                   </div>
                 </div>
               </div>
@@ -820,9 +820,9 @@ export default function StaffPortal() {
                           onChange={(e) => setBranch(e.target.value)}
                           className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs text-white rounded-none focus:outline-none cursor-pointer appearance-none"
                         >
-                          <option value="Branch A">Branch A</option>
-                          <option value="Branch B">Branch B</option>
-                          <option value="Branch C">Branch C</option>
+                          <option value="Kaduthuruthy">Kaduthuruthy</option>
+                          <option value="Ettumanoor">Ettumanoor</option>
+                          <option value="Peruva">Peruva</option>
                         </select>
                       </div>
 

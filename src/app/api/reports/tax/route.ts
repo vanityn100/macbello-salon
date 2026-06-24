@@ -114,7 +114,7 @@ export async function POST(req: Request) {
         const customerName = inv.customers?.name || "Walk-in";
         const invBranch = inv.branch || "Global";
 
-        // Branch Aggregation
+        // Kaduthuruthyggregation
         if (!branchMap[invBranch]) {
           branchMap[invBranch] = { branchName: invBranch, invoiceCount: 0, revenue: 0, taxableValue: 0, gstCollected: 0 };
         }

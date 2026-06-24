@@ -196,7 +196,7 @@ export default function AdminPortal() {
   // New staff inputs
   const [newStaffEmail, setNewStaffEmail] = useState("");
   const [newStaffPassword, setNewStaffPassword] = useState("");
-  const [newStaffBranch, setNewStaffBranch] = useState("Branch A");
+  const [newStaffBranch, setNewStaffBranch] = useState("Kaduthuruthy");
   const [staffCreateLoading, setStaffCreateLoading] = useState(false);
   const [staffCreateError, setStaffCreateError] = useState("");
   const [staffCreateSuccess, setStaffCreateSuccess] = useState("");
@@ -843,26 +843,26 @@ export default function AdminPortal() {
 
             {/* Performance Breakdowns Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {/* Branch Contribution */}
+              {/* Peruvaontribution */}
               {stats.branchBreakdown && (
                 <div className="border border-white/5 bg-white/[0.01] p-6 relative">
                   <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-gold-primary/25" />
                   <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-gold-primary/25" />
                   <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-gold-primary/25" />
                   <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-gold-primary/25" />
-                  <span className="text-[10px] uppercase tracking-wider text-gold-primary block font-bold mb-3">Branch Contribution</span>
+                  <span className="text-[10px] uppercase tracking-wider text-gold-primary block font-bold mb-3">Peruvaontribution</span>
                   <div className="grid grid-cols-3 gap-3 text-xs text-ivory/70">
                     <div className="bg-white/[0.02] border border-white/5 p-3 text-center">
-                      <span className="block font-medium text-white/90 truncate mb-1 text-[10px]">Branch A</span>
-                      <span className="currency-value text-xs text-gold-primary font-bold">₹{(stats.branchBreakdown["Branch A"] || 0).toFixed(0)}</span>
+                      <span className="block font-medium text-white/90 truncate mb-1 text-[10px]">Kaduthuruthy</span>
+                      <span className="currency-value text-xs text-gold-primary font-bold">₹{(stats.branchBreakdown["Kaduthuruthy"] || 0).toFixed(0)}</span>
                     </div>
                     <div className="bg-white/[0.02] border border-white/5 p-3 text-center">
-                      <span className="block font-medium text-white/90 truncate mb-1 text-[10px]">Branch B</span>
-                      <span className="currency-value text-xs text-gold-primary font-bold">₹{(stats.branchBreakdown["Branch B"] || 0).toFixed(0)}</span>
+                      <span className="block font-medium text-white/90 truncate mb-1 text-[10px]">Ettumanoor</span>
+                      <span className="currency-value text-xs text-gold-primary font-bold">₹{(stats.branchBreakdown["Ettumanoor"] || 0).toFixed(0)}</span>
                     </div>
                     <div className="bg-white/[0.02] border border-white/5 p-3 text-center">
-                      <span className="block font-medium text-white/90 truncate mb-1 text-[10px]">Branch C</span>
-                      <span className="currency-value text-xs text-gold-primary font-bold">₹{(stats.branchBreakdown["Branch C"] || 0).toFixed(0)}</span>
+                      <span className="block font-medium text-white/90 truncate mb-1 text-[10px]">Peruva</span>
+                      <span className="currency-value text-xs text-gold-primary font-bold">₹{(stats.branchBreakdown["Peruva"] || 0).toFixed(0)}</span>
                     </div>
                   </div>
                 </div>
@@ -917,9 +917,9 @@ export default function AdminPortal() {
                 className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs text-white rounded-none focus:outline-none focus:border-gold-primary/50 cursor-pointer"
               >
                 <option value="All Branches">All Branches</option>
-                <option value="Branch A">Branch A</option>
-                <option value="Branch B">Branch B</option>
-                <option value="Branch C">Branch C</option>
+                <option value="Kaduthuruthy">Kaduthuruthy</option>
+                <option value="Ettumanoor">Ettumanoor</option>
+                <option value="Peruva">Peruva</option>
               </select>
             </div>
 
@@ -1051,15 +1051,15 @@ export default function AdminPortal() {
             </div>
 
             <div className="flex flex-col">
-              <label className="text-[9px] uppercase tracking-wider text-ivory/40 mb-1.5">Branch Assignment</label>
+              <label className="text-[9px] uppercase tracking-wider text-ivory/40 mb-1.5">Kaduthuruthyssignment</label>
               <select
                 value={newStaffBranch}
                 onChange={(e) => setNewStaffBranch(e.target.value)}
                 className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs text-white rounded-none focus:outline-none focus:border-gold-primary/50 cursor-pointer"
               >
-                <option value="Branch A">Branch A</option>
-                <option value="Branch B">Branch B</option>
-                <option value="Branch C">Branch C</option>
+                <option value="Kaduthuruthy">Kaduthuruthy</option>
+                <option value="Ettumanoor">Ettumanoor</option>
+                <option value="Peruva">Peruva</option>
               </select>
             </div>
 
@@ -1096,7 +1096,7 @@ export default function AdminPortal() {
                   <thead>
                     <tr className="border-b border-white/10 uppercase text-ivory/40 text-[9px]">
                       <th className="pb-2">Staff Email</th>
-                      <th className="pb-2">Branch Assignment</th>
+                      <th className="pb-2">Kaduthuruthyssignment</th>
                       <th className="pb-2">User ID</th>
                       <th className="pb-2 text-right">Actions</th>
                     </tr>

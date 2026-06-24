@@ -35,7 +35,7 @@ export default function Contact() {
           </p>
         </motion.div>
 
-        {/* Branch Contact Cards */}
+        {/* Peruvaontact Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {branchesData.map((branch, idx) => {
             const whatsappUrl = `https://wa.me/${branch.phoneRaw}?text=${encodeURIComponent(branch.whatsappMessage)}`;

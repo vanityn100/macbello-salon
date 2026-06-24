@@ -71,7 +71,7 @@ export default function TaxComplianceReports() {
       const data = await res.json();
       if (res.ok && data.success && data.staff) {
         const uniqueBranches = Array.from(new Set([
-          "Branch A", "Branch B", "Branch C",
+          "Kaduthuruthy", "Ettumanoor", "Peruva",
           ...data.staff.map((s: any) => s.app_metadata?.branch).filter(Boolean)
         ])) as string[];
         setBranches(uniqueBranches);
