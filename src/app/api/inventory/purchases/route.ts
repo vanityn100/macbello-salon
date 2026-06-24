@@ -13,17 +13,12 @@ async function authenticateAdmin(req: Request) {
   const token = authHeader.split(" ")[1];
 
   const { data: { user }, error } = await adminSupabase.auth.getUser(token);
-  if (error || !user) return null;
+  if (error || !user || !user.email) return null;
 
-  const { data: profile } = await adminSupabase
-    .from("users")
-    .select("role, email")
-    .eq("id", user.id)
-    .single();
+  const role = user.app_metadata?.role;
+  if (role !== "admin") return null;
 
-  if (!profile || profile.role !== "admin") return null;
-
-  return { id: user.id, email: profile.email };
+  return { id: user.id, email: user.email };
 }
 
 export async function GET(req: Request) {

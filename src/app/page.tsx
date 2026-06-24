@@ -49,8 +49,8 @@ export default function Home() {
         {/* Booking Form with WhatsApp forwarding */}
         <Booking />
 
-        {/* Loyalty Rewards balance checker - Hidden on mobile */}
-        <div className="max-md:hidden"><Loyalty /></div>
+        {/* Loyalty Rewards balance checker */}
+        <Loyalty />
       </main>
 
       {/* Footer Details */}
