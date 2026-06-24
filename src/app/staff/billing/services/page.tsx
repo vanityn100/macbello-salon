@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabaseStaffClient } from "@/lib/supabase";
+import { supabaseStaffClient, supabaseAdminClient } from "@/lib/supabase";
 import { 
   ArrowLeft, Edit2, Trash2, Loader2, Sparkles, AlertCircle, ShoppingBag, Scissors
 } from "lucide-react";
@@ -64,22 +64,43 @@ export default function ServicesManagement() {
   };
 
   useEffect(() => {
-    supabaseStaffClient.auth.getSession().then(({ data: { session } }) => {
+    const checkAuth = async () => {
+      // Try staff client first
+      let { data: { session } } = await supabaseStaffClient.auth.getSession();
+      
+      // If no staff session, check admin client session
+      if (!session) {
+        const adminSession = await supabaseAdminClient.auth.getSession();
+        session = adminSession.data.session;
+      }
+
       if (session) {
-        setSessionToken(session.access_token);
-        setStaffEmail(session.user?.email || null);
-        loadItems(session.access_token);
+        const role = session.user?.app_metadata?.role;
+        if (role === "staff" || role === "admin") {
+          setSessionToken(session.access_token);
+          setStaffEmail(session.user?.email || null);
+          loadItems(session.access_token);
+        } else {
+          setLoading(false);
+          setAuthError("Access denied. You do not have permission.");
+        }
       } else {
         setLoading(false);
-        setAuthError("You must be logged in as staff to access this page.");
+        setAuthError("You must be logged in as staff or admin to access this page.");
       }
-    });
+    };
 
-    const { data: { subscription } } = supabaseStaffClient.auth.onAuthStateChange((_event, session) => {
+    checkAuth();
+
+    // Listen to changes on both clients to handle sign outs/logins
+    const subStaff = supabaseStaffClient.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        setSessionToken(session.access_token);
-        setStaffEmail(session.user?.email || null);
-        loadItems(session.access_token);
+        const role = session.user?.app_metadata?.role;
+        if (role === "staff" || role === "admin") {
+          setSessionToken(session.access_token);
+          setStaffEmail(session.user?.email || null);
+          loadItems(session.access_token);
+        }
       } else {
         setSessionToken(null);
         setStaffEmail(null);
@@ -88,7 +109,21 @@ export default function ServicesManagement() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    const subAdmin = supabaseAdminClient.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        const role = session.user?.app_metadata?.role;
+        if (role === "admin") {
+          setSessionToken(session.access_token);
+          setStaffEmail(session.user?.email || null);
+          loadItems(session.access_token);
+        }
+      }
+    });
+
+    return () => {
+      subStaff.data.subscription.unsubscribe();
+      subAdmin.data.subscription.unsubscribe();
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
