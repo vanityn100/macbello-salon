@@ -145,6 +145,35 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, newStock });
     }
 
+    // ── 3. DELETE PRODUCT ───────────────────────────────────
+    if (action === "delete_product") {
+      const { productId } = body;
+
+      if (role !== "admin") {
+        return NextResponse.json({ success: false, error: "Only administrators can delete products." }, { status: 403 });
+      }
+
+      // Check if product is used in any invoices before deleting, or just delete if cascaded
+      // For safety, we will just delete it from services. If there's an FK constraint, it will fail gracefully.
+      const { error: delError } = await adminSupabase
+        .from("services")
+        .delete()
+        .eq("id", productId);
+
+      if (delError) {
+        return NextResponse.json({ success: false, error: delError.message }, { status: 500 });
+      }
+
+      await adminSupabase.from("audit_logs").insert({
+        user_id: user.email,
+        role: role,
+        action: "inventory_delete_product",
+        details: `Deleted product with ID ${productId}`
+      });
+
+      return NextResponse.json({ success: true });
+    }
+
     // ── 3. GET PRODUCT SUMMARY REPORT ───────────────────────
     if (action === "get_summary_report") {
       const { startDate, endDate, branch } = body;

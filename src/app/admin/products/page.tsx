@@ -125,6 +125,25 @@ export default function AdminProductsPage() {
     }
   }, [sessionToken, isAdmin, selectedBranch]);
 
+  const handleDeleteProduct = async (p: any) => {
+    if (!confirm(`Are you sure you want to delete ${p.productName}?\nThis action cannot be undone.`)) return;
+    try {
+      const res = await fetch("/api/inventory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+        body: JSON.stringify({ action: "delete_product", productId: p.productId })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        loadReport();
+      } else {
+        alert(data.error || "Failed to delete product.");
+      }
+    } catch (err) {
+      alert("Something went wrong. Please try again.");
+    }
+  };
+
   const handleAdjustSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sessionToken || !adjustModal) return;
@@ -388,9 +407,12 @@ export default function AdminProductsPage() {
                   </td>
                   <td className="metric-value p-4 text-right text-sm text-ivory/70">{p.quantitySold}</td>
                   <td className="currency-value p-4 text-right text-sm text-gold-primary">{formatINR(p.revenue)}</td>
-                  <td className="p-4 text-right">
+                  <td className="p-4 text-right whitespace-nowrap">
                     <button onClick={() => setAdjustModal(p)} className="text-[10px] uppercase tracking-wider text-gold-primary hover:underline">
                       Adjust
+                    </button>
+                    <button onClick={() => handleDeleteProduct(p)} className="text-[10px] uppercase tracking-wider text-red-500 hover:underline ml-4">
+                      Delete
                     </button>
                   </td>
                 </tr>
