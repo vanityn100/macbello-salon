@@ -682,8 +682,12 @@ export default function AdminPortal() {
 
           <div className="flex flex-wrap items-center gap-3">
             <Link href="/admin/products" className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-white/10 hover:border-gold-primary/40 hover:text-gold-primary px-4 py-2 bg-white/[0.02] transition-all duration-300 rounded-none">
-              <PackageSearch size={12} />
-              <span>Inventory</span>
+              <PackageSearch className="w-3.5 h-3.5" />
+              <span>Catalog</span>
+            </Link>
+            <Link href="/admin/inventory" className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-white/10 hover:border-gold-primary/40 hover:text-gold-primary px-4 py-2 bg-white/[0.02] transition-all duration-300 rounded-none">
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>Stock Purchases</span>
             </Link>
             <Link href="/admin/reports" className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-gold-primary text-gold-primary px-4 py-2 hover:bg-gold-primary/10 transition-all duration-300 rounded-none">
               <FileText size={12} />
