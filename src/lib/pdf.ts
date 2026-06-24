@@ -159,12 +159,12 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
   doc.setFontSize(8.5);
   doc.setTextColor(100, 100, 100);
   doc.text("Item Description", 20, y + 5.5);
-  doc.text("HSN", 90, y + 5.5);
-  doc.text("Category", 104, y + 5.5);
-  doc.text("Tax Rate", 122, y + 5.5);
-  doc.text("Qty", 134, y + 5.5);
-  doc.text("Unit Price", 143, y + 5.5);
-  doc.text("Total (excl. Tax)", 166, y + 5.5);
+  doc.text("HSN", 95, y + 5.5);
+  doc.text("Category", 110, y + 5.5);
+  doc.text("Tax Rate", 125, y + 5.5);
+  doc.text("Qty", 138, y + 5.5);
+  doc.text("Unit Price", 148, y + 5.5);
+  doc.text("Total (excl. Tax)", 168, y + 5.5);
 
   y += 8;
   doc.setFont("helvetica", "normal");
@@ -183,9 +183,9 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
     doc.setFont("helvetica", "bold");
     let desc = item.item_code ? `${item.item_name} [${item.item_code}]` : item.item_name;
     
-    // Truncate description to prevent column overlap (max ~45 characters now that column is wider)
-    if (desc.length > 45) {
-      desc = desc.substring(0, 42) + "...";
+    // Truncate description to prevent column overlap (max 30 characters to account for wide uppercase letters)
+    if (desc.length > 30) {
+      desc = desc.substring(0, 27) + "...";
     }
 
     // Center alignment adjustment for dual-line text if staff exists
@@ -203,12 +203,12 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
     }
 
     doc.setFont("helvetica", "normal");
-    doc.text(item.hsn || "-", 90, textY);
-    doc.text(item.category, 104, textY);
-    doc.text(`${(item.tax_rate * 100).toFixed(0)}%`, 122, textY);
-    doc.text(String(item.quantity), 136, textY);
-    doc.text(`INR ${parseFloat(item.unit_price).toFixed(2)}`, 143, textY);
-    doc.text(`INR ${parseFloat(item.line_total).toFixed(2)}`, 166, textY);
+    doc.text(item.hsn || "-", 95, textY);
+    doc.text(item.category, 110, textY);
+    doc.text(`${(item.tax_rate * 100).toFixed(0)}%`, 125, textY);
+    doc.text(String(item.quantity), 140, textY);
+    doc.text(`INR ${parseFloat(item.unit_price).toFixed(2)}`, 148, textY);
+    doc.text(`INR ${parseFloat(item.line_total).toFixed(2)}`, 168, textY);
 
     y += rowHeight;
   });
