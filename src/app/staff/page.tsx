@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabaseStaffClient } from "@/lib/supabase";
 import { 
   Phone, Award, ShieldAlert, LogOut, Search, Plus, 
@@ -131,6 +131,11 @@ export default function StaffPortal() {
     }
   };
 
+  // Guard: tracks whether the initial dashboard data has already been loaded by getSession().
+  // Prevents onAuthStateChange from duplicating those API calls when it fires right after
+  // getSession() on page mount with the same existing session.
+  const dashboardLoadedRef = useRef(false);
+
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10);
     setAppointmentsDate(today);
@@ -149,6 +154,8 @@ export default function StaffPortal() {
             loadDailyStats(session.access_token),
             loadAppointments(session.access_token, today)
           ]);
+          // Mark dashboard as loaded so onAuthStateChange skips the duplicate fetch
+          dashboardLoadedRef.current = true;
         }
       }
     });
@@ -161,11 +168,16 @@ export default function StaffPortal() {
           setStaffEmail(session.user?.email || null);
           setUserRole(role);
           
-          // Parallelize auth state change fetches
-          Promise.all([
-            loadDailyStats(session.access_token),
-            loadAppointments(session.access_token, appointmentsDate || today)
-          ]);
+          // Only load dashboard data if getSession() has NOT already done so.
+          // This prevents the duplicate API calls caused by onAuthStateChange
+          // firing immediately after getSession() on initial page mount.
+          if (!dashboardLoadedRef.current) {
+            Promise.all([
+              loadDailyStats(session.access_token),
+              loadAppointments(session.access_token, appointmentsDate || today)
+            ]);
+            dashboardLoadedRef.current = true;
+          }
         } else {
           // Unknown role — sign out
           supabaseStaffClient.auth.signOut();
@@ -174,6 +186,8 @@ export default function StaffPortal() {
           setUserRole(null);
         }
       } else {
+        // Session ended (logout) — reset dashboard state and allow reload on next login
+        dashboardLoadedRef.current = false;
         setSessionToken(null);
         setStaffEmail(null);
         setUserRole(null);

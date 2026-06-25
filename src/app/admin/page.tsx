@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabaseAdminClient } from "@/lib/supabase";
 import { 
   ShieldAlert, LogOut, Loader2, Download, Calendar, FileSpreadsheet, Award, FileText, TrendingUp, Users, Scissors, Clock, ExternalLink, PackageSearch, PackageOpen, Eye, EyeOff
@@ -284,6 +284,11 @@ export default function AdminPortal() {
     }
   };
 
+  // Guard: tracks whether the initial dashboard data has already been loaded by getSession().
+  // Prevents onAuthStateChange from duplicating those API calls when it fires right after
+  // getSession() on page mount with the same existing session.
+  const dashboardLoadedRef = useRef(false);
+
   useEffect(() => {
     supabaseAdminClient.auth.getSession().then(({ data: { session } }) => {
       if (session) {
@@ -300,6 +305,8 @@ export default function AdminPortal() {
             loadFinancialStats(session.access_token),
             loadCustomerList(session.access_token)
           ]);
+          // Mark dashboard as loaded so onAuthStateChange skips the duplicate fetch
+          dashboardLoadedRef.current = true;
         } else {
           setIsAdmin(false);
           setAuthError("Access denied. Admin role required.");
@@ -315,13 +322,18 @@ export default function AdminPortal() {
           setSessionToken(session.access_token);
           setAdminEmail(session.user?.email || null);
           
-          // Parallelize initial auth trigger requests
-          Promise.all([
-            loadStaffList(session.access_token),
-            loadDailyStats(session.access_token),
-            loadFinancialStats(session.access_token),
-            loadCustomerList(session.access_token)
-          ]);
+          // Only load dashboard data if getSession() has NOT already done so.
+          // This prevents the duplicate API calls caused by onAuthStateChange
+          // firing immediately after getSession() on initial page mount.
+          if (!dashboardLoadedRef.current) {
+            Promise.all([
+              loadStaffList(session.access_token),
+              loadDailyStats(session.access_token),
+              loadFinancialStats(session.access_token),
+              loadCustomerList(session.access_token)
+            ]);
+            dashboardLoadedRef.current = true;
+          }
         } else {
           setIsAdmin(false);
           setSessionToken(null);
@@ -329,6 +341,8 @@ export default function AdminPortal() {
           setAuthError("Access denied. Admin role required.");
         }
       } else {
+        // Session ended (logout) — reset all dashboard state and allow reload on next login
+        dashboardLoadedRef.current = false;
         setIsAdmin(false);
         setSessionToken(null);
         setAdminEmail(null);

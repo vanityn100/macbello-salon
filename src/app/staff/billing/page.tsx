@@ -144,9 +144,12 @@ export default function BillingModule() {
 
     checkAuth();
 
-    // Listen to changes on both clients to handle sign outs/logins
+    // Listen for sign-outs on both clients to redirect users who log out.
+    // Do NOT call loadCatalog() here — checkAuth() already handles the initial load.
+    // Calling it here would cause up to 3 catalog fetches on every page mount.
     const subStaff = supabaseStaffClient.auth.onAuthStateChange((_event, session) => {
       if (session) {
+        // Update session token in case it was refreshed, but do not re-fetch catalog
         const role = session.user?.app_metadata?.role;
         const userBranch = session.user?.app_metadata?.branch || "Kaduthuruthy";
         if (role === "staff" || role === "admin") {
@@ -156,9 +159,9 @@ export default function BillingModule() {
           if (role === "staff") {
             setBranch(userBranch);
           }
-          loadCatalog(session.access_token);
         }
       } else {
+        // Staff signed out — clear state
         setSessionToken(null);
         setStaffEmail(null);
         setUserRole(null);
@@ -169,12 +172,12 @@ export default function BillingModule() {
 
     const subAdmin = supabaseAdminClient.auth.onAuthStateChange((_event, session) => {
       if (session) {
+        // Update session token in case it was refreshed, but do not re-fetch catalog
         const role = session.user?.app_metadata?.role;
         if (role === "admin") {
           setSessionToken(session.access_token);
           setStaffEmail(session.user?.email || null);
           setUserRole(role);
-          loadCatalog(session.access_token);
         }
       }
     });
