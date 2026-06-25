@@ -799,7 +799,7 @@ export async function POST(request: NextRequest) {
 
     // 5. SECURE INVOICING CHECKOUT
     if (action === "create_invoice") {
-      const { customerId, items, pointsToRedeem, branch, paymentMethod } = body;
+      const { customerId, items, pointsToRedeem, branch, paymentMethod, invoiceDate } = body;
 
       let targetBranch = branch;
       if (user.role === "staff") {
@@ -811,6 +811,23 @@ export async function POST(request: NextRequest) {
 
       if (!customerId || !Array.isArray(items) || items.length === 0 || !targetBranch) {
         return NextResponse.json({ success: false, error: "Missing checkout parameters." }, { status: 400 });
+      }
+
+      // Validate invoiceDate
+      let customCreatedByDate: string | null = null;
+      if (invoiceDate) {
+        const parsedDate = new Date(invoiceDate);
+        if (isNaN(parsedDate.getTime())) {
+          return NextResponse.json({ success: false, error: "Invalid Invoice Date format." }, { status: 400 });
+        }
+        // Don't allow future dates (with buffer for today)
+        const todayStr = new Date().toLocaleDateString("sv-SE");
+        if (invoiceDate > todayStr) {
+          return NextResponse.json({ success: false, error: "Future Invoice Dates are not allowed." }, { status: 400 });
+        }
+        // Append current time to the backdate so it's a valid timestamp
+        const timeStr = new Date().toTimeString().split(" ")[0]; // "HH:MM:SS"
+        customCreatedByDate = `${invoiceDate}T${timeStr}.000Z`;
       }
 
       const redeemAmt = parseInt(pointsToRedeem, 10) || 0;
@@ -920,7 +937,8 @@ export async function POST(request: NextRequest) {
           created_by: user.email,
           branch: targetBranch,
           payment_method: paymentMethod || "Cash",
-          status: "active"
+          status: "active",
+          ...(customCreatedByDate ? { created_at: customCreatedByDate } : {})
         }])
         .select("*")
         .single();

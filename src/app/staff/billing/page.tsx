@@ -82,6 +82,9 @@ export default function BillingModule() {
   const [emailStatus, setEmailStatus] = useState<"ready" | "sending" | "success" | "failed">("ready");
   const [emailError, setEmailError] = useState("");
 
+  // Invoice Date (Backdated billing)
+  const [invoiceDate, setInvoiceDate] = useState(() => new Date().toLocaleDateString("sv-SE")); // sv-SE locale gives YYYY-MM-DD
+
   const loadCatalog = async (token: string) => {
     try {
       const res = await fetch("/api/billing/admin?action=get_services", {
@@ -340,7 +343,8 @@ export default function BillingModule() {
           })),
           pointsToRedeem: redeemPointsNum,
           branch,
-          paymentMethod
+          paymentMethod,
+          invoiceDate: invoiceDate || undefined
         })
       });
 
@@ -391,6 +395,7 @@ export default function BillingModule() {
     setPdfSuccess(false);
     setEmailStatus("ready");
     setEmailError("");
+    setInvoiceDate(new Date().toLocaleDateString("sv-SE"));
   };
 
   const handleDownloadPDF = async () => {
@@ -1279,9 +1284,23 @@ export default function BillingModule() {
                 )}
 
                 <div className="flex justify-between border-t border-gold-primary/20 pt-3 font-playfair text-lg text-white">
-                  <span className="text-gold-primary font-semibold">GRAND TOTAL:</span>
+                          <span className="text-gold-primary font-semibold">GRAND TOTAL:</span>
                   <span className="currency-value font-semibold">₹{grandTotal.toFixed(2)}</span>
                 </div>
+              </div>
+
+              {/* Invoice Date (Backdated billing support) */}
+              <div className="mb-6 border-t border-white/5 pt-4">
+                <label htmlFor="invoice-date-input" className="block text-[10px] uppercase tracking-wider text-ivory/60 mb-2">Invoice Date</label>
+                <input
+                  id="invoice-date-input"
+                  type="date"
+                  max={new Date().toLocaleDateString("sv-SE")}
+                  value={invoiceDate}
+                  onChange={(e) => setInvoiceDate(e.target.value)}
+                  className="w-full bg-luxury-black border border-white/10 px-3 py-2.5 text-xs text-white rounded-none focus:outline-none focus:border-gold-primary/50"
+                  required
+                />
               </div>
 
               {/* Payment Method Selector */}
