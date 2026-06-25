@@ -428,6 +428,7 @@ export default function TaxComplianceReports() {
             "GSTIN": inv.customerGstin,
             "Branch": inv.branch,
             "Taxable Value": inv.taxableValue,
+            "Discount": inv.discount,
             "Total GST": inv.cgst + inv.sgst + inv.igst,
             "Total Amount": inv.totalValue,
             "Status": inv.status
@@ -440,6 +441,7 @@ export default function TaxComplianceReports() {
             "GSTIN": inv.customerGstin,
             "Branch": inv.branch,
             "Taxable Value": inv.taxableValue,
+            "Discount": inv.discount,
             "CGST": inv.cgst,
             "SGST": inv.sgst,
             "Total Amount": inv.totalValue,

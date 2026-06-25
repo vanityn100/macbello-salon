@@ -63,9 +63,11 @@ export default function BillingModule() {
   // Branch
   const [branch, setBranch] = useState("Kaduthuruthy");
 
-  // Loyalty Redemption
+  // Loyalty Redemption & Discount
   const [pointsToRedeem, setPointsToRedeem] = useState("");
   const [redeemError, setRedeemError] = useState("");
+  const [manualDiscount, setManualDiscount] = useState("");
+  const [discountError, setDiscountError] = useState("");
 
   // Checkout
   const [paymentMethod, setPaymentMethod] = useState("Cash");
@@ -288,9 +290,12 @@ export default function BillingModule() {
   const preDiscountTotal = subtotal + totalTax;
 
   const redeemPointsNum = parseInt(pointsToRedeem, 10) || 0;
-  const discount = redeemPointsNum; // 1 Point = 1 Rupee
+  const loyaltyDiscount = redeemPointsNum; // 1 Point = 1 Rupee
+  
+  const manualDiscountNum = parseFloat(manualDiscount) || 0;
+  const totalDiscount = loyaltyDiscount + manualDiscountNum;
 
-  const grandTotal = Math.max(0, parseFloat((preDiscountTotal - discount).toFixed(2)));
+  const grandTotal = Math.max(0, parseFloat((preDiscountTotal - totalDiscount).toFixed(2)));
   const pointsEarned = Math.floor(grandTotal / 10);
 
   // Validate points redemption
@@ -306,8 +311,25 @@ export default function BillingModule() {
       setRedeemError("Points cannot be negative.");
     } else if (num > selectedCustomer.points) {
       setRedeemError(`Customer only has ${selectedCustomer.points} points.`);
+    } else if (num > preDiscountTotal - (parseFloat(manualDiscount) || 0)) {
+      setRedeemError("Total discount cannot exceed bill total.");
+    }
+  };
+
+  // Validate manual discount
+  const handleManualDiscountChange = (val: string) => {
+    setManualDiscount(val);
+    setDiscountError("");
+    
+    const num = parseFloat(val);
+    if (isNaN(num)) return;
+
+    if (num < 0) {
+      setDiscountError("Discount cannot be negative.");
     } else if (num > preDiscountTotal) {
-      setRedeemError("Discount cannot exceed bill total.");
+      setDiscountError("Discount cannot exceed bill total.");
+    } else if (num + (parseInt(pointsToRedeem, 10) || 0) > preDiscountTotal) {
+      setDiscountError("Total discount cannot exceed bill total.");
     }
   };
 
@@ -322,8 +344,8 @@ export default function BillingModule() {
       setCheckoutError("Please add at least one item to the bill.");
       return;
     }
-    if (redeemError) {
-      setCheckoutError("Please fix loyalty point redemption errors.");
+    if (redeemError || discountError) {
+      setCheckoutError("Please fix redemption or discount errors.");
       return;
     }
 
@@ -345,6 +367,7 @@ export default function BillingModule() {
             staffContribution: c.staffContribution || null
           })),
           pointsToRedeem: redeemPointsNum,
+          discountAmount: manualDiscountNum,
           branch,
           paymentMethod,
           invoiceDate: invoiceDate || undefined
@@ -367,15 +390,16 @@ export default function BillingModule() {
           retailTax,
           totalTax,
           preDiscountTotal,
-          discount,
+          discount: manualDiscountNum,
+          pointsRedeemed: redeemPointsNum,
           grandTotal,
           pointsEarned,
-          pointsRedeemed: redeemPointsNum
         });
         // Clear state
         setCart([]);
         setSelectedCustomer(null);
         setPointsToRedeem("");
+        setManualDiscount("");
         setSearchPhone("");
         setSearchResults([]);
       }
@@ -746,6 +770,12 @@ export default function BillingModule() {
                 <span>Total Tax (CGST + SGST):</span>
                 <span className="currency-value text-white print-text-black">₹{completedInvoice.totalTax.toFixed(2)}</span>
               </div>
+              {completedInvoice.discount > 0 && (
+                <div className="flex justify-between text-white print-text-black font-medium">
+                  <span>Discount:</span>
+                  <span className="currency-value">-₹{completedInvoice.discount.toFixed(2)}</span>
+                </div>
+              )}
               {invoice.points_redeemed > 0 && (
                 <div className="flex justify-between text-red-400 print-text-black font-medium">
                   <span>Loyalty Discount:</span>
@@ -1255,6 +1285,34 @@ export default function BillingModule() {
                 </div>
               )}
 
+              {/* Manual Discount */}
+              <div className="mb-6 bg-white/[0.02] border border-white/10 p-4">
+                <span className="text-[9px] uppercase tracking-wider text-white font-semibold flex items-center justify-between">
+                  <span>Manual Discount (₹)</span>
+                  {parseFloat(manualDiscount) > 0 && (
+                    <button 
+                      onClick={() => handleManualDiscountChange("0")}
+                      className="text-red-400 hover:text-red-300 text-[8px] uppercase font-bold px-2 py-1 border border-red-900/30 bg-red-950/20 transition-colors cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </span>
+                
+                <div className="mt-3">
+                  <input
+                    type="number"
+                    placeholder="Discount amount..."
+                    value={manualDiscount}
+                    onChange={(e) => handleManualDiscountChange(e.target.value)}
+                    className="bg-luxury-black border border-white/10 px-3 py-2 text-xs text-white placeholder-ivory/20 rounded-none focus:outline-none focus:border-white/50 w-full"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+                {discountError && <p className="text-[10px] text-red-400 font-light mt-1.5">{discountError}</p>}
+              </div>
+
               {/* Financial Breakdowns */}
               <div className="space-y-3.5 text-xs font-light border-b border-white/5 pb-5">
                 <div className="flex justify-between">
@@ -1287,10 +1345,17 @@ export default function BillingModule() {
                   <span className="currency-value font-medium">₹{totalTax.toFixed(2)}</span>
                 </div>
 
-                {discount > 0 && (
-                  <div className="flex justify-between text-red-400">
-                    <span>Points Discount (1 Pt = ₹1):</span>
-                    <span className="currency-value font-semibold">-₹{discount.toFixed(2)}</span>
+                {manualDiscountNum > 0 && (
+                  <div className="flex justify-between text-white border-t border-white/5 pt-3">
+                    <span>Discount:</span>
+                    <span className="currency-value font-semibold">-₹{manualDiscountNum.toFixed(2)}</span>
+                  </div>
+                )}
+
+                {loyaltyDiscount > 0 && (
+                  <div className="flex justify-between text-red-400 border-t border-white/5 pt-3">
+                    <span>Loyalty Points Redeemed:</span>
+                    <span className="currency-value font-semibold">-₹{loyaltyDiscount.toFixed(2)}</span>
                   </div>
                 )}
 

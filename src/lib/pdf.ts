@@ -7,7 +7,7 @@ export interface CompletedInvoice {
     grand_total: string;
     created_at: string;
     redeemed_points: number;
-    discount_amount: string;
+    discount: string;
     points_earned: number;
     created_by: string;
     points_redeemed: number;
@@ -244,8 +244,9 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
   doc.setTextColor(90, 90, 90);
   doc.text("Loyalty Rate: 1 Point per INR 10 spent", 24, y + 12);
   doc.text(`Points Earned today: +${pointsEarned}`, 24, y + 18);
-  if (discount > 0) {
-    doc.text(`Points Redeemed: -${discount}`, 24, y + 24);
+  const loyaltyRedeemed = completedInvoice.pointsRedeemed || 0;
+  if (loyaltyRedeemed > 0) {
+    doc.text(`Points Redeemed: -${loyaltyRedeemed}`, 24, y + 24);
   }
   doc.setFont("helvetica", "bold");
   doc.setTextColor(17, 17, 17);
@@ -288,8 +289,18 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
   if (discount > 0) {
     doc.setFont("helvetica", "bold");
     doc.setTextColor(200, 50, 50);
-    doc.text("Loyalty Discount:", 115, y + 5 + offset);
+    doc.text("Discount:", 115, y + 5 + offset);
     doc.text(`-INR ${discount.toFixed(2)}`, 165, y + 5 + offset);
+    doc.setTextColor(100, 100, 100);
+    doc.setFont("helvetica", "normal");
+    offset += 5;
+  }
+
+  if (loyaltyRedeemed > 0) {
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(200, 50, 50);
+    doc.text("Loyalty Discount:", 115, y + 5 + offset);
+    doc.text(`-INR ${loyaltyRedeemed.toFixed(2)}`, 165, y + 5 + offset);
     doc.setTextColor(100, 100, 100);
     doc.setFont("helvetica", "normal");
     offset += 5;

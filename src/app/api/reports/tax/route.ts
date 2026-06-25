@@ -48,7 +48,7 @@ export async function POST(req: Request) {
       let invoicesQuery = adminSupabase
         .from("invoices")
         .select(`
-          id, invoice_number, created_at, subtotal, total_tax, grand_total, branch, status,
+          id, invoice_number, created_at, subtotal, discount, total_tax, grand_total, branch, status,
           customers (name),
           invoice_items (item_name, category, quantity, unit_price, tax_rate, line_total, hsn)
         `)
@@ -128,9 +128,10 @@ export async function POST(req: Request) {
           invoiceNumber: inv.invoice_number,
           invoiceDate: inv.created_at,
           customerName: customerName,
-          customerGstin: "—", // Field not in schema, placeholder for standard reporting
+          customerGstin: "—",
           branch: invBranch,
           taxableValue: subtotal,
+          discount: parseFloat(inv.discount) || 0,
           cgst: cgstAmount,
           sgst: sgstAmount,
           igst: igstAmount,

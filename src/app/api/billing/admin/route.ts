@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
 
       let query = adminSupabase
         .from("invoices")
-        .select("id, grand_total, branch, created_at, invoice_items(line_total, staff_contribution)")
+        .select("id, grand_total, discount, branch, created_at, invoice_items(line_total, staff_contribution)")
         .eq("status", "active")
         .gte("created_at", todayStart.toISOString());
 
@@ -353,9 +353,10 @@ export async function GET(request: NextRequest) {
         .select(`
           id, 
           invoice_number, 
-          grand_total, 
           subtotal, 
           total_tax, 
+          discount,
+          grand_total, 
           points_earned, 
           points_redeemed, 
           branch, 
@@ -1000,8 +1001,11 @@ export async function POST(request: NextRequest) {
 
       const totalTax = serviceTax + retailTax;
       const preDiscountTotal = subtotal + totalTax;
-      const discount = redeemAmt;
-      const grandTotal = parseFloat((preDiscountTotal - discount).toFixed(2));
+      const manualDiscount = parseFloat(body.discountAmount) || 0;
+      const loyaltyDiscount = redeemAmt;
+      const totalDiscount = manualDiscount + loyaltyDiscount;
+
+      const grandTotal = Math.max(0, parseFloat((preDiscountTotal - totalDiscount).toFixed(2)));
       const pointsEarned = Math.floor(grandTotal / 10);
 
       // Save to database atomically - Parallelize Points Update and Invoice Creation
@@ -1022,6 +1026,7 @@ export async function POST(request: NextRequest) {
           service_tax: parseFloat(serviceTax.toFixed(2)),
           retail_tax: parseFloat(retailTax.toFixed(2)),
           total_tax: parseFloat(totalTax.toFixed(2)),
+          discount: manualDiscount,
           grand_total: grandTotal,
           points_earned: pointsEarned,
           points_redeemed: redeemAmt,
