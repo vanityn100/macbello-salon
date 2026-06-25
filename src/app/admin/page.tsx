@@ -101,6 +101,13 @@ export default function AdminPortal() {
   // Registered Customers state
   const [customerList, setCustomerList] = useState<any[]>([]);
   const [customerListLoading, setCustomerListLoading] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState<any | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPoints, setEditPoints] = useState("");
+  const [editModalLoading, setEditModalLoading] = useState(false);
+  const [editModalError, setEditModalError] = useState("");
 
   // Daily Stats state
   const [stats, setStats] = useState<{
@@ -144,6 +151,51 @@ export default function AdminPortal() {
       }
     } finally {
       setCustomerListLoading(false);
+    }
+  };
+
+  const handleUpdateCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCustomer || !sessionToken) return;
+
+    setEditModalLoading(true);
+    setEditModalError("");
+
+    try {
+      const res = await fetch("/api/billing/admin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${sessionToken}`
+        },
+        body: JSON.stringify({
+          action: "update_customer",
+          id: editingCustomer.id,
+          name: editName,
+          phone: editPhone,
+          email: editEmail || undefined,
+          points: editPoints
+        })
+      });
+
+      const result = await res.json();
+      if (res.ok && result.success) {
+        setEditingCustomer(null);
+        loadCustomerList(sessionToken);
+        // If financial stats are loaded, refresh them to capture new totals
+        loadFinancialStats(sessionToken);
+      } else {
+        setEditModalError(result.error || "Failed to update customer details.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      if (err instanceof TypeError) {
+        setEditModalError("Network error. Please check your connection and try again.");
+      } else {
+        setEditModalError("Something went wrong. Please try again.");
+      }
+    } finally {
+      setEditModalLoading(false);
     }
   };
 
@@ -1179,7 +1231,8 @@ export default function AdminPortal() {
                       <th className="pb-2">Email</th>
                       <th className="pb-2">Branch Origin</th>
                       <th className="pb-2">Loyalty Balance</th>
-                      <th className="pb-2 text-right">Created At</th>
+                      <th className="pb-2">Created At</th>
+                      <th className="pb-2 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1190,12 +1243,27 @@ export default function AdminPortal() {
                         <td className="py-2.5 text-ivory/60">{cust.email || "—"}</td>
                         <td className="py-2.5 text-gold-primary">{cust.branch || "Global"}</td>
                         <td className="py-2.5 text-white font-bold">{cust.points} Pts</td>
-                        <td className="py-2.5 text-ivory/40 text-right">
+                        <td className="py-2.5 text-ivory/40">
                           {new Date(cust.created_at).toLocaleDateString(undefined, {
                             month: "short",
                             day: "numeric",
                             year: "numeric"
                           })}
+                        </td>
+                        <td className="py-2.5 text-right">
+                          <button
+                            onClick={() => {
+                              setEditingCustomer(cust);
+                              setEditName(cust.name);
+                              setEditPhone(cust.phone);
+                              setEditEmail(cust.email || "");
+                              setEditPoints(cust.points.toString());
+                              setEditModalError("");
+                            }}
+                            className="text-[10px] uppercase tracking-wider text-gold-primary hover:text-white transition-colors cursor-pointer border border-gold-primary/20 hover:border-white/20 px-2 py-1 bg-gold-primary/5"
+                          >
+                            Edit
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -1216,6 +1284,94 @@ export default function AdminPortal() {
           </Link>
         </div>
       </div>
+
+      {/* Customer Edit Modal */}
+      {editingCustomer && (
+        <div className="fixed inset-0 bg-luxury-black/90 backdrop-blur-md flex items-center justify-center p-6 z-[9999]">
+          <div className="max-w-md w-full border border-gold-primary/20 bg-luxury-dark p-8 relative shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
+            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-gold-primary/45" />
+            <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-gold-primary/45" />
+            <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-gold-primary/45" />
+            <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-gold-primary/45" />
+
+            <div className="mb-6 border-b border-white/5 pb-4">
+              <span className="text-[8px] uppercase tracking-[0.25em] text-gold-primary block mb-1">Administrative Action</span>
+              <h3 className="font-playfair text-xl text-white font-medium">Edit Customer Details</h3>
+            </div>
+
+            <form onSubmit={handleUpdateCustomer} className="space-y-4">
+              <div className="flex flex-col">
+                <label className="text-[9px] uppercase tracking-wider text-ivory/50 mb-1.5">Customer Name</label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs text-white rounded-none focus:outline-none focus:border-gold-primary/50"
+                  required
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label className="text-[9px] uppercase tracking-wider text-ivory/50 mb-1.5">Phone Number</label>
+                <input
+                  type="text"
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs text-white rounded-none focus:outline-none focus:border-gold-primary/50"
+                  required
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label className="text-[9px] uppercase tracking-wider text-ivory/50 mb-1.5">Email Address</label>
+                <input
+                  type="email"
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  placeholder="No email registered"
+                  className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs text-white rounded-none focus:outline-none focus:border-gold-primary/50"
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label className="text-[9px] uppercase tracking-wider text-ivory/50 mb-1.5">Loyalty Points Balance</label>
+                <input
+                  type="number"
+                  value={editPoints}
+                  onChange={(e) => setEditPoints(e.target.value)}
+                  className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs text-white rounded-none focus:outline-none focus:border-gold-primary/50"
+                  required
+                />
+              </div>
+
+              {editModalError && (
+                <p className="text-[10px] text-red-400 font-light tracking-wide flex items-center bg-red-950/20 border border-red-900/30 p-2.5">
+                  <ShieldAlert size={12} className="mr-1.5 shrink-0" />
+                  {editModalError}
+                </p>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingCustomer(null)}
+                  className="flex-1 text-center text-[10px] uppercase tracking-wider border border-white/10 hover:border-white/20 text-white font-medium py-3 transition-colors cursor-pointer bg-white/5"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={editModalLoading}
+                  className="flex-1 text-center text-[10px] uppercase tracking-wider bg-gold-primary hover:bg-gold-dark disabled:bg-gold-primary/40 text-luxury-black font-semibold py-3 transition-colors cursor-pointer flex items-center justify-center"
+                >
+                  {editModalLoading ? <Loader2 size={12} className="animate-spin mr-1.5" /> : null}
+                  <span>Save Changes</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

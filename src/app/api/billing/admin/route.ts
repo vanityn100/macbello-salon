@@ -797,6 +797,91 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, customer: newCustomer });
     }
 
+    // 4.5 UPDATE CUSTOMER (ADMIN ONLY)
+    if (action === "update_customer") {
+      if (user.role !== "admin") {
+        return NextResponse.json({ success: false, error: "Forbidden: Only administrators can update customer details." }, { status: 403 });
+      }
+
+      const { id, name, phone, email, points } = body;
+
+      if (!id) {
+        return NextResponse.json({ success: false, error: "Customer ID is required." }, { status: 400 });
+      }
+
+      if (typeof name !== "string" || name.trim() === "") {
+        return NextResponse.json({ success: false, error: "Name is required." }, { status: 400 });
+      }
+
+      const phoneRegex = /^\+?[0-9\s\-()]{10,15}$/;
+      if (typeof phone !== "string" || !phoneRegex.test(phone)) {
+        return NextResponse.json({ success: false, error: "Invalid phone number." }, { status: 400 });
+      }
+
+      const cleanPhone = phone.trim().replace(/[\s\-()]/g, "");
+
+      let cleanEmail = null;
+      if (email && typeof email === "string" && email.trim() !== "") {
+        cleanEmail = email.trim().toLowerCase();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(cleanEmail)) {
+          return NextResponse.json({ success: false, error: "Invalid email format." }, { status: 400 });
+        }
+      }
+
+      const parsedPoints = parseInt(points, 10);
+      if (isNaN(parsedPoints) || parsedPoints < 0) {
+        return NextResponse.json({ success: false, error: "Points must be a non-negative integer." }, { status: 400 });
+      }
+
+      // Check unique constraints manually
+      const { data: duplicatePhone } = await adminSupabase
+        .from("customers")
+        .select("id")
+        .eq("phone", cleanPhone)
+        .eq("status", "active")
+        .neq("id", id)
+        .maybeSingle();
+
+      if (duplicatePhone) {
+        return NextResponse.json({ success: false, error: "Another customer profile is already registered with this phone number." }, { status: 409 });
+      }
+
+      if (cleanEmail) {
+        const { data: duplicateEmail } = await adminSupabase
+          .from("customers")
+          .select("id")
+          .eq("email", cleanEmail)
+          .eq("status", "active")
+          .neq("id", id)
+          .maybeSingle();
+
+        if (duplicateEmail) {
+          return NextResponse.json({ success: false, error: "Another customer profile is already registered with this email." }, { status: 409 });
+        }
+      }
+
+      const { data: updatedCustomer, error } = await adminSupabase
+        .from("customers")
+        .update({
+          name: name.trim(),
+          phone: cleanPhone,
+          email: cleanEmail,
+          points: parsedPoints
+        })
+        .eq("id", id)
+        .select("id, name, phone, email, points, branch, created_at")
+        .single();
+
+      if (error) {
+        console.error("Update customer error:", error);
+        return NextResponse.json({ success: false, error: "Failed to update customer details." }, { status: 500 });
+      }
+
+      await logSecurityAction(adminSupabase, user, "update_customer", `Updated customer details for ID: ${id} (${name.trim()})`);
+      return NextResponse.json({ success: true, customer: updatedCustomer });
+    }
+
     // 5. SECURE INVOICING CHECKOUT
     if (action === "create_invoice") {
       const { customerId, items, pointsToRedeem, branch, paymentMethod, invoiceDate } = body;
