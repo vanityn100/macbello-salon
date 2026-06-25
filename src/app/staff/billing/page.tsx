@@ -983,14 +983,6 @@ export default function BillingModule() {
                       onChange={(e) => setCreateEmail(e.target.value)}
                       className="w-full bg-luxury-black border border-white/10 px-3 py-2 text-xs text-white placeholder-ivory/20 rounded-none focus:outline-none focus:border-gold-primary/50"
                     />
-                    <input
-                      type="text"
-                      placeholder="GSTIN (Optional — 15 chars)"
-                      value={createGstin}
-                      onChange={(e) => setCreateGstin(e.target.value.toUpperCase())}
-                      maxLength={15}
-                      className="w-full bg-luxury-black border border-white/10 px-3 py-2 text-xs text-white placeholder-ivory/20 rounded-none focus:outline-none focus:border-gold-primary/50 tracking-wider"
-                    />
                     {createError && <p className="text-[10px] text-red-400 font-light">{createError}</p>}
                     {createSuccess && <p className="text-[10px] text-green-400 font-light">{createSuccess}</p>}
                     <button
