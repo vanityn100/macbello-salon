@@ -41,6 +41,7 @@ export default function PurchaseOfStocksPage() {
   const [endDate, setEndDate] = useState(today.toISOString().slice(0, 10));
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBranch, setFilterBranch] = useState("All");
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<StockEntry>>({});
@@ -78,14 +79,20 @@ export default function PurchaseOfStocksPage() {
   };
 
   const filteredEntries = useMemo(() => {
-    return entries.filter(e => {
+    const list = entries.filter(e => {
       const matchSearch = e.seller.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           e.description_of_goods.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           (e.invoice_no && e.invoice_no.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchBranch = filterBranch === "All" || e.branch === filterBranch;
       return matchSearch && matchBranch;
     });
-  }, [entries, searchTerm, filterBranch]);
+
+    return [...list].sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
+    });
+  }, [entries, searchTerm, filterBranch, sortOrder]);
 
   // Dashboard Stats
   const stats = useMemo(() => {
@@ -326,8 +333,8 @@ export default function PurchaseOfStocksPage() {
         </div>
 
         {/* Filters */}
-        <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="relative md:col-span-2">
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="relative md:col-span-4">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
@@ -337,7 +344,7 @@ export default function PurchaseOfStocksPage() {
               className="w-full bg-white/5 border border-white/10 rounded-none pl-10 pr-4 py-2 text-sm focus:border-gold-primary/50 focus:ring-1 focus:ring-gold-primary/50 transition-all outline-none"
             />
           </div>
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 md:col-span-3">
             <input
               type="date"
               value={startDate}
@@ -351,7 +358,7 @@ export default function PurchaseOfStocksPage() {
               className="w-full bg-white/5 border border-white/10 rounded-none px-3 py-2 text-sm focus:border-gold-primary/50 outline-none"
             />
           </div>
-          <div>
+          <div className="md:col-span-3">
             <select
               value={filterBranch}
               onChange={(e) => setFilterBranch(e.target.value)}
@@ -362,6 +369,16 @@ export default function PurchaseOfStocksPage() {
               <option value="Ettumanoor" className="bg-black">Ettumanoor</option>
               <option value="Peruva" className="bg-black">Peruva</option>
               <option value="Historical Import" className="bg-black">Historical Import</option>
+            </select>
+          </div>
+          <div className="md:col-span-2">
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as "newest" | "oldest")}
+              className="w-full bg-white/5 border border-white/10 rounded-none px-4 py-2 text-sm focus:border-gold-primary/50 focus:ring-1 focus:ring-gold-primary/50 transition-all outline-none appearance-none cursor-pointer"
+            >
+              <option value="newest" className="bg-black">Newest First</option>
+              <option value="oldest" className="bg-black">Oldest First</option>
             </select>
           </div>
         </div>
