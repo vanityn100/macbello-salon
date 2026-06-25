@@ -638,9 +638,9 @@ export default function BillingModule() {
                 <th className="pb-3 pr-8">HSN</th>
                 <th className="pb-3">Category</th>
                 <th className="pb-3 text-center">Qty</th>
-                <th className="pb-3">Unit Price</th>
+                <th className="pb-3">Unit Price (GST Included)</th>
                 <th className="pb-3">Tax Rate</th>
-                <th className="pb-3 text-right">Total (excl. Tax)</th>
+                <th className="pb-3 text-right">Total (GST Included)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 print-border-gray">
@@ -659,14 +659,14 @@ export default function BillingModule() {
                   <td className="py-3.5 pr-8 text-white print-text-black">{item.hsn || "-"}</td>
                   <td className="py-3.5 text-gold-primary/70 print-text-gold font-medium">{item.category}</td>
                   <td className="metric-value py-3.5 text-center font-medium text-white print-text-black">{item.quantity}</td>
-                  <td className="currency-value py-3.5 text-white print-text-black">₹{parseFloat(item.unit_price).toFixed(2)}</td>
+                  <td className="currency-value py-3.5 text-white print-text-black">₹{(parseFloat(item.unit_price) * (1 + item.tax_rate)).toFixed(2)}</td>
                   <td className="metric-value py-3.5 text-ivory/60 print-text-muted">
                     {item.tax_rate * 100}%
                     <span className="block text-[9px] text-ivory/40">
                       ({(item.tax_rate * 50).toFixed(1)}% CGST + {(item.tax_rate * 50).toFixed(1)}% SGST)
                     </span>
                   </td>
-                  <td className="currency-value py-3.5 text-right font-medium text-white print-text-black">₹{parseFloat(item.line_total).toFixed(2)}</td>
+                  <td className="currency-value py-3.5 text-right font-medium text-white print-text-black">₹{(parseFloat(item.line_total) * (1 + item.tax_rate)).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -707,8 +707,8 @@ export default function BillingModule() {
             {/* Right: Tax Breakdown and Totals */}
             <div className="space-y-2 text-ivory/70 print-text-black">
               <div className="flex justify-between">
-                <span>Subtotal:</span>
-                <span className="currency-value text-white print-text-black">₹{completedInvoice.subtotal.toFixed(2)}</span>
+                <span>Subtotal (GST Included):</span>
+                <span className="currency-value text-white print-text-black">₹{(completedInvoice.subtotal + completedInvoice.totalTax).toFixed(2)}</span>
               </div>
               {completedInvoice.serviceTax > 0 && (
                 <>
@@ -1089,7 +1089,7 @@ export default function BillingModule() {
                           </span>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
-                          <span className="currency-value text-xs md:text-sm text-white font-medium">₹{item.price.toFixed(2)}</span>
+                          <span className="currency-value text-xs md:text-sm text-white font-medium">₹{(item.price * (1 + item.tax_rate)).toFixed(2)} <span className="text-[9px] text-ivory/50 font-normal normal-case">(GST Included)</span></span>
                           <button
                             type="button"
                             onClick={() => {
@@ -1168,14 +1168,14 @@ export default function BillingModule() {
                               />
                             </td>
                             <td className="metric-value py-3 font-medium">{quantity}</td>
-                            <td className="currency-value py-3">₹{item.price.toFixed(2)}</td>
+                            <td className="currency-value py-3">₹{(item.price * (1 + item.tax_rate)).toFixed(2)}</td>
                             <td className="metric-value py-3">
                               {item.tax_rate * 100}%
                               <span className="block text-[9px] text-ivory/45">
                                 ({(item.tax_rate * 50).toFixed(1)}% CGST + {(item.tax_rate * 50).toFixed(1)}% SGST)
                               </span>
                             </td>
-                            <td className="currency-value py-3 text-white font-medium">₹{lineTotal.toFixed(2)}</td>
+                            <td className="currency-value py-3 text-white font-medium">₹{(lineTotal * (1 + item.tax_rate)).toFixed(2)}</td>
                             <td className="py-3 text-right">
                               <button
                                 onClick={() => removeFromCart(item.id)}
@@ -1250,24 +1250,24 @@ export default function BillingModule() {
               {/* Financial Breakdowns */}
               <div className="space-y-3.5 text-xs font-light border-b border-white/5 pb-5">
                 <div className="flex justify-between">
-                  <span className="text-ivory/50">Services Subtotal:</span>
-                  <span className="currency-value font-medium">₹{serviceSubtotal.toFixed(2)}</span>
+                  <span className="text-ivory/50">Services Subtotal (GST Included):</span>
+                  <span className="currency-value font-medium">₹{(serviceSubtotal + serviceTax).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pl-3 text-[11px] text-ivory/40 border-l border-white/5">
-                  <span>Service Tax (5%):</span>
+                  <span>GST Included (5%):</span>
                   <span className="currency-value">₹{serviceTax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-ivory/50">Retail Subtotal:</span>
-                  <span className="currency-value font-medium">₹{retailSubtotal.toFixed(2)}</span>
+                  <span className="text-ivory/50">Retail Subtotal (GST Included):</span>
+                  <span className="currency-value font-medium">₹{(retailSubtotal + retailTax).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pl-3 text-[11px] text-ivory/40 border-l border-white/5">
-                  <span>Retail Tax (18%):</span>
+                  <span>Retail GST Included (18%):</span>
                   <span className="currency-value">₹{retailTax.toFixed(2)}</span>
                 </div>
 
                 <div className="flex justify-between border-t border-white/5 pt-3">
-                  <span className="text-ivory/50">Combined Tax Total:</span>
+                  <span className="text-ivory/50">Combined GST Included:</span>
                   <span className="currency-value font-medium">₹{totalTax.toFixed(2)}</span>
                 </div>
 

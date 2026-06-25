@@ -177,13 +177,18 @@ export default function StaffProductsPage() {
     if (!sessionToken) return;
     setCreateLoading(true);
     try {
+      const gstRateVal = parseFloat(createData.gstRate) || 0;
+      const inclusivePrice = parseFloat(createData.price) || 0;
+      const taxablePrice = inclusivePrice / (1 + (gstRateVal / 100));
+
       const res = await fetch("/api/inventory", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
         body: JSON.stringify({
           action: "create_product",
           targetBranch: staffBranch,
-          ...createData
+          ...createData,
+          price: taxablePrice
         }),
       });
       const data = await res.json();
@@ -436,7 +441,7 @@ export default function StaffProductsPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] uppercase tracking-wider text-ivory/60 mb-2">Price (Rs)</label>
+                  <label className="block text-[10px] uppercase tracking-wider text-ivory/60 mb-2">Selling Price (GST Included)</label>
                   <input type="number" min="0" step="0.01" value={createData.price} onChange={e => setCreateData({...createData, price: e.target.value})} required
                     className="w-full bg-white/[0.02] border border-white/10 px-3 py-2 text-white outline-none focus:border-gold-primary" />
                 </div>

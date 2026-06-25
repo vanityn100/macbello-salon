@@ -175,8 +175,8 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
   doc.text("Category", 110, y + 5.5);
   doc.text("Tax Rate", 125, y + 5.5);
   doc.text("Qty", 138, y + 5.5);
-  doc.text("Unit Price", 148, y + 5.5);
-  doc.text("Total (excl. Tax)", 168, y + 5.5);
+  doc.text("Price (GST Inc.)", 148, y + 5.5);
+  doc.text("Total (GST Inc.)", 168, y + 5.5);
 
   y += 8;
   doc.setFont("helvetica", "normal");
@@ -217,8 +217,11 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
     doc.text(item.category, 110, textY);
     doc.text(`${(item.tax_rate * 100).toFixed(0)}%`, 125, textY);
     doc.text(String(item.quantity), 140, textY);
-    doc.text(`INR ${parseFloat(item.unit_price).toFixed(2)}`, 148, textY);
-    doc.text(`INR ${parseFloat(item.line_total).toFixed(2)}`, 168, textY);
+    const gstRate = item.tax_rate || 0;
+    const inclUnitPrice = parseFloat(item.unit_price) * (1 + gstRate);
+    const inclLineTotal = parseFloat(item.line_total) * (1 + gstRate);
+    doc.text(`INR ${inclUnitPrice.toFixed(2)}`, 148, textY);
+    doc.text(`INR ${inclLineTotal.toFixed(2)}`, 168, textY);
 
     y += rowHeight;
   });
@@ -254,8 +257,8 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
   doc.setTextColor(100, 100, 100);
 
   let offset = 0;
-  doc.text("Subtotal:", 115, y + 5 + offset);
-  doc.text(`INR ${subtotal.toFixed(2)}`, 165, y + 5 + offset);
+  doc.text("Subtotal (GST Included):", 115, y + 5 + offset);
+  doc.text(`INR ${(subtotal + totalTax).toFixed(2)}`, 165, y + 5 + offset);
   offset += 5;
 
   if (serviceTax > 0) {
