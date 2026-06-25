@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { supabaseStaffClient } from "@/lib/supabase";
 import { 
   Phone, Award, ShieldAlert, LogOut, Search, Plus, 
-  Loader2, CheckCircle2, FileClock, History, ShoppingBag, FileText, ExternalLink, PackageSearch
+  Loader2, CheckCircle2, FileClock, History, ShoppingBag, FileText, ExternalLink, PackageSearch, Eye, EyeOff
 } from "lucide-react";
 import Link from "next/link";
 import { formatINR } from "@/lib/format";
@@ -44,6 +44,7 @@ export default function StaffPortal() {
   // Auth inputs
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
 
@@ -440,14 +441,24 @@ export default function StaffPortal() {
 
             <div className="flex flex-col">
               <label className="text-[9px] uppercase tracking-wider text-ivory/50 mb-2">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="bg-luxury-black border border-white/10 px-4 py-3 text-xs tracking-wider text-white placeholder-ivory/20 rounded-none focus:outline-none focus:border-gold-primary/50 transition-colors"
-                required
-              />
+              <div className="relative w-full">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-luxury-black border border-white/10 pl-4 pr-12 py-3 text-xs tracking-wider text-white placeholder-ivory/20 rounded-none focus:outline-none focus:border-gold-primary/50 transition-colors"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-ivory/55 hover:text-gold-primary transition-colors cursor-pointer focus:outline-none p-1"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
 
             {authError && (
