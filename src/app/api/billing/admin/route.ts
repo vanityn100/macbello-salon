@@ -217,7 +217,16 @@ export async function GET(request: NextRequest) {
         appointmentsQuery = appointmentsQuery.eq("branch", user.branch);
       }
 
-      // Paginate invoices to get accurate total revenue for large datasets
+      // Launch independent count/status queries immediately in parallel —
+      // they do not depend on invoice data and can run concurrently with pagination.
+      const parallelQueriesPromise = Promise.all([
+        customersQuery,
+        servicesQuery,
+        appointmentsQuery
+      ]);
+
+      // Paginate invoices to get accurate total revenue for large datasets.
+      // The three queries above are already running in the background while this loop executes.
       let allInvoices: any[] = [];
       let page = 0;
       let hasMore = true;
@@ -234,11 +243,8 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      const [custRes, servRes, apptRes] = await Promise.all([
-        customersQuery,
-        servicesQuery,
-        appointmentsQuery
-      ]);
+      // Await the parallel queries (they have been running concurrently with invoice pagination above)
+      const [custRes, servRes, apptRes] = await parallelQueriesPromise;
 
       if (custRes.error || servRes.error || apptRes.error) {
         return NextResponse.json({ success: false, error: "Failed to aggregate financial stats." }, { status: 500 });
