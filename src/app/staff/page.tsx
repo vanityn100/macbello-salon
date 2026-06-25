@@ -134,7 +134,6 @@ export default function StaffPortal() {
     const today = new Date().toISOString().slice(0, 10);
     setAppointmentsDate(today);
 
-    // Check initial active session
     supabaseStaffClient.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         const role = session.user?.app_metadata?.role;
@@ -143,8 +142,12 @@ export default function StaffPortal() {
           setSessionToken(session.access_token);
           setStaffEmail(session.user?.email || null);
           setUserRole(role);
-          loadDailyStats(session.access_token);
-          loadAppointments(session.access_token, today);
+          
+          // Parallelize initial stats and bookings fetches
+          Promise.all([
+            loadDailyStats(session.access_token),
+            loadAppointments(session.access_token, today)
+          ]);
         }
       }
     });
@@ -156,8 +159,12 @@ export default function StaffPortal() {
           setSessionToken(session.access_token);
           setStaffEmail(session.user?.email || null);
           setUserRole(role);
-          loadDailyStats(session.access_token);
-          loadAppointments(session.access_token, appointmentsDate || today);
+          
+          // Parallelize auth state change fetches
+          Promise.all([
+            loadDailyStats(session.access_token),
+            loadAppointments(session.access_token, appointmentsDate || today)
+          ]);
         } else {
           // Unknown role — sign out
           supabaseStaffClient.auth.signOut();

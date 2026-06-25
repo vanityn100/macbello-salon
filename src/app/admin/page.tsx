@@ -239,10 +239,14 @@ export default function AdminPortal() {
           setIsAdmin(true);
           setSessionToken(session.access_token);
           setAdminEmail(session.user?.email || null);
-          loadStaffList(session.access_token);
-          loadDailyStats(session.access_token);
-          loadFinancialStats(session.access_token);
-          loadCustomerList(session.access_token);
+          
+          // Parallelize initial admin mount requests
+          Promise.all([
+            loadStaffList(session.access_token),
+            loadDailyStats(session.access_token),
+            loadFinancialStats(session.access_token),
+            loadCustomerList(session.access_token)
+          ]);
         } else {
           setIsAdmin(false);
           setAuthError("Access denied. Admin role required.");
@@ -257,10 +261,14 @@ export default function AdminPortal() {
           setIsAdmin(true);
           setSessionToken(session.access_token);
           setAdminEmail(session.user?.email || null);
-          loadStaffList(session.access_token);
-          loadDailyStats(session.access_token);
-          loadFinancialStats(session.access_token);
-          loadCustomerList(session.access_token);
+          
+          // Parallelize initial auth trigger requests
+          Promise.all([
+            loadStaffList(session.access_token),
+            loadDailyStats(session.access_token),
+            loadFinancialStats(session.access_token),
+            loadCustomerList(session.access_token)
+          ]);
         } else {
           setIsAdmin(false);
           setSessionToken(null);
