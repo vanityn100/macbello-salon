@@ -38,7 +38,7 @@ export default function GalleryPage() {
         <Gallery />
 
         {/* Before & After Interactive Slider */}
-        <BeforeAfter />
+        {/* <BeforeAfter /> */}
       </main>
       <Footer />
     </>
