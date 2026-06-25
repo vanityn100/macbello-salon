@@ -318,6 +318,7 @@ export async function POST(req: Request) {
           productName: p.name,
           category: p.category,
           hsn: p.hsn || "—",
+          itemCode: p.item_code || "",
           gstRate: (parseFloat(p.tax_rate) * 100).toFixed(0) + "%",
           currentStock: currentStock,
           minimumStock: minimumStock,

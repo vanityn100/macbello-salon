@@ -318,7 +318,14 @@ export default function AdminProductsPage() {
   if (authLoading) return <div className="min-h-screen bg-luxury-black flex items-center justify-center"><Loader2 className="animate-spin text-gold-primary" /></div>;
   if (!isAdmin) return <div className="min-h-screen bg-luxury-black text-white p-10">Access Denied.</div>;
 
-  const filtered = reportData.filter(p => p.productName.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filtered = reportData.filter(p => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      p.productName.toLowerCase().includes(searchLower) ||
+      (p.itemCode && p.itemCode.toLowerCase().includes(searchLower)) ||
+      (p.hsn && p.hsn.toLowerCase().includes(searchLower))
+    );
+  });
 
   return (
     <main className="min-h-screen bg-luxury-black text-white px-6 py-12 md:py-16">

@@ -278,7 +278,14 @@ export default function StaffProductsPage() {
   if (authLoading) return <div className="min-h-screen bg-luxury-black flex items-center justify-center text-white"><Loader2 className="animate-spin" /></div>;
   if (!sessionToken || (!staffBranch && userRole !== "admin")) return <div className="min-h-screen bg-luxury-black text-white p-10">Access Denied. Admin or Staff access required.</div>;
 
-  const filtered = reportData.filter(p => p.productName.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filtered = reportData.filter(p => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      p.productName.toLowerCase().includes(searchLower) ||
+      (p.itemCode && p.itemCode.toLowerCase().includes(searchLower)) ||
+      (p.hsn && p.hsn.toLowerCase().includes(searchLower))
+    );
+  });
 
   return (
     <main className="min-h-screen bg-luxury-black text-white px-6 py-12 md:py-16">

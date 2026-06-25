@@ -265,12 +265,24 @@ export default function ServicesManagement() {
     }
   };
 
-  const filteredServices = items.filter(
-    (i) => i.category === "Service" && i.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  const filteredRetail = items.filter(
-    (i) => i.category === "Retail" && i.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredServices = items.filter((i) => {
+    const matchesCategory = i.category === "Service";
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch = 
+      i.name.toLowerCase().includes(searchLower) ||
+      (i.item_code && i.item_code.toLowerCase().includes(searchLower)) ||
+      (i.hsn && i.hsn.toLowerCase().includes(searchLower));
+    return matchesCategory && matchesSearch;
+  });
+  const filteredRetail = items.filter((i) => {
+    const matchesCategory = i.category === "Retail";
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch = 
+      i.name.toLowerCase().includes(searchLower) ||
+      (i.item_code && i.item_code.toLowerCase().includes(searchLower)) ||
+      (i.hsn && i.hsn.toLowerCase().includes(searchLower));
+    return matchesCategory && matchesSearch;
+  });
 
   if (loading) {
     return (
