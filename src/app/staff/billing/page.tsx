@@ -1262,12 +1262,20 @@ export default function BillingModule() {
                   <span className="currency-value font-medium">₹{(serviceSubtotal + serviceTax).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pl-3 text-[11px] text-ivory/40 border-l border-white/5">
-                  <span>GST Included (5%):</span>
+                  <span className="font-semibold text-ivory/70">Services Base Price (Before GST):</span>
+                  <span className="currency-value font-semibold text-ivory/70">₹{serviceSubtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between pl-3 text-[11px] text-ivory/40 border-l border-white/5">
+                  <span>Services GST Included (5%):</span>
                   <span className="currency-value">₹{serviceTax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-ivory/50">Retail Subtotal (GST Included):</span>
                   <span className="currency-value font-medium">₹{(retailSubtotal + retailTax).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between pl-3 text-[11px] text-ivory/40 border-l border-white/5">
+                  <span className="font-semibold text-ivory/70">Retail Base Price (Before GST):</span>
+                  <span className="currency-value font-semibold text-ivory/70">₹{retailSubtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pl-3 text-[11px] text-ivory/40 border-l border-white/5">
                   <span>Retail GST Included (18%):</span>
