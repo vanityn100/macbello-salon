@@ -38,7 +38,7 @@ export default function Home() {
         <Services featuredOnly={true} />
 
         {/* Interactive Before & After comparison slider */}
-        <BeforeAfter />
+        {/* <BeforeAfter /> */}
 
         {/* Google Reviews Showcase Section (Preview mode) */}
         <Trust isHomepage={true} />
