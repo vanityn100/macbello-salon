@@ -17,6 +17,23 @@ interface ServiceItem {
   hsn: string | null;
 }
 
+const getNextItemCode = (itemsList: ServiceItem[]) => {
+  let maxNum = 0;
+  for (const item of itemsList) {
+    if (item.item_code) {
+      const match = item.item_code.match(/^MAC(\d+)$/i);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num > maxNum) {
+          maxNum = num;
+        }
+      }
+    }
+  }
+  const nextNum = maxNum + 1;
+  return `MAC${String(nextNum).padStart(3, '0')}`;
+};
+
 export default function ServicesManagement() {
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [staffEmail, setStaffEmail] = useState<string | null>(null);
@@ -47,7 +64,9 @@ export default function ServicesManagement() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setItems(data.services || []);
+        const fetched = data.services || [];
+        setItems(fetched);
+        setItemCode(getNextItemCode(fetched));
       } else {
         setAuthError(data.error || "Failed to load database items.");
       }
@@ -206,7 +225,7 @@ export default function ServicesManagement() {
     setName("");
     setPrice("");
     setCategory("Service");
-    setItemCode("");
+    setItemCode(getNextItemCode(items));
     setHsn("");
     setGstRate("5");
     setFormError("");
