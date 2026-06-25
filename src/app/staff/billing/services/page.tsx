@@ -504,7 +504,7 @@ export default function ServicesManagement() {
                     <thead>
                       <tr className="border-b border-white/10 uppercase tracking-wider text-gold-primary text-[9px]">
                         <th className="pb-3 font-semibold">Name</th>
-                        <th className="pb-3 font-semibold">Code</th>
+                        <th className="pb-3 font-semibold pr-8">Code</th>
                         <th className="pb-3 font-semibold pr-8">HSN</th>
                         <th className="pb-3 font-semibold">Base Price</th>
                         <th className="pb-3 font-semibold">Tax Rate</th>
@@ -516,7 +516,7 @@ export default function ServicesManagement() {
                       {filteredServices.map((item) => (
                         <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                           <td className="py-3 text-white font-medium">{item.name}</td>
-                          <td className="py-3 text-ivory/60 text-[10px]">{item.item_code || "-"}</td>
+                          <td className="py-3 text-ivory/60 text-[10px] pr-8">{item.item_code || "-"}</td>
                           <td className="py-3 text-ivory/60 pr-8">{item.hsn || "-"}</td>
                           <td className="py-3 text-ivory/80">₹{item.price.toFixed(2)}</td>
                           <td className="py-3 text-ivory/40">{(item.tax_rate * 100).toFixed(0)}%</td>

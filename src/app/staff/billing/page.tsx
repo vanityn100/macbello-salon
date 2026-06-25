@@ -1127,7 +1127,7 @@ export default function BillingModule() {
                     <thead>
                       <tr className="border-b border-white/10 uppercase tracking-wider text-gold-primary text-[9px]">
                         <th className="pb-3">Item Name</th>
-                        <th className="pb-3">Item Code</th>
+                        <th className="pb-3 pr-8">Item Code</th>
                         <th className="pb-3">Category</th>
                         <th className="pb-3 pr-8">HSN</th>
                         <th className="pb-3 pr-4">Staff/Stylist</th>
@@ -1145,7 +1145,7 @@ export default function BillingModule() {
                         return (
                           <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                             <td className="py-3 font-medium text-white">{item.name}</td>
-                            <td className="py-3 text-ivory/70 ">{item.item_code || "-"}</td>
+                            <td className="py-3 text-ivory/70 pr-8">{item.item_code || "-"}</td>
                             <td className="py-3 text-ivory/60 text-[10px]">
                               {item.category === "Service" ? (
                                 <span className="flex items-center text-sky-400"><Scissors size={10} className="mr-1" /> Service</span>
