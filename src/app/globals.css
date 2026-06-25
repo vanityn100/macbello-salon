@@ -170,3 +170,35 @@ body {
   letter-spacing: 0;
   font-variant-numeric: tabular-nums;
 }
+
+/* Accessibility contrast overrides for form controls and labels */
+input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  background-color: #161616 !important;
+  color: #ffffff !important;
+  transition: border-color 0.2s ease, background-color 0.2s ease !important;
+}
+
+input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not(:focus),
+select:not(:focus),
+textarea:not(:focus) {
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):focus,
+select:focus,
+textarea:focus {
+  background-color: #1f1f1f !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(245, 245, 240, 0.55) !important;
+  opacity: 1 !important;
+}
+
+label {
+  color: rgba(245, 245, 240, 0.85) !important;
+}
+
