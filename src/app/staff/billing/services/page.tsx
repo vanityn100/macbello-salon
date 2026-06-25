@@ -148,9 +148,10 @@ export default function ServicesManagement() {
     try {
       const url = "/api/billing/admin";
       const gstPercent = parseFloat(gstRate) / 100;
+      const taxablePrice = priceNum / (1 + gstPercent);
       const payload = editingId 
-        ? { action: "edit_service", id: editingId, name, price: priceNum, category, itemCode, hsn, taxRate: gstPercent }
-        : { action: "create_service", name, price: priceNum, category, itemCode, hsn, taxRate: gstPercent };
+        ? { action: "edit_service", id: editingId, name, price: taxablePrice, category, itemCode, hsn, taxRate: gstPercent }
+        : { action: "create_service", name, price: taxablePrice, category, itemCode, hsn, taxRate: gstPercent };
 
       const res = await fetch(url, {
         method: "POST",
@@ -191,7 +192,7 @@ export default function ServicesManagement() {
   const handleEditInit = (item: ServiceItem) => {
     setEditingId(item.id);
     setName(item.name);
-    setPrice(item.price.toString());
+    setPrice((item.price * (1 + item.tax_rate)).toFixed(2));
     setCategory(item.category);
     setItemCode(item.item_code || "");
     setHsn(item.hsn || "");
@@ -363,7 +364,7 @@ export default function ServicesManagement() {
               </div>
 
               <div className="flex flex-col">
-                <label className="text-[9px] uppercase tracking-wider text-ivory/40 mb-1.5">Base Price (₹)</label>
+                <label className="text-[9px] uppercase tracking-wider text-ivory/40 mb-1.5">Selling Price (GST Included) (₹)</label>
                 <input
                   type="number"
                   step="0.01"

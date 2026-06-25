@@ -573,6 +573,15 @@ export async function POST(request: NextRequest) {
 
       if (error) {
         console.error("Create service error:", error);
+        if (error.code === "23505") {
+          if (error.message.includes("services_name_key")) {
+            return NextResponse.json({ success: false, error: "An item with this name already exists in the catalog." }, { status: 400 });
+          }
+          if (error.message.includes("services_item_code_key")) {
+            return NextResponse.json({ success: false, error: "An item with this unique Item Code already exists." }, { status: 400 });
+          }
+          return NextResponse.json({ success: false, error: "A duplicate item already exists in the catalog." }, { status: 400 });
+        }
         return NextResponse.json({ success: false, error: "Failed to create catalogue item." }, { status: 500 });
       }
 
@@ -645,6 +654,15 @@ export async function POST(request: NextRequest) {
 
       if (error) {
         console.error("Edit service error:", error);
+        if (error.code === "23505") {
+          if (error.message.includes("services_name_key")) {
+            return NextResponse.json({ success: false, error: "An item with this name already exists in the catalog." }, { status: 400 });
+          }
+          if (error.message.includes("services_item_code_key")) {
+            return NextResponse.json({ success: false, error: "An item with this unique Item Code already exists." }, { status: 400 });
+          }
+          return NextResponse.json({ success: false, error: "A duplicate item already exists in the catalog." }, { status: 400 });
+        }
         return NextResponse.json({ success: false, error: "Failed to update catalog item." }, { status: 500 });
       }
 
