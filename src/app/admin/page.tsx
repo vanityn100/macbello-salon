@@ -766,7 +766,7 @@ export default function AdminPortal() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <Link href="/admin/products" className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-white/10 hover:border-gold-primary/40 hover:text-gold-primary px-4 py-2 bg-white/[0.02] transition-all duration-300 rounded-none">
+            <Link href="/admin/billing/services" className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-white/10 hover:border-gold-primary/40 hover:text-gold-primary px-4 py-2 bg-white/[0.02] transition-all duration-300 rounded-none">
               <PackageSearch className="w-3.5 h-3.5" />
               <span>Catalog</span>
             </Link>
@@ -1293,7 +1293,7 @@ export default function AdminPortal() {
             Billing Workspace
           </Link>
           <span>•</span>
-          <Link href="/staff/billing/services" className="hover:text-gold-primary transition-colors">
+          <Link href="/admin/billing/services" className="hover:text-gold-primary transition-colors">
             Catalog Management
           </Link>
         </div>

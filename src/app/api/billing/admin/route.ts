@@ -534,10 +534,9 @@ export async function POST(request: NextRequest) {
       // Staff branch validation
       let targetBranch = branch;
       if (user.role === "staff") {
-        if (!user.branch) {
-          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
-        }
-        targetBranch = user.branch;
+        targetBranch = user.branch || "Global";
+      } else if (!targetBranch) {
+        targetBranch = "Global";
       }
 
       if (!name || typeof name !== "string" || name.trim() === "") {
@@ -615,10 +614,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Catalogue item not found." }, { status: 404 });
       }
 
-      // Enforce branch constraint (allow staff to edit global items where branch is null)
-      if (user.role === "staff" && dbItem.branch !== null && dbItem.branch !== user.branch) {
-        return NextResponse.json({ success: false, error: "Access denied. Cannot modify other branch inventories." }, { status: 403 });
-      }
+      // Removed branch constraint to allow all staff and admins to edit catalogues
 
       if (!name || typeof name !== "string" || name.trim() === "") {
         return NextResponse.json({ success: false, error: "Name is required." }, { status: 400 });
@@ -694,9 +690,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Item not found." }, { status: 404 });
       }
 
-      if (user.role === "staff" && dbItem.branch !== null && dbItem.branch !== user.branch) {
-        return NextResponse.json({ success: false, error: "Access Denied: Branch mismatch." }, { status: 403 });
-      }
+      // Removed branch constraint for archiving
 
       // Soft delete: status = archived
       const { error } = await adminSupabase
@@ -895,10 +889,9 @@ export async function POST(request: NextRequest) {
 
       let targetBranch = branch;
       if (user.role === "staff") {
-        if (!user.branch) {
-          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
-        }
-        targetBranch = user.branch;
+        targetBranch = user.branch || "Global";
+      } else if (!targetBranch) {
+        targetBranch = "Global";
       }
 
       if (!customerId || !Array.isArray(items) || items.length === 0 || !targetBranch) {
@@ -1080,10 +1073,9 @@ export async function POST(request: NextRequest) {
 
       let targetBranch = branch;
       if (user.role === "staff") {
-        if (!user.branch) {
-          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
-        }
-        targetBranch = user.branch;
+        targetBranch = user.branch || "Global";
+      } else if (!targetBranch) {
+        targetBranch = "Global";
       }
 
       if (!customerName || !customerPhone || !date || !time) {
@@ -1133,9 +1125,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Booking not found." }, { status: 404 });
       }
 
-      if (user.role === "staff" && dbBooking.branch !== user.branch) {
-        return NextResponse.json({ success: false, error: "Access Denied: Booking belongs to another branch." }, { status: 403 });
-      }
+      // Removed branch constraint for editing bookings
 
       const { data: updatedBooking, error } = await adminSupabase
         .from("appointments")
@@ -1179,9 +1169,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Booking not found." }, { status: 404 });
       }
 
-      if (user.role === "staff" && dbBooking.branch !== user.branch) {
-        return NextResponse.json({ success: false, error: "Access Denied: Branch mismatch." }, { status: 403 });
-      }
+      // Removed branch constraint for canceling bookings
 
       const { error } = await adminSupabase
         .from("appointments")

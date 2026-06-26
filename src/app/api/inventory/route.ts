@@ -141,10 +141,12 @@ export async function POST(req: Request) {
 
     // ── 2. UPDATE STOCK ─────────────────────────────────────
     if (action === "update_stock") {
-      const { productId, quantity, transactionType, targetBranch } = body;
+      let { targetBranch, productId, transactionType, quantity } = body;
 
-      if (role === "staff" && targetBranch !== userBranch) {
-        return NextResponse.json({ success: false, error: "Cannot modify stock for other branches." }, { status: 403 });
+      if (!targetBranch) targetBranch = "Global";
+
+      if (!productId || !transactionType || !quantity) {
+        return NextResponse.json({ success: false, error: "Missing required details." }, { status: 400 });
       }
 
       const numQty = parseInt(quantity, 10);
