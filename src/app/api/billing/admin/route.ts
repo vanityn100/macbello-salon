@@ -359,7 +359,10 @@ export async function GET(request: NextRequest) {
           grand_total, 
           points_earned, 
           points_redeemed, 
-          branch, 
+          branch,
+          payment_method,
+          status,
+          created_by,
           created_at, 
           customers (
             name, 

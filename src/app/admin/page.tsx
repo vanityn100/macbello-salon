@@ -11,6 +11,7 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { formatINR, formatNumber, formatDate } from "@/lib/format";
+import TransactionReportTable from "@/components/admin/TransactionReportTable";
 
 interface AuditLog {
   id: string;
@@ -489,6 +490,13 @@ export default function AdminPortal() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
+        if (data.report.invoices && data.report.invoices.length > 5000) {
+          const proceed = window.confirm(`Warning: You are about to load ${data.report.invoices.length} transactions into the browser. This may slow down your device. Do you want to continue?`);
+          if (!proceed) {
+            setReportData(null);
+            return;
+          }
+        }
         setReportData(data.report);
       } else {
         alert(data.error || "Failed to query transactions.");
@@ -505,8 +513,9 @@ export default function AdminPortal() {
     }
   };
 
-  const exportPDFReport = async () => {
+  const exportPDFReport = async (filteredInvoices?: any[]) => {
     if (!reportData) return;
+    const invoicesToExport = filteredInvoices || reportData.invoices;
     setPdfLoading(true);
 
     try {
@@ -549,7 +558,7 @@ export default function AdminPortal() {
       doc.text(`Branch: ${selectedBranch}`, 200, 20, { align: "right" });
       doc.text(`Period: ${startDate} to ${endDate}`, 200, 25, { align: "right" });
 
-      if (reportData.invoices.length === 0) {
+      if (invoicesToExport.length === 0) {
         doc.setTextColor(0, 0, 0);
         doc.text("No transactions recorded for the selected period and branch.", 14, 45);
       } else {
@@ -557,7 +566,7 @@ export default function AdminPortal() {
         let totalRev = 0;
         let totalTax = 0;
         
-        reportData.invoices.forEach(inv => {
+        invoicesToExport.forEach(inv => {
           const dateStr = formatDate(inv.created_at);
           const customerName = inv.customers?.name || "Anonymous";
           const grand = parseFloat(inv.grand_total as any) || 0;
@@ -591,7 +600,7 @@ export default function AdminPortal() {
         doc.setTextColor(30, 30, 30);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10);
-        doc.text(`Total Invoices: ${reportData.invoices.length}`, 14, finalY + 10);
+        doc.text(`Total Invoices: ${invoicesToExport.length}`, 14, finalY + 10);
         doc.text(`Total GST: ${formatINR(totalTax)}`, 14, finalY + 15);
         doc.text(`Total Revenue: ${formatINR(totalRev)}`, 14, finalY + 20);
       }
@@ -610,8 +619,9 @@ export default function AdminPortal() {
     }
   };
 
-  const exportExcelReport = async () => {
+  const exportExcelReport = async (filteredInvoices?: any[]) => {
     if (!reportData) return;
+    const invoicesToExport = filteredInvoices || reportData.invoices;
     
     try {
       await fetch("/api/billing/admin", {
@@ -628,7 +638,7 @@ export default function AdminPortal() {
       });
 
       const rows: any[] = [];
-      reportData.invoices.forEach(inv => {
+      invoicesToExport.forEach(inv => {
         const dateStr = formatDate(inv.created_at);
         const customerName = inv.customers?.name || "Anonymous";
         const grand = parseFloat(inv.grand_total as any) || 0;
@@ -1051,27 +1061,14 @@ export default function AdminPortal() {
           </form>
 
           {reportData ? (
-            <div className="border-t border-white/5 pt-6 flex flex-col items-center justify-center text-center">
-              <p className="text-xs text-ivory/60 font-light mb-4">
-                Queried **{reportData.invoices.length}** transactions matching your range configuration.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row items-center gap-4 mb-8">
-                <button
-                  onClick={exportPDFReport}
-                  disabled={pdfLoading}
-                  className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] bg-gold-primary text-luxury-black font-bold px-6 py-3 hover:bg-gold-dark transition-all duration-300 rounded-none cursor-pointer w-full sm:w-auto"
-                >
-                  {pdfLoading ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
-                  <span>Export PDF</span>
-                </button>
-                <button
-                  onClick={exportExcelReport}
-                  className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-gold-primary text-gold-primary font-bold px-6 py-3 hover:bg-gold-primary/10 transition-all duration-300 rounded-none cursor-pointer w-full sm:w-auto"
-                >
-                  <FileSpreadsheet size={12} />
-                  <span>Export Excel</span>
-                </button>
+            <div className="border-t border-white/5 pt-6 flex flex-col items-center justify-center">
+              <div className="w-full mb-8">
+                <TransactionReportTable 
+                  invoices={reportData.invoices} 
+                  onExportPDF={exportPDFReport} 
+                  onExportExcel={exportExcelReport}
+                  role="admin"
+                />
               </div>
 
               {/* Appointments List */}
