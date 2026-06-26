@@ -615,8 +615,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Catalogue item not found." }, { status: 404 });
       }
 
-      // Enforce branch constraint
-      if (user.role === "staff" && dbItem.branch !== user.branch) {
+      // Enforce branch constraint (allow staff to edit global items where branch is null)
+      if (user.role === "staff" && dbItem.branch !== null && dbItem.branch !== user.branch) {
         return NextResponse.json({ success: false, error: "Access denied. Cannot modify other branch inventories." }, { status: 403 });
       }
 
@@ -694,7 +694,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Item not found." }, { status: 404 });
       }
 
-      if (user.role === "staff" && dbItem.branch !== user.branch) {
+      if (user.role === "staff" && dbItem.branch !== null && dbItem.branch !== user.branch) {
         return NextResponse.json({ success: false, error: "Access Denied: Branch mismatch." }, { status: 403 });
       }
 
