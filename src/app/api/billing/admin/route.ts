@@ -889,6 +889,9 @@ export async function POST(request: NextRequest) {
 
       let targetBranch = branch;
       if (user.role === "staff") {
+        if (branch && branch !== user.branch) {
+          return NextResponse.json({ success: false, error: "Forbidden: Branch mismatch detected." }, { status: 403 });
+        }
         targetBranch = user.branch || "Global";
       } else if (!targetBranch) {
         targetBranch = "Global";
@@ -952,6 +955,7 @@ export async function POST(request: NextRequest) {
       let serviceTax = 0;
       let retailTax = 0;
       const invoiceItemsToInsert = [];
+      const retailDeductions = [];
 
       for (const reqItem of items) {
         const dbItem = dbItems.find((i) => i.id === reqItem.id);
@@ -977,6 +981,11 @@ export async function POST(request: NextRequest) {
           serviceTax += tax;
         } else {
           retailTax += tax;
+          retailDeductions.push({
+            product_id: dbItem.id,
+            branch: targetBranch,
+            quantity: qty
+          });
         }
 
         invoiceItemsToInsert.push({
@@ -1001,70 +1010,52 @@ export async function POST(request: NextRequest) {
       const grandTotal = Math.max(0, parseFloat((preDiscountTotal - totalDiscount).toFixed(2)));
       const pointsEarned = Math.floor(grandTotal / 10);
 
-      // Save to database atomically - Parallelize Points Update and Invoice Creation
+      // Save to database in a safe transaction sequence using RPC
       const finalPoints = customer.points - redeemAmt + pointsEarned;
       const invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-      // Save to database in a safe transaction sequence:
-      // 1. Insert invoice first (so we get a valid invoice.id)
-      const { data: invoice, error: invErr } = await adminSupabase
-        .from("invoices")
-        .insert([{
-          invoice_number: invoiceNumber,
-          customer_id: customerId,
-          customer_name: customer.name,
-          customer_phone: customer.phone || null,
-          customer_gstin: customer.gstin || null,
-          subtotal: parseFloat(subtotal.toFixed(2)),
-          service_tax: parseFloat(serviceTax.toFixed(2)),
-          retail_tax: parseFloat(retailTax.toFixed(2)),
-          total_tax: parseFloat(totalTax.toFixed(2)),
-          discount: manualDiscount,
-          grand_total: grandTotal,
-          points_earned: pointsEarned,
-          points_redeemed: redeemAmt,
-          created_by: user.email,
-          branch: targetBranch,
-          payment_method: paymentMethod || "Cash",
-          status: "active",
-          ...(customCreatedByDate ? { created_at: customCreatedByDate } : {})
-        }])
-        .select("*")
-        .single();
+      const p_invoice = {
+        invoice_number: invoiceNumber,
+        customer_id: customerId,
+        customer_name: customer.name,
+        customer_phone: customer.phone || null,
+        customer_gstin: customer.gstin || null,
+        subtotal: parseFloat(subtotal.toFixed(2)),
+        service_tax: parseFloat(serviceTax.toFixed(2)),
+        retail_tax: parseFloat(retailTax.toFixed(2)),
+        total_tax: parseFloat(totalTax.toFixed(2)),
+        discount: manualDiscount,
+        grand_total: grandTotal,
+        points_earned: pointsEarned,
+        points_redeemed: redeemAmt,
+        created_by: user.email,
+        branch: targetBranch,
+        payment_method: paymentMethod || "Cash",
+        status: "active",
+        ...(customCreatedByDate ? { created_at: customCreatedByDate } : {})
+      };
 
-      if (invErr) {
-        return NextResponse.json({ success: false, error: "Failed to write invoice records." }, { status: 500 });
+      const { data: rpcData, error: rpcError } = await adminSupabase.rpc("create_invoice_with_inventory", {
+        p_invoice,
+        p_items: invoiceItemsToInsert,
+        p_retail_deductions: retailDeductions
+      });
+
+      if (rpcError) {
+        return NextResponse.json({ success: false, error: rpcError.message }, { status: 400 });
       }
 
-      const itemsToInsert = invoiceItemsToInsert.map((item) => ({ ...item, invoice_id: invoice.id }));
-
-      // 2. Insert invoice items next
-      const { error: itemsErr } = await adminSupabase.from("invoice_items").insert(itemsToInsert);
-
-      if (itemsErr) {
-        // Rollback inserted invoice
-        await adminSupabase.from("invoices").delete().eq("id", invoice.id);
-        return NextResponse.json({ success: false, error: "Failed to write items to database." }, { status: 500 });
+      if (!rpcData || !rpcData.success) {
+        return NextResponse.json({ success: false, error: rpcData?.error || "Transaction failed due to inventory or points conflict." }, { status: 400 });
       }
 
-      // 3. Update customer points only after invoice records are safely stored
-      const { error: ptErr } = await adminSupabase
-        .from("customers")
-        .update({ points: finalPoints })
-        .eq("id", customerId)
-        .gte("points", redeemAmt);
-
-      if (ptErr) {
-        // Rollback invoice items and invoice
-        await adminSupabase.from("invoice_items").delete().eq("invoice_id", invoice.id);
-        await adminSupabase.from("invoices").delete().eq("id", invoice.id);
-        return NextResponse.json({ success: false, error: "Concurrency conflict during points redemption." }, { status: 409 });
-      }
+      const newInvoiceId = rpcData.invoice_id;
+      const itemsToInsert = invoiceItemsToInsert.map((item) => ({ ...item, invoice_id: newInvoiceId }));
 
       // 4. Log audit log asynchronously (does not block checkout completion)
       logSecurityAction(adminSupabase, user, "checkout_invoice", `Generated Invoice #${invoiceNumber} for amount INR ${grandTotal} at branch ${targetBranch}`);
 
-      return NextResponse.json({ success: true, invoice, items: itemsToInsert, newPoints: finalPoints });
+      return NextResponse.json({ success: true, invoice: { id: newInvoiceId, ...p_invoice }, items: itemsToInsert, newPoints: finalPoints });
     }
 
     // 6. CREATE APPOINTMENT (BOOKING)
