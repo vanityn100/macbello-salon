@@ -1027,6 +1027,9 @@ export default function AdminPortal() {
                   onExportPDF={exportPDFReport} 
                   onExportExcel={exportExcelReport}
                   role="admin"
+                  onEdit={handleEditInvoice}
+                  onDelete={handleDeleteInvoice}
+                  onRestore={handleRestoreInvoice}
                 />
               </div>
 
