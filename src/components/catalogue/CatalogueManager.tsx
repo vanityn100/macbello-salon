@@ -155,7 +155,8 @@ export default function CatalogueManager({ portalType, pageTitle }: CatalogueMan
     try {
       const url = "/api/billing/admin";
       const gstPercent = parseFloat(gstRate) / 100;
-      const taxablePrice = priceNum / (1 + gstPercent);
+      // Round taxable price to 2 decimal places to prevent floating point drift/truncation
+      const taxablePrice = Math.round((priceNum / (1 + gstPercent)) * 100) / 100;
       const payload = editingId 
         ? { action: "edit_service", id: editingId, name, price: taxablePrice, category, itemCode, hsn, taxRate: gstPercent }
         : { action: "create_service", name, price: taxablePrice, category, itemCode, hsn, taxRate: gstPercent };
