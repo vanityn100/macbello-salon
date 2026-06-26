@@ -12,6 +12,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { formatINR, formatNumber, formatDate } from "@/lib/format";
 import TransactionReportTable from "@/components/admin/TransactionReportTable";
+import CustomerManagement from "@/components/admin/CustomerManagement";
 
 interface AuditLog {
   id: string;
@@ -99,17 +100,6 @@ export default function AdminPortal() {
   const [staffList, setStaffList] = useState<any[]>([]);
   const [staffListLoading, setStaffListLoading] = useState(false);
 
-  // Registered Customers state
-  const [customerList, setCustomerList] = useState<any[]>([]);
-  const [customerListLoading, setCustomerListLoading] = useState(false);
-  const [editingCustomer, setEditingCustomer] = useState<any | null>(null);
-  const [editName, setEditName] = useState("");
-  const [editPhone, setEditPhone] = useState("");
-  const [editEmail, setEditEmail] = useState("");
-  const [editPoints, setEditPoints] = useState("");
-  const [editModalLoading, setEditModalLoading] = useState(false);
-  const [editModalError, setEditModalError] = useState("");
-
   // Daily Stats state
   const [stats, setStats] = useState<{
     totalSales: number;
@@ -133,72 +123,7 @@ export default function AdminPortal() {
   } | null>(null);
   const [finStatsLoading, setFinStatsLoading] = useState(false);
 
-  const loadCustomerList = async (token: string) => {
-    setCustomerListLoading(true);
-    try {
-      const res = await fetch("/api/billing/admin?action=list_all_customers", {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setCustomerList(data.customers || []);
-      }
-    } catch (err: any) {
-      console.error(err);
-      if (err instanceof TypeError) {
-        alert("Network error. Please check your connection and try again.");
-      } else {
-        alert("Something went wrong. Please try again.");
-      }
-    } finally {
-      setCustomerListLoading(false);
-    }
-  };
 
-  const handleUpdateCustomer = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingCustomer || !sessionToken) return;
-
-    setEditModalLoading(true);
-    setEditModalError("");
-
-    try {
-      const res = await fetch("/api/billing/admin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${sessionToken}`
-        },
-        body: JSON.stringify({
-          action: "update_customer",
-          id: editingCustomer.id,
-          name: editName,
-          phone: editPhone,
-          email: editEmail || undefined,
-          points: editPoints
-        })
-      });
-
-      const result = await res.json();
-      if (res.ok && result.success) {
-        setEditingCustomer(null);
-        loadCustomerList(sessionToken);
-        // If financial stats are loaded, refresh them to capture new totals
-        loadFinancialStats(sessionToken);
-      } else {
-        setEditModalError(result.error || "Failed to update customer details.");
-      }
-    } catch (err: any) {
-      console.error(err);
-      if (err instanceof TypeError) {
-        setEditModalError("Network error. Please check your connection and try again.");
-      } else {
-        setEditModalError("Something went wrong. Please try again.");
-      }
-    } finally {
-      setEditModalLoading(false);
-    }
-  };
 
   const loadDailyStats = async (token: string) => {
     setStatsLoading(true);
@@ -303,8 +228,7 @@ export default function AdminPortal() {
           Promise.all([
             loadStaffList(session.access_token),
             loadDailyStats(session.access_token),
-            loadFinancialStats(session.access_token),
-            loadCustomerList(session.access_token)
+            loadFinancialStats(session.access_token)
           ]);
           // Mark dashboard as loaded so onAuthStateChange skips the duplicate fetch
           dashboardLoadedRef.current = true;
@@ -330,8 +254,7 @@ export default function AdminPortal() {
             Promise.all([
               loadStaffList(session.access_token),
               loadDailyStats(session.access_token),
-              loadFinancialStats(session.access_token),
-              loadCustomerList(session.access_token)
+              loadFinancialStats(session.access_token)
             ]);
             dashboardLoadedRef.current = true;
           }
@@ -349,7 +272,6 @@ export default function AdminPortal() {
         setAdminEmail(null);
         setReportData(null);
         setStaffList([]);
-        setCustomerList([]);
         setStats(null);
         setFinStats(null);
       }
@@ -461,7 +383,6 @@ export default function AdminPortal() {
         loadDailyStats(data.session.access_token);
         loadFinancialStats(data.session.access_token);
         loadStaffList(data.session.access_token);
-        loadCustomerList(data.session.access_token);
       }
     } catch (err: any) {
       console.error(err);
@@ -513,9 +434,10 @@ export default function AdminPortal() {
     }
   };
 
-  const exportPDFReport = async (filteredInvoices?: any[]) => {
+  const exportPDFReport = async (filteredInvoices?: any[], metadata?: any) => {
     if (!reportData) return;
     const invoicesToExport = filteredInvoices || reportData.invoices;
+    const filtersStr = metadata?.filters || "None";
     setPdfLoading(true);
 
     try {
@@ -557,6 +479,7 @@ export default function AdminPortal() {
       doc.setFontSize(9);
       doc.text(`Branch: ${selectedBranch}`, 200, 20, { align: "right" });
       doc.text(`Period: ${startDate} to ${endDate}`, 200, 25, { align: "right" });
+      doc.text(`Filters: ${filtersStr}`, 200, 30, { align: "right" });
 
       if (invoicesToExport.length === 0) {
         doc.setTextColor(0, 0, 0);
@@ -609,8 +532,13 @@ export default function AdminPortal() {
       doc.setFontSize(8);
       doc.setTextColor(150, 150, 150);
       doc.text(`Generated By: ${adminEmail} on ${new Date().toLocaleString()}`, 14, 290);
+      doc.text(`Generated from Macbello Salon Management System`, 200, 290, { align: "right" });
 
-      doc.save(`MacBello_Transaction_Report_${startDate}_to_${endDate}.pdf`);
+      const fileName = selectedBranch !== "All Branches" 
+        ? `Macbello_${selectedBranch.replace(/\\s+/g, "_")}_Transactions_${startDate}_to_${endDate}.pdf`
+        : `Macbello_Transactions_${startDate}_to_${endDate}.pdf`;
+
+      doc.save(fileName);
     } catch (err: any) {
       console.error(err);
       alert("Export generation failed. Please try again later.");
@@ -619,9 +547,10 @@ export default function AdminPortal() {
     }
   };
 
-  const exportExcelReport = async (filteredInvoices?: any[]) => {
+  const exportExcelReport = async (filteredInvoices?: any[], metadata?: any) => {
     if (!reportData) return;
     const invoicesToExport = filteredInvoices || reportData.invoices;
+    const filtersStr = metadata?.filters || "None";
     
     try {
       await fetch("/api/billing/admin", {
@@ -637,15 +566,23 @@ export default function AdminPortal() {
         })
       });
 
+      let totalRev = 0;
+      let totalTax = 0;
       const rows: any[] = [];
+      
       invoicesToExport.forEach(inv => {
+        if (inv.status !== 'archived' && inv.status !== 'cancelled') {
+          totalRev += parseFloat(inv.grand_total as any) || 0;
+          totalTax += parseFloat(inv.total_tax as any) || 0;
+        }
+        
         const dateStr = formatDate(inv.created_at);
         const customerName = inv.customers?.name || "Anonymous";
         const grand = parseFloat(inv.grand_total as any) || 0;
         const tax = parseFloat(inv.total_tax as any) || 0;
         const sub = parseFloat(inv.subtotal as any) || 0;
         
-        inv.invoice_items.forEach(item => {
+        inv.invoice_items.forEach((item: any) => {
           rows.push({
             "Date": dateStr,
             "Invoice #": inv.invoice_number,
@@ -658,18 +595,40 @@ export default function AdminPortal() {
             "Line Total": item.line_total,
             "Invoice Subtotal": sub,
             "Invoice GST": tax,
-            "Invoice Total": grand
+            "Invoice Total": grand,
+            "Status": inv.status
           });
         });
       });
 
-      const worksheet = XLSX.utils.json_to_sheet(rows);
+      // Add metadata rows at the top
+      const metadataRows = [
+        { "Date": "Report Name", "Invoice #": "Transaction Accounting Report" },
+        { "Date": "Generated By", "Invoice #": adminEmail },
+        { "Date": "Generated Date & Time", "Invoice #": new Date().toLocaleString() },
+        { "Date": "Selected Branch", "Invoice #": selectedBranch },
+        { "Date": "Date Range", "Invoice #": `${startDate} to ${endDate}` },
+        { "Date": "Applied Filters", "Invoice #": filtersStr },
+        { "Date": "Total Transactions", "Invoice #": invoicesToExport.length },
+        { "Date": "Total Revenue", "Invoice #": totalRev },
+        { "Date": "Total Tax", "Invoice #": totalTax },
+        {}, // Empty row for spacing
+      ];
+
+      const finalRows = [...metadataRows, ...rows];
+
+      const worksheet = XLSX.utils.json_to_sheet(finalRows);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
       
       const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
       const data = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
-      saveAs(data, `MacBello_Transactions_${startDate}_to_${endDate}.xlsx`);
+      
+      const fileName = selectedBranch !== "All Branches" 
+        ? `Macbello_${selectedBranch.replace(/\\s+/g, "_")}_Transactions_${startDate}_to_${endDate}.xlsx`
+        : `Macbello_Transactions_${startDate}_to_${endDate}.xlsx`;
+        
+      saveAs(data, fileName);
     } catch (err: any) {
       console.error(err);
       alert("Export generation failed. Please try again later.");
@@ -1214,76 +1173,8 @@ export default function AdminPortal() {
           </div>
         </div>
 
-        {/* Registered Customers List Panel */}
-        <div className="border border-white/5 bg-white/[0.01] p-8 relative mt-8">
-          <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-gold-primary/25" />
-          <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-gold-primary/25" />
-          <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-gold-primary/25" />
-          <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-gold-primary/25" />
-
-          <h2 className="font-playfair text-lg text-white font-medium tracking-wide mb-6">
-            <span>Registered Customers Database</span>
-          </h2>
-
-          <div>
-            {customerListLoading ? (
-              <div className="flex items-center justify-center py-6">
-                <Loader2 size={20} className="animate-spin text-gold-primary" />
-              </div>
-            ) : customerList.length === 0 ? (
-              <p className="text-xs text-ivory/30 italic text-center py-4">No registered customers found in database.</p>
-            ) : (
-              <div className="overflow-x-auto max-h-[300px] overflow-y-auto no-scrollbar">
-                <table className="w-full text-left text-[11px] font-light">
-                  <thead>
-                    <tr className="border-b border-white/10 uppercase text-ivory/40 text-[9px] sticky top-0 bg-luxury-black z-10">
-                      <th className="pb-2">Name</th>
-                      <th className="pb-2">Phone</th>
-                      <th className="pb-2">Email</th>
-                      <th className="pb-2">Branch Origin</th>
-                      <th className="pb-2">Loyalty Balance</th>
-                      <th className="pb-2">Created At</th>
-                      <th className="pb-2 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {customerList.map((cust) => (
-                      <tr key={cust.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
-                        <td className="py-2.5 text-white font-medium">{cust.name}</td>
-                        <td className="py-2.5 text-ivory/80 ">{cust.phone}</td>
-                        <td className="py-2.5 text-ivory/60">{cust.email || "—"}</td>
-                        <td className="py-2.5 text-gold-primary">{cust.branch || "Global"}</td>
-                        <td className="py-2.5 text-white font-bold">{cust.points} Pts</td>
-                        <td className="py-2.5 text-ivory/40">
-                          {new Date(cust.created_at).toLocaleDateString(undefined, {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric"
-                          })}
-                        </td>
-                        <td className="py-2.5 text-right">
-                          <button
-                            onClick={() => {
-                              setEditingCustomer(cust);
-                              setEditName(cust.name);
-                              setEditPhone(cust.phone);
-                              setEditEmail(cust.email || "");
-                              setEditPoints(cust.points.toString());
-                              setEditModalError("");
-                            }}
-                            className="text-[10px] uppercase tracking-wider text-gold-primary hover:text-white transition-colors cursor-pointer border border-gold-primary/20 hover:border-white/20 px-2 py-1 bg-gold-primary/5"
-                          >
-                            Edit
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
+        {/* Customer Management Panel */}
+        <CustomerManagement sessionToken={sessionToken!} />
 
         <div className="mt-8 flex justify-center space-x-6 text-[10px] uppercase tracking-wider text-ivory/40">
           <Link href="/staff/billing" className="hover:text-gold-primary transition-colors">
@@ -1295,94 +1186,6 @@ export default function AdminPortal() {
           </Link>
         </div>
       </div>
-
-      {/* Customer Edit Modal */}
-      {editingCustomer && (
-        <div className="fixed inset-0 bg-luxury-black/90 backdrop-blur-md flex items-center justify-center p-6 z-[9999]">
-          <div className="max-w-md w-full border border-gold-primary/20 bg-luxury-dark p-8 relative shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
-            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-gold-primary/45" />
-            <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-gold-primary/45" />
-            <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-gold-primary/45" />
-            <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-gold-primary/45" />
-
-            <div className="mb-6 border-b border-white/5 pb-4">
-              <span className="text-[8px] uppercase tracking-[0.25em] text-gold-primary block mb-1">Administrative Action</span>
-              <h3 className="font-playfair text-xl text-white font-medium">Edit Customer Details</h3>
-            </div>
-
-            <form onSubmit={handleUpdateCustomer} className="space-y-4">
-              <div className="flex flex-col">
-                <label className="text-[9px] uppercase tracking-wider text-ivory/50 mb-1.5">Customer Name</label>
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs text-white rounded-none focus:outline-none focus:border-gold-primary/50"
-                  required
-                />
-              </div>
-
-              <div className="flex flex-col">
-                <label className="text-[9px] uppercase tracking-wider text-ivory/50 mb-1.5">Phone Number</label>
-                <input
-                  type="text"
-                  value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs text-white rounded-none focus:outline-none focus:border-gold-primary/50"
-                  required
-                />
-              </div>
-
-              <div className="flex flex-col">
-                <label className="text-[9px] uppercase tracking-wider text-ivory/50 mb-1.5">Email Address</label>
-                <input
-                  type="email"
-                  value={editEmail}
-                  onChange={(e) => setEditEmail(e.target.value)}
-                  placeholder="No email registered"
-                  className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs text-white rounded-none focus:outline-none focus:border-gold-primary/50"
-                />
-              </div>
-
-              <div className="flex flex-col">
-                <label className="text-[9px] uppercase tracking-wider text-ivory/50 mb-1.5">Loyalty Points Balance</label>
-                <input
-                  type="number"
-                  value={editPoints}
-                  onChange={(e) => setEditPoints(e.target.value)}
-                  className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs text-white rounded-none focus:outline-none focus:border-gold-primary/50"
-                  required
-                />
-              </div>
-
-              {editModalError && (
-                <p className="text-[10px] text-red-400 font-light tracking-wide flex items-center bg-red-950/20 border border-red-900/30 p-2.5">
-                  <ShieldAlert size={12} className="mr-1.5 shrink-0" />
-                  {editModalError}
-                </p>
-              )}
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setEditingCustomer(null)}
-                  className="flex-1 text-center text-[10px] uppercase tracking-wider border border-white/10 hover:border-white/20 text-white font-medium py-3 transition-colors cursor-pointer bg-white/5"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={editModalLoading}
-                  className="flex-1 text-center text-[10px] uppercase tracking-wider bg-gold-primary hover:bg-gold-dark disabled:bg-gold-primary/40 text-luxury-black font-semibold py-3 transition-colors cursor-pointer flex items-center justify-center"
-                >
-                  {editModalLoading ? <Loader2 size={12} className="animate-spin mr-1.5" /> : null}
-                  <span>Save Changes</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </main>
   );
 }
