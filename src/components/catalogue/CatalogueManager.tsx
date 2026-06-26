@@ -150,6 +150,7 @@ export default function CatalogueManager({ portalType, pageTitle }: CatalogueMan
       setIsSubmitting(false);
       return;
     }
+    setPrice(priceNum.toFixed(2));
 
     try {
       const url = "/api/billing/admin";
@@ -381,7 +382,13 @@ export default function CatalogueManager({ portalType, pageTitle }: CatalogueMan
                   step="0.01"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  placeholder="e.g. 750"
+                  onBlur={(e) => {
+                    const val = parseFloat(e.target.value);
+                    if (!isNaN(val)) {
+                      setPrice(val.toFixed(2));
+                    }
+                  }}
+                  placeholder="e.g. 750.00"
                   className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs tracking-wider text-white placeholder-ivory/20 rounded-none focus:outline-none focus:border-gold-primary/50 transition-colors"
                   required
                 />
