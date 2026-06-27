@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { logError } from '@/lib/logger';
 import { supabase, getSupabaseAdmin } from "@/lib/supabase";
 import { Resend } from "resend";
+import { recalculateInvoiceTotals } from "@/lib/invoiceUtils";
 
 export const dynamic = "force-dynamic";
 
@@ -895,21 +896,41 @@ export async function POST(request: NextRequest) {
 
     // 5. SECURE INVOICING CHECKOUT
     if (action === "create_invoice") {
-      const { customerId, items, pointsToRedeem, branch, paymentMethod, invoiceDate } = body;
+      try {
+        const { customerId, items, pointsToRedeem, branch, paymentMethod, invoiceDate, idempotencyKey } = body;
 
-      let targetBranch = branch;
-      if (user.role === "staff") {
-        if (branch && branch !== user.branch) {
-          return NextResponse.json({ success: false, error: "Forbidden: Branch mismatch detected." }, { status: 403 });
+        // 5a. Idempotency Check
+        if (idempotencyKey && typeof idempotencyKey === 'string') {
+          const { data: existingLog } = await adminSupabase
+            .from("audit_logs")
+            .select("details")
+            .eq("request_id", idempotencyKey)
+            .eq("action", "checkout_invoice")
+            .maybeSingle();
+
+          if (existingLog && existingLog.details) {
+            try {
+              const parsedDetails = JSON.parse(existingLog.details);
+              if (parsedDetails.successResponse) {
+                return NextResponse.json(parsedDetails.successResponse);
+              }
+            } catch (e) {}
+          }
         }
-        targetBranch = user.branch || "Global";
-      } else if (!targetBranch) {
-        targetBranch = "Global";
-      }
 
-      if (!customerId || !Array.isArray(items) || items.length === 0 || !targetBranch) {
-        return NextResponse.json({ success: false, error: "Missing checkout parameters." }, { status: 400 });
-      }
+        let targetBranch = branch;
+        if (user.role === "staff") {
+          if (branch && branch !== user.branch) {
+            return NextResponse.json({ success: false, error: "Forbidden: Branch mismatch detected." }, { status: 403 });
+          }
+          targetBranch = user.branch || "Global";
+        } else if (!targetBranch) {
+          targetBranch = "Global";
+        }
+
+        if (!customerId || !Array.isArray(items) || items.length === 0 || !targetBranch) {
+          return NextResponse.json({ success: false, error: "Missing checkout parameters." }, { status: 400 });
+        }
 
       // Validate invoiceDate
       let customCreatedByDate: string | null = null;
@@ -961,9 +982,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Failed to query checkout items." }, { status: 500 });
       }
 
-      let subtotal = 0;
-      let serviceTax = 0;
-      let retailTax = 0;
       const invoiceItemsToInsert = [];
       const retailDeductions = [];
 
@@ -984,13 +1002,8 @@ export async function POST(request: NextRequest) {
         }
 
         const lineTotal = dbItem.price * qty;
-        const tax = lineTotal * (parseFloat(dbItem.tax_rate) || 0);
 
-        subtotal += lineTotal;
-        if (dbItem.category === "Service") {
-          serviceTax += tax;
-        } else {
-          retailTax += tax;
+        if (dbItem.category !== "Service") {
           retailDeductions.push({
             product_id: dbItem.id,
             branch: targetBranch,
@@ -1009,16 +1022,13 @@ export async function POST(request: NextRequest) {
           hsn: dbItem.hsn || null,
           staff_contribution: reqItem.staffContribution ? reqItem.staffContribution.replace(/<[^>]*>/g, "").trim() : null
         });
-      }
-
-      const totalTax = serviceTax + retailTax;
-      const preDiscountTotal = subtotal + totalTax;
-      const manualDiscount = parseFloat(body.discountAmount) || 0;
+      }      const manualDiscount = parseFloat(body.discountAmount) || 0;
       const loyaltyDiscount = redeemAmt;
-      const totalDiscount = manualDiscount + loyaltyDiscount;
 
-      const grandTotal = Math.max(0, parseFloat((preDiscountTotal - totalDiscount).toFixed(2)));
-      const pointsEarned = Math.floor(grandTotal / 10);
+      // Use the shared math function. It validates internally and throws if inputs are malformed.
+      const calculated = recalculateInvoiceTotals(invoiceItemsToInsert, manualDiscount, loyaltyDiscount);
+
+      const pointsEarned = Math.floor(calculated.grand_total / 10);
 
       // Save to database in a safe transaction sequence using RPC
       const finalPoints = customer.points - redeemAmt + pointsEarned;
@@ -1030,14 +1040,14 @@ export async function POST(request: NextRequest) {
         customer_name: customer.name,
         customer_phone: customer.phone || null,
         customer_gstin: customer.gstin || null,
-        subtotal: parseFloat(subtotal.toFixed(2)),
-        service_tax: parseFloat(serviceTax.toFixed(2)),
-        retail_tax: parseFloat(retailTax.toFixed(2)),
-        total_tax: parseFloat(totalTax.toFixed(2)),
-        discount: manualDiscount,
-        grand_total: grandTotal,
+        subtotal: calculated.subtotal,
+        service_tax: calculated.service_tax,
+        retail_tax: calculated.retail_tax,
+        total_tax: calculated.total_tax,
+        discount: calculated.discount,
+        grand_total: calculated.grand_total,
         points_earned: pointsEarned,
-        points_redeemed: redeemAmt,
+        points_redeemed: calculated.points_redeemed,
         created_by: user.email,
         branch: targetBranch,
         payment_method: paymentMethod || "Cash",
@@ -1061,11 +1071,34 @@ export async function POST(request: NextRequest) {
 
       const newInvoiceId = rpcData.invoice_id;
       const itemsToInsert = invoiceItemsToInsert.map((item) => ({ ...item, invoice_id: newInvoiceId }));
+      
+      const successResponse = { success: true, invoice: { id: newInvoiceId, ...p_invoice }, items: itemsToInsert, newPoints: finalPoints };
 
-      // 4. Log audit log asynchronously (does not block checkout completion)
-      logSecurityAction(adminSupabase, user, "checkout_invoice", `Generated Invoice #${invoiceNumber} for amount INR ${grandTotal} at branch ${targetBranch}`);
+      // Log audit log asynchronously, store successResponse for idempotency checks
+      try {
+        await adminSupabase.from("audit_logs").insert([{
+          user_id: user.email,
+          role: user.role,
+          branch: targetBranch,
+          action: "checkout_invoice",
+          details: JSON.stringify({ message: `Generated Invoice #${invoiceNumber}`, successResponse }),
+          request_id: idempotencyKey || null
+        }]);
+      } catch (logErr) {
+        console.error("Audit log failed during invoice creation", logErr);
+      }
 
-      return NextResponse.json({ success: true, invoice: { id: newInvoiceId, ...p_invoice }, items: itemsToInsert, newPoints: finalPoints });
+      return NextResponse.json(successResponse);
+      } catch (error: any) {
+        // Safe Catch: Prevent crash, log error, return generic message to client.
+        await logError("create_invoice_exception", error, {
+           userId: user.email,
+           role: user.role,
+           branch: user.branch,
+           category: "Billing"
+        });
+        return NextResponse.json({ success: false, error: error.message || "An unexpected error occurred during billing checkout." }, { status: 500 });
+      }
     }
 
     // 6. CREATE APPOINTMENT (BOOKING)

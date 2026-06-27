@@ -33,15 +33,6 @@ export interface CompletedInvoice {
   };
   newPoints: number;
   branch: string;
-  subtotal: number;
-  serviceTax: number;
-  retailTax: number;
-  totalTax: number;
-  discount: number;
-  grandTotal: number;
-  pointsEarned: number;
-  preDiscountTotal?: number;
-  pointsRedeemed?: number;
 }
 
 /**
@@ -50,9 +41,18 @@ export interface CompletedInvoice {
  */
 export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsPDF {
   const { 
-    invoice, items, customer, newPoints, branch, 
-    subtotal, serviceTax, retailTax, totalTax, discount, grandTotal, pointsEarned
+    invoice, items, customer, newPoints, branch
   } = completedInvoice;
+
+  // Use the backend source-of-truth values directly
+  const subtotal = parseFloat(invoice.subtotal) || 0;
+  const serviceTax = parseFloat((invoice as any).service_tax) || 0;
+  const retailTax = parseFloat((invoice as any).retail_tax) || 0;
+  const totalTax = parseFloat(invoice.total_tax || (invoice as any).totalTax) || 0;
+  const discount = parseFloat(invoice.discount) || 0;
+  const grandTotal = parseFloat(invoice.grand_total) || 0;
+  const pointsEarned = invoice.points_earned || 0;
+  const loyaltyRedeemed = invoice.points_redeemed || invoice.redeemed_points || 0;
 
   const doc = new jsPDF("p", "mm", "a4");
 
@@ -244,7 +244,6 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
   doc.setTextColor(90, 90, 90);
   doc.text("Loyalty Rate: 1 Point per INR 10 spent", 24, y + 12);
   doc.text(`Points Earned today: +${pointsEarned}`, 24, y + 18);
-  const loyaltyRedeemed = completedInvoice.pointsRedeemed || 0;
   if (loyaltyRedeemed > 0) {
     doc.text(`Points Redeemed: -${loyaltyRedeemed}`, 24, y + 24);
   }

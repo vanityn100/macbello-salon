@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { downloadInvoicePDF, buildInvoicePDFDocument, CompletedInvoice } from "@/lib/pdf";
+import { recalculateInvoiceTotals } from "@/lib/invoiceUtils";
 
 interface Customer {
   id: string;
@@ -275,28 +276,44 @@ export default function BillingModule() {
   };
 
   // Calculations
-  const serviceSubtotal = cart
-    .filter((c) => c.item.category === "Service")
-    .reduce((sum, c) => sum + c.item.price * c.quantity, 0);
-
-  const retailSubtotal = cart
-    .filter((c) => c.item.category === "Retail")
-    .reduce((sum, c) => sum + c.item.price * c.quantity, 0);
-
-  const serviceTax = serviceSubtotal * 0.05;
-  const retailTax = retailSubtotal * 0.18;
-  const totalTax = serviceTax + retailTax;
-  const subtotal = serviceSubtotal + retailSubtotal;
-  const preDiscountTotal = subtotal + totalTax;
-
   const redeemPointsNum = parseInt(pointsToRedeem, 10) || 0;
-  const loyaltyDiscount = redeemPointsNum; // 1 Point = 1 Rupee
-  
   const manualDiscountNum = parseFloat(manualDiscount) || 0;
-  const totalDiscount = loyaltyDiscount + manualDiscountNum;
 
-  const grandTotal = Math.max(0, parseFloat((preDiscountTotal - totalDiscount).toFixed(2)));
+  // Single Source of Truth Calculation
+  const invoiceItemsInput = cart.map(c => ({
+    category: c.item.category,
+    quantity: c.quantity,
+    unit_price: c.item.price,
+    tax_rate: c.item.tax_rate
+  }));
+
+  // Safe fallback to prevent crash on empty cart
+  let calcTotals = {
+    subtotal: 0,
+    service_tax: 0,
+    retail_tax: 0,
+    total_tax: 0,
+    discount: 0,
+    points_redeemed: 0,
+    grand_total: 0
+  };
+
+  if (invoiceItemsInput.length > 0) {
+    try {
+      calcTotals = recalculateInvoiceTotals(invoiceItemsInput, manualDiscountNum, redeemPointsNum);
+    } catch (e) {
+      // Ignored for live preview
+    }
+  }
+
+  const {
+    subtotal,
+    total_tax: totalTax,
+    grand_total: grandTotal
+  } = calcTotals;
+
   const pointsEarned = Math.floor(grandTotal / 10);
+  const preDiscountTotal = subtotal + totalTax; // Used ONLY for points redemption validation ceiling
 
   // Validate points redemption
   const handlePointsChange = (val: string) => {
@@ -360,6 +377,7 @@ export default function BillingModule() {
         },
         body: JSON.stringify({
           action: "create_invoice",
+          idempotencyKey: crypto.randomUUID(),
           customerId: selectedCustomer.id,
           items: cart.map((c) => ({ 
             id: c.item.id, 
@@ -384,16 +402,7 @@ export default function BillingModule() {
           items: result.items,
           customer: selectedCustomer,
           newPoints: result.newPoints,
-          branch,
-          subtotal,
-          serviceTax,
-          retailTax,
-          totalTax,
-          preDiscountTotal,
-          discount: manualDiscountNum,
-          pointsRedeemed: redeemPointsNum,
-          grandTotal,
-          pointsEarned,
+          branch
         });
         // Clear state
         setCart([]);
@@ -740,40 +749,40 @@ export default function BillingModule() {
             <div className="space-y-2 text-ivory/70 print-text-black">
               <div className="flex justify-between">
                 <span>Subtotal (GST Included):</span>
-                <span className="currency-value text-white print-text-black">₹{(completedInvoice.subtotal + completedInvoice.totalTax).toFixed(2)}</span>
+                <span className="currency-value text-white print-text-black">₹{(parseFloat(invoice.subtotal) + parseFloat(invoice.total_tax)).toFixed(2)}</span>
               </div>
-              {completedInvoice.serviceTax > 0 && (
+              {parseFloat(invoice.service_tax as any) > 0 && (
                 <>
                   <div className="flex justify-between text-[11px] pl-2 border-l border-white/5 print-border-gray">
                     <span>Service CGST (2.5%):</span>
-                    <span className="currency-value text-white print-text-black">₹{(completedInvoice.serviceTax / 2).toFixed(2)}</span>
+                    <span className="currency-value text-white print-text-black">₹{(parseFloat(invoice.service_tax as any) / 2).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-[11px] pl-2 border-l border-white/5 print-border-gray">
                     <span>Service SGST (2.5%):</span>
-                    <span className="currency-value text-white print-text-black">₹{(completedInvoice.serviceTax / 2).toFixed(2)}</span>
+                    <span className="currency-value text-white print-text-black">₹{(parseFloat(invoice.service_tax as any) / 2).toFixed(2)}</span>
                   </div>
                 </>
               )}
-              {completedInvoice.retailTax > 0 && (
+              {parseFloat(invoice.retail_tax as any) > 0 && (
                 <>
                   <div className="flex justify-between text-[11px] pl-2 border-l border-white/5 print-border-gray">
                     <span>Retail CGST (9%):</span>
-                    <span className="currency-value text-white print-text-black">₹{(completedInvoice.retailTax / 2).toFixed(2)}</span>
+                    <span className="currency-value text-white print-text-black">₹{(parseFloat(invoice.retail_tax as any) / 2).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-[11px] pl-2 border-l border-white/5 print-border-gray">
                     <span>Retail SGST (9%):</span>
-                    <span className="currency-value text-white print-text-black">₹{(completedInvoice.retailTax / 2).toFixed(2)}</span>
+                    <span className="currency-value text-white print-text-black">₹{(parseFloat(invoice.retail_tax as any) / 2).toFixed(2)}</span>
                   </div>
                 </>
               )}
               <div className="flex justify-between font-medium border-t border-white/5 pt-1.5 mt-1">
                 <span>Total Tax (CGST + SGST):</span>
-                <span className="currency-value text-white print-text-black">₹{completedInvoice.totalTax.toFixed(2)}</span>
+                <span className="currency-value text-white print-text-black">₹{parseFloat(invoice.total_tax).toFixed(2)}</span>
               </div>
-              {completedInvoice.discount > 0 && (
+              {parseFloat(invoice.discount) > 0 && (
                 <div className="flex justify-between text-white print-text-black font-medium">
                   <span>Discount:</span>
-                  <span className="currency-value">-₹{completedInvoice.discount.toFixed(2)}</span>
+                  <span className="currency-value">-₹{parseFloat(invoice.discount).toFixed(2)}</span>
                 </div>
               )}
               {invoice.points_redeemed > 0 && (
@@ -1315,34 +1324,25 @@ export default function BillingModule() {
 
               {/* Financial Breakdowns */}
               <div className="space-y-3.5 text-xs font-light border-b border-white/5 pb-5">
-                <div className="flex justify-between">
-                  <span className="text-ivory/50">Services Subtotal (GST Included):</span>
-                  <span className="currency-value font-medium">₹{(serviceSubtotal + serviceTax).toFixed(2)}</span>
+                <div className="flex justify-between text-zinc-400">
+                  <span>Services Subtotal (Inc. GST)</span>
+                  <span className="currency-value font-medium">₹{(calcTotals.subtotal + calcTotals.service_tax).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-zinc-400">
+                  <span>Retail Subtotal (Inc. GST)</span>
+                  <span className="currency-value font-medium">₹{(calcTotals.retail_tax > 0 ? (calcTotals.retail_tax * 100 / 18 + calcTotals.retail_tax) : 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pl-3 text-[11px] text-ivory/40 border-l border-white/5">
                   <span className="font-semibold text-ivory/70">Services Base Price (Before GST):</span>
-                  <span className="currency-value font-semibold text-ivory/70">₹{serviceSubtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between pl-3 text-[11px] text-ivory/40 border-l border-white/5">
-                  <span>Services GST Included (5%):</span>
-                  <span className="currency-value">₹{serviceTax.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-ivory/50">Retail Subtotal (GST Included):</span>
-                  <span className="currency-value font-medium">₹{(retailSubtotal + retailTax).toFixed(2)}</span>
+                  <span className="currency-value font-semibold text-ivory/70">₹{calcTotals.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pl-3 text-[11px] text-ivory/40 border-l border-white/5">
                   <span className="font-semibold text-ivory/70">Retail Base Price (Before GST):</span>
-                  <span className="currency-value font-semibold text-ivory/70">₹{retailSubtotal.toFixed(2)}</span>
+                  <span className="currency-value font-semibold text-ivory/70">₹{(calcTotals.retail_tax > 0 ? calcTotals.retail_tax * 100 / 18 : 0).toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between pl-3 text-[11px] text-ivory/40 border-l border-white/5">
-                  <span>Retail GST Included (18%):</span>
-                  <span className="currency-value">₹{retailTax.toFixed(2)}</span>
-                </div>
-
                 <div className="flex justify-between border-t border-white/5 pt-3">
                   <span className="text-ivory/50">Combined GST Included:</span>
-                  <span className="currency-value font-medium">₹{totalTax.toFixed(2)}</span>
+                  <span className="currency-value font-medium">₹{calcTotals.total_tax.toFixed(2)}</span>
                 </div>
 
                 {manualDiscountNum > 0 && (

@@ -635,6 +635,62 @@ export default function AdminPortal() {
     }
   };
 
+  const handleEditInvoice = (id: string) => {
+    alert("Invoice edit functionality is restricted to API access only for now.");
+  };
+
+  const handleDeleteInvoice = async (id: string) => {
+    if (!confirm(`Are you sure you want to delete invoice ${id}?`)) return;
+    try {
+      const res = await fetch("/api/billing/admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${sessionToken}` },
+        body: JSON.stringify({ action: "delete_invoice", id })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Invoice deleted (archived) successfully.");
+        if (reportData) {
+          setReportData({
+            ...reportData,
+            invoices: reportData.invoices.map((inv: any) => inv.id === id ? { ...inv, status: "archived" } : inv)
+          });
+        }
+      } else {
+        alert(data.error || "Failed to delete invoice.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred while deleting the invoice.");
+    }
+  };
+
+  const handleRestoreInvoice = async (id: string) => {
+    if (!confirm(`Are you sure you want to restore invoice ${id}?`)) return;
+    try {
+      const res = await fetch("/api/billing/admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${sessionToken}` },
+        body: JSON.stringify({ action: "restore_invoice", id })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Invoice restored successfully.");
+        if (reportData) {
+          setReportData({
+            ...reportData,
+            invoices: reportData.invoices.map((inv: any) => inv.id === id ? { ...inv, status: "active" } : inv)
+          });
+        }
+      } else {
+        alert(data.error || "Failed to restore invoice.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred while restoring the invoice.");
+    }
+  };
+
   // Auth Screen
   if (!sessionToken || !isAdmin) {
     return (

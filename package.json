@@ -6,7 +6,9 @@
     "dev": "cross-env NODE_OPTIONS=--max-old-space-size=4096 next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:math": "npx tsc scratch/tests/invoiceMath.test.ts && node scratch/tests/invoiceMath.test.js",
+    "precommit": "npm run test:math"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

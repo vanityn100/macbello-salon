@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { logError } from '@/lib/logger';
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { recalculateInvoiceTotals } from "@/lib/invoiceUtils";
 
 // GSTIN validation regex (Indian GST format)
 const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
@@ -77,7 +78,7 @@ export async function POST(req: Request) {
         .from("invoices")
         .select(`
           id, invoice_number, created_at,
-          subtotal, service_tax, retail_tax, total_tax, grand_total,
+          subtotal, service_tax, retail_tax, total_tax, grand_total, discount,
           branch, status, customer_id, points_redeemed,
           customer_name, customer_phone, customer_gstin,
           customers (name, phone, gstin),
@@ -128,6 +129,7 @@ export async function POST(req: Request) {
         const taxTotal = parseFloat(inv.total_tax) || 0;
         const subtotal = parseFloat(inv.subtotal) || 0;
         const pointsRedeemed = parseFloat(inv.points_redeemed) || 0;
+        const discount = parseFloat(inv.discount) || 0;
 
         // Snapshot first, fallback to joined customer
         const custName = inv.customer_name || inv.customers?.name || "Walk-in";
@@ -137,15 +139,20 @@ export async function POST(req: Request) {
           || null;
         const invBranch = inv.branch || "Global";
 
-        // Validation: invoice total integrity (loyalty points act as discount)
-        const computedTotal = parseFloat((subtotal + taxTotal - pointsRedeemed).toFixed(2));
-        if (Math.abs(computedTotal - grandTotal) > 0.10) {
-          validationErrors.push(
-            `${inv.invoice_number}: computed Rs.${computedTotal} vs stored Rs.${grandTotal}`
-          );
-        }
-
         const items = inv.invoice_items || [];
+
+        // Validation: invoice total integrity using shared module
+        try {
+          // If there are no items, recalculateInvoiceTotals will throw a validation error.
+          const calculated = recalculateInvoiceTotals(items, discount, pointsRedeemed);
+          if (Math.abs(calculated.grand_total - grandTotal) > 0.10) {
+            validationErrors.push(
+              `${inv.invoice_number}: computed Rs.${calculated.grand_total} vs stored Rs.${grandTotal}`
+            );
+          }
+        } catch (validationErr: any) {
+          validationErrors.push(`${inv.invoice_number}: ${validationErr.message}`);
+        }
         let itemGstSum = 0;
         let invGstRate = "5%";
 
