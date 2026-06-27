@@ -1352,10 +1352,10 @@ export default function BillingModule() {
                   </div>
                 )}
 
-                {loyaltyDiscount > 0 && (
+                {calcTotals.points_redeemed > 0 && (
                   <div className="flex justify-between text-red-400 border-t border-white/5 pt-3">
                     <span>Loyalty Points Redeemed:</span>
-                    <span className="currency-value font-semibold">-₹{loyaltyDiscount.toFixed(2)}</span>
+                    <span className="currency-value font-semibold">-₹{calcTotals.points_redeemed.toFixed(2)}</span>
                   </div>
                 )}
 

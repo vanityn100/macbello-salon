@@ -11,6 +11,7 @@ export interface TransactionReportTableProps {
   role?: string;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
+  onRestore?: (id: string) => void;
 }
 
 const ALL_COLUMNS = [

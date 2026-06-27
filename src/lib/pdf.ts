@@ -12,6 +12,11 @@ export interface CompletedInvoice {
     created_by: string;
     points_redeemed: number;
     payment_method?: string;
+    subtotal: string;
+    total_tax: string;
+    service_tax: string;
+    retail_tax: string;
+    branch?: string;
   };
   items: Array<{
     item_name: string;
