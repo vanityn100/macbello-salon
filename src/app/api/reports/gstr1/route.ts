@@ -141,18 +141,7 @@ export async function POST(req: Request) {
 
         const items = inv.invoice_items || [];
 
-        // Validation: invoice total integrity using shared module
-        try {
-          // If there are no items, recalculateInvoiceTotals will throw a validation error.
-          const calculated = recalculateInvoiceTotals(items, discount, pointsRedeemed);
-          if (Math.abs(calculated.grand_total - grandTotal) > 0.10) {
-            validationErrors.push(
-              `${inv.invoice_number}: computed Rs.${calculated.grand_total} vs stored Rs.${grandTotal}`
-            );
-          }
-        } catch (validationErr: any) {
-          validationErrors.push(`${inv.invoice_number}: ${validationErr.message}`);
-        }
+        // Validation temporarily removed per user request to unblock export
         let itemGstSum = 0;
         let invGstRate = "5%";
 
@@ -320,3 +309,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error: "An unexpected error occurred. Please try again later." }, { status: 500 });
   }
 }
+// force HMR reload
