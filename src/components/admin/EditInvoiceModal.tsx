@@ -51,9 +51,10 @@ export default function EditInvoiceModal({ invoiceId, sessionToken, onClose, onS
 
   const fetchInvoiceAndCatalog = async () => {
     setLoading(true);
+    console.log(`[EditInvoiceModal] Starting fetch for invoice ID: ${invoiceId}`);
     try {
       // 1. Fetch catalog
-      const catRes = await fetch("/api/inventory", {
+      const catRes = await fetch("/api/billing/admin?action=get_services", {
         headers: { "Authorization": `Bearer ${sessionToken}` }
       });
       const catData = await catRes.json();
@@ -61,18 +62,21 @@ export default function EditInvoiceModal({ invoiceId, sessionToken, onClose, onS
         setCatalog(catData.services);
       }
 
-      // 2. Fetch invoice details using the report API
-      const invRes = await fetch(`/api/reports/tax?action=get_sales_report&startDate=2000-01-01&endDate=2099-01-01`, {
+      // 2. Fetch full invoice details from the updated admin GET API
+      const invRes = await fetch(`/api/billing/admin?action=get_invoice&id=${invoiceId}`, {
         headers: { "Authorization": `Bearer ${sessionToken}` }
       });
       const invData = await invRes.json();
       
+      console.log(`[EditInvoiceModal] API Response for get_invoice:`, invData);
+      
       let foundInvoice = null;
-      if (invData.success && invData.invoices) {
-        foundInvoice = invData.invoices.find((i: any) => i.id === invoiceId);
+      if (invData.success && invData.invoice) {
+        foundInvoice = invData.invoice;
       }
 
       if (!foundInvoice) {
+        console.error(`[EditInvoiceModal] Could not find invoice. invData:`, invData);
         setError("Could not load invoice details.");
         setLoading(false);
         return;
@@ -83,8 +87,11 @@ export default function EditInvoiceModal({ invoiceId, sessionToken, onClose, onS
       setManualDiscount(foundInvoice.discount?.toString() || "");
       setPointsToRedeem(foundInvoice.points_redeemed?.toString() || "");
 
+      const dbItems = foundInvoice.invoice_items || [];
+      console.log(`[EditInvoiceModal] Number of invoice items returned: ${dbItems.length}`);
+
       // Map existing items to cart format
-      const initialCart: CartItem[] = (foundInvoice.invoice_items || []).map((dbItem: any) => {
+      const initialCart: CartItem[] = dbItems.map((dbItem: any) => {
         return {
           quantity: dbItem.quantity,
           staffContribution: dbItem.staff_contribution || "",
@@ -102,7 +109,7 @@ export default function EditInvoiceModal({ invoiceId, sessionToken, onClose, onS
       });
       setCart(initialCart);
     } catch (err) {
-      console.error(err);
+      console.error("[EditInvoiceModal] Exception thrown during fetch:", err);
       setError("Failed to load data. Please try again.");
     } finally {
       setLoading(false);

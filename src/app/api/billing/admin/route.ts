@@ -514,6 +514,33 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, customers });
     }
 
+    if (action === "get_invoice") {
+      const invoiceId = searchParams.get("id");
+      if (!invoiceId) return NextResponse.json({ success: false, error: "Missing invoice ID" }, { status: 400 });
+
+      const { data, error } = await adminSupabase
+        .from("invoices")
+        .select(`
+          *,
+          customers (name, phone),
+          invoice_items (*)
+        `)
+        .eq("id", invoiceId)
+        .single();
+      
+      if (error || !data) {
+        console.error("Fetch invoice error:", error);
+        return NextResponse.json({ success: false, error: "Invoice not found." }, { status: 404 });
+      }
+
+      // RLS Check: Staff can only edit invoices from their branch
+      if (user.role === "staff" && user.branch && data.branch !== user.branch) {
+        return NextResponse.json({ success: false, error: "Forbidden: Invoice belongs to a different branch." }, { status: 403 });
+      }
+
+      return NextResponse.json({ success: true, invoice: data });
+    }
+
     return NextResponse.json({ success: false, error: "Invalid action." }, { status: 400 });
   } catch (err) {
     logError("Billing GET API", err, { req: request });
