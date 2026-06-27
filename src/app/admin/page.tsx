@@ -13,6 +13,7 @@ import { saveAs } from "file-saver";
 import { formatINR, formatNumber, formatDate } from "@/lib/format";
 import TransactionReportTable from "@/components/admin/TransactionReportTable";
 import CustomerManagement from "@/components/admin/CustomerManagement";
+import EditInvoiceModal from "@/components/admin/EditInvoiceModal";
 
 interface AuditLog {
   id: string;
@@ -95,6 +96,7 @@ export default function AdminPortal() {
   const [reportLoading, setReportLoading] = useState(false);
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [editInvoiceId, setEditInvoiceId] = useState<string | null>(null);
 
   // Staff Accounts state
   const [staffList, setStaffList] = useState<any[]>([]);
@@ -636,7 +638,7 @@ export default function AdminPortal() {
   };
 
   const handleEditInvoice = (id: string) => {
-    alert("Invoice edit functionality is restricted to API access only for now.");
+    setEditInvoiceId(id);
   };
 
   const handleDeleteInvoice = async (id: string) => {
@@ -1245,6 +1247,19 @@ export default function AdminPortal() {
           </Link>
         </div>
       </div>
+      {editInvoiceId && (
+        <EditInvoiceModal
+          invoiceId={editInvoiceId}
+          sessionToken={sessionToken!}
+          onClose={() => setEditInvoiceId(null)}
+          onSuccess={(updatedInvoice) => {
+            alert("Invoice updated successfully!");
+            setEditInvoiceId(null);
+            // Refresh data
+            handleGenerateReport({ preventDefault: () => {} } as React.FormEvent);
+          }}
+        />
+      )}
     </main>
   );
 }

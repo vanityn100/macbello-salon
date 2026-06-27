@@ -1306,8 +1306,118 @@ export async function POST(request: NextRequest) {
       if (user.role !== "admin") {
         return NextResponse.json({ success: false, error: "Forbidden: Admin access required to edit invoices." }, { status: 403 });
       }
-      // Stub for future full-edit implementation
-      return NextResponse.json({ success: true, message: "Invoice updated successfully." });
+
+      try {
+        const { invoiceId, items, discountAmount, pointsToRedeem, paymentMethod, editReason } = body;
+
+        if (!invoiceId || !Array.isArray(items) || items.length === 0 || !editReason) {
+          return NextResponse.json({ success: false, error: "Missing required edit parameters." }, { status: 400 });
+        }
+
+        const redeemAmt = parseInt(pointsToRedeem, 10) || 0;
+        const manualDiscount = parseFloat(discountAmount) || 0;
+        const loyaltyDiscount = redeemAmt;
+
+        // Verify invoice and customer
+        const { data: currentInvoice, error: invErr } = await adminSupabase
+          .from("invoices")
+          .select("id, status, customer_id, branch, invoice_number")
+          .eq("id", invoiceId)
+          .single();
+
+        if (invErr || !currentInvoice) {
+          return NextResponse.json({ success: false, error: "Invoice not found." }, { status: 404 });
+        }
+        
+        if (currentInvoice.status !== "active") {
+          return NextResponse.json({ success: false, error: "Cannot edit archived or deleted invoices." }, { status: 400 });
+        }
+
+        const { data: customer, error: custErr } = await adminSupabase
+          .from("customers")
+          .select("id, name, points")
+          .eq("id", currentInvoice.customer_id)
+          .single();
+
+        if (custErr || !customer) {
+          return NextResponse.json({ success: false, error: "Associated customer not found." }, { status: 404 });
+        }
+
+        const invoiceItemsToInsert = items.map((item: any) => {
+          const qty = parseInt(item.quantity, 10) || 1;
+          const price = parseFloat(item.unit_price) || 0;
+          return {
+            item_name: item.item_name,
+            category: item.category || "Service",
+            quantity: qty,
+            unit_price: price,
+            tax_rate: parseFloat(item.tax_rate) || 0,
+            line_total: qty * price,
+            item_code: item.item_code || null,
+            hsn: item.hsn || null,
+            staff_contribution: item.staff_contribution || null,
+            product_id: item.product_id || null // Needed for retail inventory deductions
+          };
+        });
+
+        const calculated = recalculateInvoiceTotals(invoiceItemsToInsert, manualDiscount, loyaltyDiscount);
+        const pointsEarned = Math.floor(calculated.grand_total / 10);
+
+        const retailDeductions = invoiceItemsToInsert
+          .filter((item: any) => item.category === "Retail" && item.product_id)
+          .map((item: any) => ({
+            product_id: item.product_id,
+            quantity: item.quantity,
+            item_name: item.item_name
+          }));
+
+        const p_invoice = {
+          subtotal: calculated.subtotal,
+          service_tax: calculated.service_tax,
+          retail_tax: calculated.retail_tax,
+          total_tax: calculated.total_tax,
+          discount: calculated.discount,
+          grand_total: calculated.grand_total,
+          points_earned: pointsEarned,
+          points_redeemed: calculated.points_redeemed,
+          payment_method: paymentMethod || "Cash",
+          created_by: user.email
+        };
+
+        const { data: rpcData, error: rpcError } = await adminSupabase.rpc("update_invoice_with_inventory", {
+          p_invoice_id: invoiceId,
+          p_invoice,
+          p_items: invoiceItemsToInsert,
+          p_retail_deductions: retailDeductions,
+          p_edit_reason: editReason
+        });
+
+        if (rpcError) {
+          return NextResponse.json({ success: false, error: rpcError.message }, { status: 400 });
+        }
+
+        if (!rpcData || !rpcData.success) {
+          return NextResponse.json({ success: false, error: rpcData?.error || "Transaction failed." }, { status: 400 });
+        }
+
+        // Insert audit log storing before and after JSON
+        await adminSupabase.from("audit_logs").insert([{
+          user_id: user.email,
+          role: user.role,
+          action: "edit_invoice",
+          details: JSON.stringify({
+            invoice_number: currentInvoice.invoice_number,
+            reason: editReason,
+            before: currentInvoice,
+            after: p_invoice
+          })
+        }]);
+
+        return NextResponse.json({ success: true, message: "Invoice edited successfully." });
+      } catch (err) {
+        logError("Billing Edit API", err, { req: request as any });
+        return NextResponse.json({ success: false, error: "An unexpected error occurred during edit." }, { status: 500 });
+      }
     }
 
     if (action === "delete_invoice") {
