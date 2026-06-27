@@ -1335,7 +1335,7 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        const { invoiceId, items, discountAmount, pointsToRedeem, paymentMethod, editReason } = body;
+        const { invoiceId, items, discountAmount, pointsToRedeem, paymentMethod, editReason, customerName, customerPhone } = body;
 
         if (!invoiceId || !Array.isArray(items) || items.length === 0 || !editReason) {
           return NextResponse.json({ success: false, error: "Missing required edit parameters." }, { status: 400 });
@@ -1362,12 +1362,33 @@ export async function POST(request: NextRequest) {
 
         const { data: customer, error: custErr } = await adminSupabase
           .from("customers")
-          .select("id, name, points")
+          .select("id, name, phone, points")
           .eq("id", currentInvoice.customer_id)
           .single();
 
         if (custErr || !customer) {
           return NextResponse.json({ success: false, error: "Associated customer not found." }, { status: 404 });
+        }
+
+        // Optional: Update Customer Details if changed
+        if (customerName || customerPhone) {
+          const updates: any = {};
+          if (customerName && customerName !== customer.name) updates.name = customerName;
+          if (customerPhone && customerPhone !== customer.phone) updates.phone = customerPhone;
+
+          if (Object.keys(updates).length > 0) {
+            const { error: custUpdateErr } = await adminSupabase
+              .from("customers")
+              .update(updates)
+              .eq("id", currentInvoice.customer_id);
+            if (custUpdateErr) {
+              if (custUpdateErr.code === '23505') {
+                return NextResponse.json({ success: false, error: "Phone number already exists for another customer." }, { status: 400 });
+              }
+              console.error("Failed to update customer details:", custUpdateErr);
+              return NextResponse.json({ success: false, error: "Failed to update customer details." }, { status: 500 });
+            }
+          }
         }
 
         const invoiceItemsToInsert = items.map((item: any) => {

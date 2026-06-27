@@ -40,6 +40,8 @@ export default function EditInvoiceModal({ invoiceId, sessionToken, onClose, onS
   const [manualDiscount, setManualDiscount] = useState("");
   const [pointsToRedeem, setPointsToRedeem] = useState("");
   const [editReason, setEditReason] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
   
   // Catalog state
   const [catalog, setCatalog] = useState<ServiceItem[]>([]);
@@ -86,6 +88,8 @@ export default function EditInvoiceModal({ invoiceId, sessionToken, onClose, onS
       setPaymentMethod(foundInvoice.payment_method || "Cash");
       setManualDiscount(foundInvoice.discount?.toString() || "");
       setPointsToRedeem(foundInvoice.points_redeemed?.toString() || "");
+      setCustomerName(foundInvoice.customers?.name || "");
+      setCustomerPhone(foundInvoice.customers?.phone || "");
 
       const dbItems = foundInvoice.invoice_items || [];
       console.log(`[EditInvoiceModal] Number of invoice items returned: ${dbItems.length}`);
@@ -183,6 +187,8 @@ export default function EditInvoiceModal({ invoiceId, sessionToken, onClose, onS
         paymentMethod,
         discountAmount: manualDiscount,
         pointsToRedeem,
+        customerName,
+        customerPhone,
         items: cart.map(c => ({
           item_name: c.item.name,
           category: c.item.category,
@@ -225,10 +231,25 @@ export default function EditInvoiceModal({ invoiceId, sessionToken, onClose, onS
         
         {/* Header */}
         <div className="flex justify-between items-center p-4 border-b border-white/10 bg-neutral-900 flex-shrink-0">
-          <div>
+          <div className="flex flex-col space-y-2 w-1/2">
             <h2 className="text-lg font-playfair text-gold-primary">Edit Invoice {invoice?.invoice_number}</h2>
-            {invoice?.customers?.name && (
-              <p className="text-xs text-ivory/60 mt-1">Customer: {invoice.customers.name} ({invoice.customers.phone})</p>
+            {invoice?.customers && (
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="Customer Name"
+                  className="bg-black border border-white/10 text-white text-xs px-2 py-1 rounded w-full"
+                />
+                <input
+                  type="text"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  placeholder="Phone"
+                  className="bg-black border border-white/10 text-white text-xs px-2 py-1 rounded w-full"
+                />
+              </div>
             )}
           </div>
           <button onClick={onClose} className="text-ivory/50 hover:text-white transition-colors">
