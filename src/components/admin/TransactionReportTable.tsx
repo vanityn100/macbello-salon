@@ -770,6 +770,9 @@ export default function TransactionReportTable({ invoices, onExportPDF, onExport
                   {parseFloat(viewInvoice.discount) > 0 && (
                     <div className="flex justify-between text-red-600"><span>Discount:</span> <span>-{formatINR(parseFloat(viewInvoice.discount))}</span></div>
                   )}
+                  {parseFloat(viewInvoice.points_redeemed) > 0 && (
+                    <div className="flex justify-between text-red-600"><span>Loyalty Redeemed:</span> <span>-{formatINR(parseFloat(viewInvoice.points_redeemed))}</span></div>
+                  )}
                   <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-800 mt-2">
                     <span>Grand Total:</span> <span>{formatINR(parseFloat(viewInvoice.grand_total))}</span>
                   </div>
