@@ -181,7 +181,7 @@ export async function POST(req: Request) {
             totalCgst += itemCgst;
             totalSgst += itemSgst;
 
-            const rawRate = rate * 100;
+            const rawRate = rate > 1 ? rate : rate * 100;
             const rateLabel = rawRate.toFixed(0) + "%";
             invGstRate = rateLabel;
 
