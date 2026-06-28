@@ -159,14 +159,20 @@ export async function POST(req: Request) {
           validationErrors.push(`${inv.invoice_number}: ${validationErr.message}`);
         }
         let itemGstSum = 0;
-        let invGstRate = "5%";
-        const uniqueRates = new Set<string>();
+        const rateBuckets: Record<string, any> = {};
 
         if (items.length === 0 || !calculated || !calculated.items_breakdown) {
           // No items - use invoice-level figures
           totalCgst += taxTotal / 2;
           totalSgst += taxTotal / 2;
           itemGstSum = taxTotal;
+          rateBuckets["5%"] = {
+            taxableValue: subtotal,
+            cgst: taxTotal / 2,
+            sgst: taxTotal / 2,
+            gstAmount: taxTotal,
+            totalValue: subtotal + taxTotal
+          };
         } else {
           items.forEach((item: any, i: number) => {
             const rate = parseFloat(item.tax_rate) || 0;
@@ -184,7 +190,6 @@ export async function POST(req: Request) {
 
             const rawRate = rate > 1 ? rate : rate * 100;
             const rateLabel = rawRate.toFixed(0) + "%";
-            uniqueRates.add(rateLabel);
 
             // HSN aggregation
             const hsnCode = item.hsn || "Unassigned";
@@ -230,18 +235,68 @@ export async function POST(req: Request) {
             gstRateMap[bucketKey].sgst += itemSgst;
             gstRateMap[bucketKey].gstCollected += itemTax;
             gstRateMap[bucketKey].invoiceIds.add(inv.id);
+
+            // Export rate buckets
+            if (!rateBuckets[rateLabel]) {
+              rateBuckets[rateLabel] = {
+                taxableValue: 0,
+                cgst: 0,
+                sgst: 0,
+                gstAmount: 0,
+                totalValue: 0
+              };
+            }
+            rateBuckets[rateLabel].taxableValue += itemTaxable;
+            rateBuckets[rateLabel].cgst += itemCgst;
+            rateBuckets[rateLabel].sgst += itemSgst;
+            rateBuckets[rateLabel].gstAmount += itemTax;
+            rateBuckets[rateLabel].totalValue += (itemTaxable + itemTax);
           });
           
-          if (uniqueRates.size > 0) {
-            const ratesArray = Array.from(uniqueRates);
-            const nonZeroRates = ratesArray.filter(r => r !== "0%");
-            if (nonZeroRates.length === 1) {
-              invGstRate = nonZeroRates[0];
-            } else if (nonZeroRates.length > 1) {
-              invGstRate = "Multiple";
-            } else {
-              invGstRate = "0%";
-            }
+          const rateKeys = Object.keys(rateBuckets);
+          const invoiceTotalValueForGstRaw = subtotal + taxTotal;
+          if (rateKeys.length === 1) {
+            const k = rateKeys[0];
+            rateBuckets[k].taxableValue = subtotal;
+            rateBuckets[k].gstAmount = taxTotal;
+            rateBuckets[k].cgst = taxTotal / 2;
+            rateBuckets[k].sgst = taxTotal / 2;
+            rateBuckets[k].totalValue = invoiceTotalValueForGstRaw;
+          } else if (rateKeys.length > 1) {
+            let sumTaxable = 0, sumGst = 0, sumCgst = 0, sumSgst = 0, sumTotal = 0;
+            let largestKey = rateKeys[0];
+            let maxTotal = -1;
+            
+            rateKeys.forEach(k => {
+              rateBuckets[k].taxableValue = parseFloat(rateBuckets[k].taxableValue.toFixed(2));
+              rateBuckets[k].gstAmount = parseFloat(rateBuckets[k].gstAmount.toFixed(2));
+              rateBuckets[k].cgst = parseFloat(rateBuckets[k].cgst.toFixed(2));
+              rateBuckets[k].sgst = parseFloat(rateBuckets[k].sgst.toFixed(2));
+              rateBuckets[k].totalValue = parseFloat(rateBuckets[k].totalValue.toFixed(2));
+              
+              sumTaxable += rateBuckets[k].taxableValue;
+              sumGst += rateBuckets[k].gstAmount;
+              sumCgst += rateBuckets[k].cgst;
+              sumSgst += rateBuckets[k].sgst;
+              sumTotal += rateBuckets[k].totalValue;
+              
+              if (rateBuckets[k].totalValue > maxTotal) {
+                maxTotal = rateBuckets[k].totalValue;
+                largestKey = k;
+              }
+            });
+            
+            const diffTaxable = subtotal - sumTaxable;
+            const diffGst = taxTotal - sumGst;
+            const diffCgst = (taxTotal / 2) - sumCgst;
+            const diffSgst = (taxTotal / 2) - sumSgst;
+            const diffTotal = invoiceTotalValueForGstRaw - sumTotal;
+            
+            rateBuckets[largestKey].taxableValue = parseFloat((rateBuckets[largestKey].taxableValue + diffTaxable).toFixed(2));
+            rateBuckets[largestKey].gstAmount = parseFloat((rateBuckets[largestKey].gstAmount + diffGst).toFixed(2));
+            rateBuckets[largestKey].cgst = parseFloat((rateBuckets[largestKey].cgst + diffCgst).toFixed(2));
+            rateBuckets[largestKey].sgst = parseFloat((rateBuckets[largestKey].sgst + diffSgst).toFixed(2));
+            rateBuckets[largestKey].totalValue = parseFloat((rateBuckets[largestKey].totalValue + diffTotal).toFixed(2));
           }
         }
 
@@ -257,29 +312,32 @@ export async function POST(req: Request) {
         totalTaxable += subtotal;
         totalGst += taxTotal;
 
-        const invRecord = {
-          invoiceNumber: inv.invoice_number,
-          invoiceDate: inv.created_at,
-          customerName: custName,
-          customerPhone: custPhone,
-          customerGstin: custGstin || "",
-          branch: invBranch,
-          taxableValue: subtotal,
-          cgst: parseFloat((taxTotal / 2).toFixed(2)),
-          sgst: parseFloat((taxTotal / 2).toFixed(2)),
-          igst: 0,
-          gstAmount: taxTotal,
-          totalValue: invoiceTotalValueForGst,
-          status: inv.status,
-          gstRate: invGstRate,
-        };
+        Object.keys(rateBuckets).forEach(rateLabel => {
+          const bucket = rateBuckets[rateLabel];
+          const invRecord = {
+            invoiceNumber: inv.invoice_number,
+            invoiceDate: inv.created_at,
+            customerName: custName,
+            customerPhone: custPhone,
+            customerGstin: custGstin || "",
+            branch: invBranch,
+            taxableValue: parseFloat(bucket.taxableValue.toFixed(2)),
+            cgst: parseFloat(bucket.cgst.toFixed(2)),
+            sgst: parseFloat(bucket.sgst.toFixed(2)),
+            igst: 0,
+            gstAmount: parseFloat(bucket.gstAmount.toFixed(2)),
+            totalValue: parseFloat(bucket.totalValue.toFixed(2)),
+            status: inv.status,
+            gstRate: rateLabel,
+          };
 
-        if (custGstin && custGstin.trim() !== "") {
-          b2bInvoices.push(invRecord);
-        } else {
-          b2cInvoices.push(invRecord);
-        }
-        invoiceRegister.push(invRecord);
+          if (custGstin && custGstin.trim() !== "") {
+            b2bInvoices.push(invRecord);
+          } else {
+            b2cInvoices.push(invRecord);
+          }
+          invoiceRegister.push(invRecord);
+        });
       }
 
       // Finalize GST rate map
