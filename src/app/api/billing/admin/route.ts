@@ -1055,7 +1055,7 @@ export async function POST(request: NextRequest) {
       // Use the shared math function. It validates internally and throws if inputs are malformed.
       const calculated = recalculateInvoiceTotals(invoiceItemsToInsert, manualDiscount, loyaltyDiscount);
 
-      const pointsEarned = Math.floor(calculated.grand_total / 10);
+      const pointsEarned = calculated.points_earned;
 
       // Save to database in a safe transaction sequence using RPC
       const finalPoints = customer.points - redeemAmt + pointsEarned;
@@ -1409,7 +1409,7 @@ export async function POST(request: NextRequest) {
         });
 
         const calculated = recalculateInvoiceTotals(invoiceItemsToInsert, manualDiscount, loyaltyDiscount);
-        const pointsEarned = Math.floor(calculated.grand_total / 10);
+        const pointsEarned = calculated.points_earned;
 
         const retailDeductions = invoiceItemsToInsert
           .filter((item: any) => item.category === "Retail" && item.product_id)

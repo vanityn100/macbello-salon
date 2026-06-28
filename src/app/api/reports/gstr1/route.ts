@@ -141,14 +141,19 @@ export async function POST(req: Request) {
 
         const items = inv.invoice_items || [];
 
+        let calculated: any = null;
         // Validation: invoice total integrity using shared module
         try {
           // If there are no items, recalculateInvoiceTotals will throw a validation error.
-          const calculated = recalculateInvoiceTotals(items, discount, pointsRedeemed);
+          calculated = recalculateInvoiceTotals(items, discount, pointsRedeemed);
           if (Math.abs(calculated.grand_total - grandTotal) > 0.10) {
-            validationErrors.push(
-              `${inv.invoice_number}: computed Rs.${calculated.grand_total} vs stored Rs.${grandTotal}`
-            );
+            validationErrors.push(`${inv.invoice_number}: computed grand Rs.${calculated.grand_total} vs stored Rs.${grandTotal}`);
+          }
+          if (Math.abs(calculated.subtotal - subtotal) > 0.10) {
+            validationErrors.push(`${inv.invoice_number}: computed sub Rs.${calculated.subtotal} vs stored Rs.${subtotal}`);
+          }
+          if (Math.abs(calculated.total_tax - taxTotal) > 0.10) {
+            validationErrors.push(`${inv.invoice_number}: computed tax Rs.${calculated.total_tax} vs stored Rs.${taxTotal}`);
           }
         } catch (validationErr: any) {
           validationErrors.push(`${inv.invoice_number}: ${validationErr.message}`);
@@ -156,19 +161,19 @@ export async function POST(req: Request) {
         let itemGstSum = 0;
         let invGstRate = "5%";
 
-        if (items.length === 0) {
-          // No items — use invoice-level figures
+        if (items.length === 0 || !calculated || !calculated.items_breakdown) {
+          // No items - use invoice-level figures
           totalCgst += taxTotal / 2;
           totalSgst += taxTotal / 2;
           itemGstSum = taxTotal;
         } else {
-          for (const item of items) {
+          items.forEach((item: any, i: number) => {
             const rate = parseFloat(item.tax_rate) || 0;
-            const lineTotal = parseFloat(item.line_total) || 0;
             const qty = item.quantity || 1;
 
-            const itemTaxable = lineTotal;
-            const itemTax = lineTotal * rate;
+            const breakdown = calculated.items_breakdown[i];
+            const itemTaxable = breakdown.baseAmount;
+            const itemTax = breakdown.taxAmount;
             const itemCgst = itemTax / 2;
             const itemSgst = itemTax / 2;
 
@@ -224,7 +229,7 @@ export async function POST(req: Request) {
             gstRateMap[bucketKey].sgst += itemSgst;
             gstRateMap[bucketKey].gstCollected += itemTax;
             gstRateMap[bucketKey].invoiceIds.add(inv.id);
-          }
+          });
         }
 
         // Cross-validate GST

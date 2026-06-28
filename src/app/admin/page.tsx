@@ -595,9 +595,11 @@ export default function AdminPortal() {
             "Quantity": item.quantity,
             "Unit Price": item.unit_price,
             "Line Total": item.line_total,
-            "Invoice Subtotal": sub,
-            "Invoice GST": tax,
-            "Invoice Total": grand,
+            "Discount": parseFloat(inv.discount as any) || 0,
+            "Loyalty Redemption": parseFloat(inv.points_redeemed as any) || 0,
+            "Taxable Amount": sub,
+            "GST Amount": tax,
+            "Grand Total": grand,
             "Status": inv.status
           });
         });

@@ -222,9 +222,8 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
     doc.text(item.category, 110, textY);
     doc.text(`${(item.tax_rate * 100).toFixed(0)}%`, 125, textY);
     doc.text(String(item.quantity), 140, textY);
-    const gstRate = item.tax_rate || 0;
-    const inclUnitPrice = parseFloat(item.unit_price) * (1 + gstRate);
-    const inclLineTotal = parseFloat(item.line_total) * (1 + gstRate);
+    const inclUnitPrice = parseFloat(item.unit_price);
+    const inclLineTotal = parseFloat(item.line_total);
     doc.text(`INR ${inclUnitPrice.toFixed(2)}`, 148, textY);
     doc.text(`INR ${inclLineTotal.toFixed(2)}`, 168, textY);
 
@@ -262,31 +261,23 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
   doc.setTextColor(100, 100, 100);
 
   let offset = 0;
-  doc.text("Subtotal (GST Included):", 115, y + 5 + offset);
-  doc.text(`INR ${(subtotal + totalTax).toFixed(2)}`, 165, y + 5 + offset);
+  doc.text("Taxable Amount:", 115, y + 5 + offset);
+  doc.text(`INR ${subtotal.toFixed(2)}`, 165, y + 5 + offset);
   offset += 5;
 
   if (serviceTax > 0) {
-    doc.text("Service CGST (2.5%):", 115, y + 5 + offset);
-    doc.text(`INR ${(serviceTax / 2).toFixed(2)}`, 165, y + 5 + offset);
-    offset += 5;
-
-    doc.text("Service SGST (2.5%):", 115, y + 5 + offset);
-    doc.text(`INR ${(serviceTax / 2).toFixed(2)}`, 165, y + 5 + offset);
+    doc.text("Service GST (5%):", 115, y + 5 + offset);
+    doc.text(`INR ${serviceTax.toFixed(2)}`, 165, y + 5 + offset);
     offset += 5;
   }
 
   if (retailTax > 0) {
-    doc.text("Retail CGST (9%):", 115, y + 5 + offset);
-    doc.text(`INR ${(retailTax / 2).toFixed(2)}`, 165, y + 5 + offset);
-    offset += 5;
-
-    doc.text("Retail SGST (9%):", 115, y + 5 + offset);
-    doc.text(`INR ${(retailTax / 2).toFixed(2)}`, 165, y + 5 + offset);
+    doc.text("Retail GST (18%):", 115, y + 5 + offset);
+    doc.text(`INR ${retailTax.toFixed(2)}`, 165, y + 5 + offset);
     offset += 5;
   }
 
-  doc.text("Total Tax (CGST + SGST):", 115, y + 5 + offset);
+  doc.text("Total GST Amount:", 115, y + 5 + offset);
   doc.text(`INR ${totalTax.toFixed(2)}`, 165, y + 5 + offset);
   offset += 5;
 
