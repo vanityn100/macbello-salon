@@ -160,6 +160,7 @@ export async function POST(req: Request) {
         }
         let itemGstSum = 0;
         let invGstRate = "5%";
+        const uniqueRates = new Set<string>();
 
         if (items.length === 0 || !calculated || !calculated.items_breakdown) {
           // No items - use invoice-level figures
@@ -183,7 +184,7 @@ export async function POST(req: Request) {
 
             const rawRate = rate > 1 ? rate : rate * 100;
             const rateLabel = rawRate.toFixed(0) + "%";
-            invGstRate = rateLabel;
+            uniqueRates.add(rateLabel);
 
             // HSN aggregation
             const hsnCode = item.hsn || "Unassigned";
@@ -230,6 +231,18 @@ export async function POST(req: Request) {
             gstRateMap[bucketKey].gstCollected += itemTax;
             gstRateMap[bucketKey].invoiceIds.add(inv.id);
           });
+          
+          if (uniqueRates.size > 0) {
+            const ratesArray = Array.from(uniqueRates);
+            const nonZeroRates = ratesArray.filter(r => r !== "0%");
+            if (nonZeroRates.length === 1) {
+              invGstRate = nonZeroRates[0];
+            } else if (nonZeroRates.length > 1) {
+              invGstRate = "Multiple";
+            } else {
+              invGstRate = "0%";
+            }
+          }
         }
 
         // Cross-validate GST
