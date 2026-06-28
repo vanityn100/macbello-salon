@@ -48,29 +48,44 @@ export function recalculateInvoiceTotals(
     }
     return num;
   };
+  
+  const parseTaxRate = (rate: any) => {
+    let taxRate = 0;
+    if (typeof rate === 'string' && rate.trim() !== '') {
+      taxRate = validateNumeric(parseFloat(rate), "tax_rate");
+    } else if (typeof rate === 'number') {
+      taxRate = validateNumeric(rate, "tax_rate");
+    }
+    if (taxRate > 1) {
+      taxRate = taxRate / 100;
+    }
+    return taxRate;
+  };
 
   const cleanManualDiscount = validateNumeric(manualDiscount, "manualDiscount");
   const cleanPointsRedeemed = validateNumeric(pointsRedeemed, "pointsRedeemed");
   const totalDiscount = cleanManualDiscount + cleanPointsRedeemed;
 
-  let totalLineTotal = 0;
+  let totalBase = 0;
 
-  // First pass: Calculate total selling price (Gross)
+  // First pass: Calculate Total Taxable Base
   for (const item of items) {
     const qty = validateNumeric(item.quantity, "quantity");
-    const price = validateNumeric(item.unit_price, "unit_price");
+    const price = validateNumeric(item.unit_price, "unit_price"); // GST-Inclusive
     if (qty === 0) {
        throw new Error("Validation Error: Item quantity must be greater than zero.");
     }
-    totalLineTotal += (qty * price);
+    const taxRate = parseTaxRate(item.tax_rate);
+    const originalBase = (qty * price) / (1 + taxRate);
+    totalBase += originalBase;
   }
 
-  // Calculate proportional discount factor
+  // Calculate proportional discount factor against the BASE
   let proportion = 1;
-  if (totalLineTotal > 0 && totalDiscount > 0) {
-    proportion = 1 - (totalDiscount / totalLineTotal);
+  if (totalBase > 0 && totalDiscount > 0) {
+    proportion = 1 - (totalDiscount / totalBase);
     if (proportion < 0) {
-      throw new Error(`Validation Error: Total discount (${totalDiscount}) exceeds total payable (${totalLineTotal}).`);
+      throw new Error(`Validation Error: Total discount (${totalDiscount}) exceeds total taxable base (${totalBase}).`);
     }
   }
 
@@ -79,36 +94,26 @@ export function recalculateInvoiceTotals(
   let retailTax = 0;
   const items_breakdown = [];
 
-  // Second pass: Calculate Base Amount and GST proportionally
+  // Second pass: Calculate Base Amount and GST per item
   for (const item of items) {
     const qty = validateNumeric(item.quantity, "quantity");
     const price = validateNumeric(item.unit_price, "unit_price");
-    
-    // Parse tax_rate carefully (handles "5" or "0.05")
-    let taxRate = 0;
-    if (typeof item.tax_rate === 'string' && item.tax_rate.trim() !== '') {
-      taxRate = validateNumeric(parseFloat(item.tax_rate), "tax_rate");
-    } else if (typeof item.tax_rate === 'number') {
-      taxRate = validateNumeric(item.tax_rate, "tax_rate");
-    }
-    if (taxRate > 1) {
-      taxRate = taxRate / 100;
-    }
+    const taxRate = parseTaxRate(item.tax_rate);
 
-    const lineTotal = qty * price;
-    const discountedLineTotal = lineTotal * proportion;
+    const originalBase = (qty * price) / (1 + taxRate);
+    const discountedBase = originalBase * proportion;
+    const taxAmount = discountedBase * taxRate;
     
-    // Base amount is the discounted line total (since unit_price is GST-exclusive)
-    const baseAmount = discountedLineTotal;
-    const taxAmount = baseAmount * taxRate;
+    // The line total shown in breakdowns should reflect the inclusive amount after discount
+    const discountedLineTotal = discountedBase + taxAmount;
 
     items_breakdown.push({
-      baseAmount: parseFloat(baseAmount.toFixed(2)),
+      baseAmount: parseFloat(discountedBase.toFixed(2)),
       taxAmount: parseFloat(taxAmount.toFixed(2)),
       discountedLineTotal: parseFloat(discountedLineTotal.toFixed(2))
     });
 
-    subtotal += baseAmount;
+    subtotal += discountedBase;
     
     const category = (item.category || 'Service').toLowerCase();
     if (category === 'service') {
@@ -119,7 +124,6 @@ export function recalculateInvoiceTotals(
   }
 
   const totalTax = serviceTax + retailTax;
-  // Grand total is strictly the sum of Base + Tax across all discounted items
   const grandTotal = subtotal + totalTax;
 
   const pointsEarned = Math.floor(grandTotal / 10);
