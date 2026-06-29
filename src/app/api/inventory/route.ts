@@ -444,63 +444,101 @@ export async function POST(req: Request) {
 
       const { data: products, error: pErr } = await productQuery;
       if (pErr) throw pErr;
-
-      // Fetch latest INVENTORY_RESET timestamp
-      const { data: resetLog } = await adminSupabase
-        .from("audit_logs")
-        .select("created_at")
-        .eq("action", "INVENTORY_RESET")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      const resetTimestamp = resetLog ? new Date(resetLog.created_at) : null;
       
-      let invoiceQuery = adminSupabase
+      // === START NEW AGGREGATION ALGORITHM ===
+      
+      // Helper for robust string matching
+      const normalize = (name: string) => {
+        if (!name) return "";
+        return name
+          .trim()
+          .replace(/\s+/g, " ")
+          .replace(/[’']/g, "'")
+          .toUpperCase();
+      };
+
+      let baseQuery = adminSupabase
         .from("invoice_items")
         .select(`
           item_name, quantity, line_total, tax_rate,
           invoices!inner(branch, created_at, status)
         `)
-        .eq("category", "Retail")
         .neq("invoices.status", "archived")
-        .lte("invoices.created_at", endISO.toISOString());
+        .lte("invoices.created_at", endISO.toISOString())
+        .gte("invoices.created_at", startISO.toISOString());
 
-      if (resetTimestamp && resetTimestamp > startISO) {
-          invoiceQuery = invoiceQuery.gte("invoices.created_at", resetTimestamp.toISOString());
-      } else {
-          invoiceQuery = invoiceQuery.gte("invoices.created_at", startISO.toISOString());
+      // Fetch all invoice items with pagination to guarantee we read ALL invoices
+      let allSoldItems: any[] = [];
+      let page = 0;
+      const pageSize = 1000;
+      let hasMore = true;
+      let totalInvoicesFound = new Set();
+
+      while (hasMore) {
+        const { data: pageData, error: iErr } = await baseQuery.range(page * pageSize, (page + 1) * pageSize - 1);
+        if (iErr) throw iErr;
+        
+        if (pageData && pageData.length > 0) {
+          allSoldItems = allSoldItems.concat(pageData);
+          pageData.forEach((item: any) => totalInvoicesFound.add(item.invoices?.created_at + item.invoices?.branch));
+          if (pageData.length < pageSize) {
+            hasMore = false;
+          } else {
+            page++;
+          }
+        } else {
+          hasMore = false;
+        }
       }
 
-      // Removed branch filtering for invoices so that 'Sold' always shows global company sales
-
-      const { data: soldItems, error: iErr } = await invoiceQuery;
-      if (iErr) throw iErr;
-
+      // Exact pseudo code implementation using normalized keys
       const salesMap: Record<string, { qty: number, taxable: number, gst: number, revenue: number }> = {};
       
-      for (const sale of soldItems || []) {
-        const name = sale.item_name;
-        if (!salesMap[name]) {
-          salesMap[name] = { qty: 0, taxable: 0, gst: 0, revenue: 0 };
+      for (const item of allSoldItems) {
+        const key = normalize(item.item_name);
+        if (!salesMap[key]) {
+          salesMap[key] = { qty: 0, taxable: 0, gst: 0, revenue: 0 };
         }
         
-        const lineTotal = parseFloat(sale.line_total) || 0;
-        const rate = parseFloat(sale.tax_rate) || 0;
-        
-        // The line_total stored in the database is already GST-inclusive
+        const lineTotal = parseFloat(item.line_total) || 0;
+        const rate = parseFloat(item.tax_rate) || 0;
         const totalInc = lineTotal;
         const taxable = totalInc / (1 + rate);
         const gst = totalInc - taxable;
 
-        salesMap[name].qty += sale.quantity;
-        salesMap[name].taxable += taxable;
-        salesMap[name].gst += gst;
-        salesMap[name].revenue += totalInc;
+        salesMap[key].qty += item.quantity;
+        salesMap[key].taxable += taxable;
+        salesMap[key].gst += gst;
+        salesMap[key].revenue += totalInc;
       }
 
+      // Debug validation requested by user
+      const sortedSalesMap = Object.entries(salesMap)
+        .map(([name, data]) => ({ name, ...data }))
+        .sort((a, b) => b.qty - a.qty);
+
+      console.log("=== INVENTORY AGGREGATION DEBUG ===");
+      console.log(`Total invoices loaded: ${totalInvoicesFound.size}`);
+      console.log(`Total invoice items loaded: ${allSoldItems.length}`);
+      console.log(`Total unique normalized products found in invoices: ${Object.keys(salesMap).length}`);
+      console.log("First 20 entries of the sold map:");
+      sortedSalesMap.slice(0, 20).forEach(entry => console.log(`  - ${entry.name} -> ${entry.qty}`));
+
       const report = products.map((p: any) => {
-        const sales = salesMap[p.name] || { qty: 0, taxable: 0, gst: 0, revenue: 0 };
+        const key = normalize(p.name);
+        const sales = salesMap[key] || { qty: 0, taxable: 0, gst: 0, revenue: 0 };
+        
+        // Exact validation criteria for missing matches
+        if (sales.qty === 0) {
+          // Identify if any keys in the invoice map are substrings of the inventory name
+          const similarKeys = Object.keys(salesMap).filter(k => k.includes(key) || key.includes(k));
+          if (similarKeys.length > 0) {
+             console.log(`[Zero Match] Inventory Product: "${p.name}" | Normalized: "${key}"`);
+             console.log(`   -> Potential similar invoice items found: ${similarKeys.join(", ")}`);
+          }
+        } else {
+           console.log(`  [Match] ${p.name} | Normalized: ${key} | Sold: ${sales.qty} | Revenue: ${sales.revenue}`);
+        }
         
         let currentStock = 0;
         let minimumStock = 5;
