@@ -453,7 +453,7 @@ export default function AdminInventoryPage() {
             <tbody>
               {filtered.map(p => (
                 <Fragment key={p.productId}>
-                <tr className="border-b border-white/5 hover:bg-white/[0.01] cursor-pointer group" onClick={(e) => { if ((e.target as HTMLElement).tagName !== "BUTTON") toggleRow(p.productId); }}>
+                <tr className="border-b border-white/5 hover:bg-white/[0.01] cursor-pointer group" onClick={() => toggleRow(p.productId)}>
                   <td className="p-4">
                     <p className="text-sm font-medium text-white">{p.productName}</p>
                     <p className="text-[9px] text-ivory/40 mt-0.5">HSN: {p.hsn} · GST: {p.gstRate}</p>
@@ -479,11 +479,11 @@ export default function AdminInventoryPage() {
                   <td className="metric-value p-4 text-right text-sm text-ivory/70">{p.quantitySold}</td>
                   <td className="currency-value p-4 text-right text-sm text-gold-primary">{formatINR(p.revenue)}</td>
                   <td className="p-4 text-right whitespace-nowrap">
-                    <button onClick={() => setAdjustModal(p)} className="text-[10px] uppercase tracking-wider text-gold-primary hover:underline">
+                    <button onClick={(e) => { e.stopPropagation(); setAdjustModal(p); }} className="text-[10px] uppercase tracking-wider text-gold-primary hover:underline">
                       Adjust
                     </button>
                     {userRole === "admin" && (
-                      <button onClick={() => handleDeleteProduct(p)} className="text-[10px] uppercase tracking-wider text-red-500 hover:underline ml-4">
+                      <button onClick={(e) => { e.stopPropagation(); handleDeleteProduct(p); }} className="text-[10px] uppercase tracking-wider text-red-500 hover:underline ml-4">
                         Delete
                       </button>
                     )}
