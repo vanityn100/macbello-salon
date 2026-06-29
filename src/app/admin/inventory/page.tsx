@@ -143,6 +143,27 @@ export default function AdminInventoryPage() {
     }
   };
 
+  const handleResetInventory = async () => {
+    if (!confirm("Are you ABSOLUTELY sure you want to reset all inventory?\n\nThis will instantly set all physical stock counters to 0, and reset 'Sold' and 'Revenue' to 0 for all products.\n\nHistorical reports, invoices, and your product catalogue will NOT be affected.\n\nThis action cannot be undone.")) return;
+    
+    try {
+      const res = await fetch("/api/inventory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+        body: JSON.stringify({ action: "reset_inventory" })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert("Inventory successfully reset.");
+        loadReport();
+      } else {
+        alert(data.error || "Failed to reset inventory.");
+      }
+    } catch (err) {
+      alert("Something went wrong. Please try again.");
+    }
+  };
+
   const handleAdjustSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sessionToken || !adjustModal) return;
@@ -325,6 +346,11 @@ export default function AdminInventoryPage() {
             <button onClick={() => setCreateModal(true)} className="flex items-center text-[10px] font-bold uppercase tracking-wider bg-gold-primary text-black px-4 py-2 hover:bg-gold-dark transition-colors ml-2">
               <Plus size={12} className="mr-2" /> Manual Entry
             </button>
+            {userRole === "admin" && (
+              <button onClick={handleResetInventory} className="flex items-center text-[10px] font-bold uppercase tracking-wider bg-red-500/10 text-red-500 border border-red-500/30 px-4 py-2 hover:bg-red-500/20 transition-colors ml-4">
+                Reset Inventory
+              </button>
+            )}
           </div>
         </div>
 
@@ -394,7 +420,7 @@ export default function AdminInventoryPage() {
                       <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider text-red-400 bg-red-400/10 px-2 py-1 rounded">
                         OUT OF STOCK
                       </span>
-                    ) : p.currentStock <= p.minimumStock ? (
+                    ) : p.currentStock === 1 ? (
                       <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-400/10 px-2 py-1 rounded">
                         <AlertTriangle size={10} className="mr-1" /> LOW STOCK
                       </span>
@@ -405,7 +431,7 @@ export default function AdminInventoryPage() {
                     )}
                   </td>
                   <td className="p-4 text-right">
-                    <span className={`metric-value text-sm ${p.currentStock <= p.minimumStock ? "text-orange-400" : "text-white"}`}>{p.currentStock}</span>
+                    <span className={`metric-value text-sm ${p.currentStock === 1 ? "text-orange-400" : p.currentStock <= 0 ? "text-red-400" : "text-white"}`}>{p.currentStock}</span>
                   </td>
                   <td className="metric-value p-4 text-right text-sm text-ivory/70">{p.quantitySold}</td>
                   <td className="currency-value p-4 text-right text-sm text-gold-primary">{formatINR(p.revenue)}</td>

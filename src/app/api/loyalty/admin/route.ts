@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logError } from '@/lib/logger';
 import { supabase, getSupabaseAdmin } from "@/lib/supabase";
+import { normalizePhone } from "@/lib/phone";
 
 export const dynamic = "force-dynamic";
 
@@ -63,17 +64,12 @@ export async function GET(request: NextRequest) {
 
     if (action === "search") {
       const phone = searchParams.get("phone") || "";
-      let cleanPhone = phone.trim().replace(/[\s\-()]/g, "");
-      if (cleanPhone.startsWith("+")) {
-        cleanPhone = cleanPhone.substring(1);
+      const phoneResult = normalizePhone(phone);
+      
+      if (!phoneResult.isValid || !phoneResult.normalized) {
+        return NextResponse.json({ success: false, error: phoneResult.error || "Phone number required." }, { status: 400 });
       }
-      if (cleanPhone.length > 10) {
-        cleanPhone = cleanPhone.slice(-10);
-      }
-
-      if (!cleanPhone) {
-        return NextResponse.json({ success: false, error: "Phone number required." }, { status: 400 });
-      }
+      const cleanPhone = phoneResult.normalized;
 
       let query = adminSupabase
         .from("customers")
@@ -174,12 +170,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Invalid name format." }, { status: 400 });
       }
 
-      const phoneRegex = /^\+?[0-9\s\-()]{10,15}$/;
-      if (typeof phone !== "string" || !phoneRegex.test(phone)) {
-        return NextResponse.json({ success: false, error: "Invalid phone number format." }, { status: 400 });
+      const phoneResult = normalizePhone(phone);
+      if (!phoneResult.isValid || !phoneResult.normalized) {
+        return NextResponse.json({ success: false, error: phoneResult.error || "Invalid phone number format." }, { status: 400 });
       }
-
-      const cleanPhone = phone.trim().replace(/[\s\-()]/g, "");
+      const cleanPhone = phoneResult.normalized;
 
       // Check if duplicate profile exists by phone
       const { data: existingCustomer } = await adminSupabase

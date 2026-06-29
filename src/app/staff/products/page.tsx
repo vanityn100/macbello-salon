@@ -362,7 +362,7 @@ export default function StaffProductsPage() {
                       <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider text-red-400 bg-red-400/10 px-2 py-1 rounded">
                         OUT OF STOCK
                       </span>
-                    ) : p.currentStock <= p.minimumStock ? (
+                    ) : p.currentStock === 1 ? (
                       <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-400/10 px-2 py-1 rounded">
                         <AlertTriangle size={10} className="mr-1" /> LOW STOCK
                       </span>
@@ -373,7 +373,7 @@ export default function StaffProductsPage() {
                     )}
                   </td>
                   <td className="p-4 text-right">
-                    <span className={`metric-value text-sm ${p.currentStock <= p.minimumStock ? "text-orange-400" : "text-white"}`}>{p.currentStock}</span>
+                    <span className={`metric-value text-sm ${p.currentStock === 1 ? "text-orange-400" : p.currentStock <= 0 ? "text-red-400" : "text-white"}`}>{p.currentStock}</span>
                   </td>
                   <td className="metric-value p-4 text-right text-sm text-ivory/70">{p.quantitySold}</td>
                   <td className="currency-value p-4 text-right text-sm text-gold-primary">{formatINR(p.revenue)}</td>

@@ -52,7 +52,7 @@ export async function GET(req: Request) {
        let query = adminSupabase.from("branch_inventory").select(`
          *,
          services(name, item_code, category)
-       `).lte("current_stock", 5); // using 5 as a standard threshold for testing if minimum_stock isn't accessible
+       `).lte("current_stock", 1); // User specifically requested <= 1 for low stock / out of stock
        
        if (branch && branch !== "All Branches") {
          query = query.eq("branch", branch);

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { normalizePhone } from "@/lib/phone";
 import { logError } from '@/lib/logger';
 import { supabase, getSupabaseAdmin } from "@/lib/supabase";
 import { Resend } from "resend";
@@ -92,17 +93,11 @@ export async function GET(request: NextRequest) {
     // 2. SEARCH CUSTOMERS
     if (action === "search_customers") {
       const phone = searchParams.get("phone") || "";
-      let cleanPhone = phone.trim().replace(/[\s\-()]/g, "");
-      if (cleanPhone.startsWith("+")) {
-        cleanPhone = cleanPhone.substring(1);
+      const phoneResult = normalizePhone(phone);
+      if (!phoneResult.isValid || !phoneResult.normalized) {
+        return NextResponse.json({ success: false, error: phoneResult.error || "Phone number required." }, { status: 400 });
       }
-      if (cleanPhone.length > 10) {
-        cleanPhone = cleanPhone.slice(-10);
-      }
-
-      if (!cleanPhone) {
-        return NextResponse.json({ success: false, error: "Phone number required." }, { status: 400 });
-      }
+      const cleanPhone = phoneResult.normalized;
 
       let query = adminSupabase
         .from("customers")
@@ -589,8 +584,27 @@ export async function POST(request: NextRequest) {
       }
 
       const cleanName = name.replace(/<[^>]*>/g, "").trim();
-      const safeItemCode = itemCode && typeof itemCode === "string" ? itemCode.trim().replace(/<[^>]*>/g, "") : null;
+      let safeItemCode = itemCode && typeof itemCode === "string" ? itemCode.trim().replace(/<[^>]*>/g, "") : null;
       const safeHsn = hsn && typeof hsn === "string" ? hsn.trim().replace(/<[^>]*>/g, "") : null;
+
+      if (!safeItemCode) {
+        const { data: lastItem } = await adminSupabase
+          .from("services")
+          .select("item_code")
+          .like("item_code", "MAC%")
+          .order("item_code", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        let nextNum = 1;
+        if (lastItem && lastItem.item_code) {
+          const match = lastItem.item_code.match(/^MAC(\d+)$/i);
+          if (match) {
+            nextNum = parseInt(match[1], 10) + 1;
+          }
+        }
+        safeItemCode = `MAC${nextNum.toString().padStart(3, '0')}`;
+      }
 
       let parsedTaxRate = category === "Service" ? 0.05 : 0.18;
       if (taxRate !== undefined) {
@@ -761,12 +775,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Name is required." }, { status: 400 });
       }
 
-      const phoneRegex = /^\+?[0-9\s\-()]{10,15}$/;
-      if (typeof phone !== "string" || !phoneRegex.test(phone)) {
-        return NextResponse.json({ success: false, error: "Invalid phone number." }, { status: 400 });
+      const phoneResult = normalizePhone(phone);
+      if (!phoneResult.isValid || !phoneResult.normalized) {
+        return NextResponse.json({ success: false, error: phoneResult.error || "Invalid phone number." }, { status: 400 });
       }
-
-      const cleanPhone = phone.trim().replace(/[\s\-()]/g, "");
+      const cleanPhone = phoneResult.normalized;
 
       const { data: existingCustomer } = await adminSupabase
         .from("customers")
@@ -852,12 +865,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Name is required." }, { status: 400 });
       }
 
-      const phoneRegex = /^\+?[0-9\s\-()]{10,15}$/;
-      if (typeof phone !== "string" || !phoneRegex.test(phone)) {
-        return NextResponse.json({ success: false, error: "Invalid phone number." }, { status: 400 });
+      const phoneResult = normalizePhone(phone);
+      if (!phoneResult.isValid || !phoneResult.normalized) {
+        return NextResponse.json({ success: false, error: phoneResult.error || "Invalid phone number." }, { status: 400 });
       }
-
-      const cleanPhone = phone.trim().replace(/[\s\-()]/g, "");
+      const cleanPhone = phoneResult.normalized;
 
       let cleanEmail = null;
       if (email && typeof email === "string" && email.trim() !== "") {
@@ -1143,11 +1155,16 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Missing required booking details." }, { status: 400 });
       }
 
+      const customerPhoneResult = normalizePhone(customerPhone);
+      if (!customerPhoneResult.isValid || !customerPhoneResult.normalized) {
+        return NextResponse.json({ success: false, error: customerPhoneResult.error || "Invalid phone number format." }, { status: 400 });
+      }
+
       const { data: newBooking, error } = await adminSupabase
         .from("appointments")
         .insert([{
           customer_name: customerName.replace(/<[^>]*>/g, "").trim(),
-          customer_phone: customerPhone.replace(/<[^>]*>/g, "").trim(),
+          customer_phone: customerPhoneResult.normalized,
           branch: targetBranch,
           service_id: serviceId || null,
           appointment_date: date,
@@ -1188,11 +1205,20 @@ export async function POST(request: NextRequest) {
 
       // Removed branch constraint for editing bookings
 
+      let normalizedPhone = undefined;
+      if (customerPhone) {
+        const phoneResult = normalizePhone(customerPhone);
+        if (!phoneResult.isValid || !phoneResult.normalized) {
+          return NextResponse.json({ success: false, error: phoneResult.error || "Invalid phone number format." }, { status: 400 });
+        }
+        normalizedPhone = phoneResult.normalized;
+      }
+
       const { data: updatedBooking, error } = await adminSupabase
         .from("appointments")
         .update({
           customer_name: customerName ? customerName.replace(/<[^>]*>/g, "").trim() : undefined,
-          customer_phone: customerPhone ? customerPhone.replace(/<[^>]*>/g, "").trim() : undefined,
+          customer_phone: normalizedPhone,
           service_id: serviceId || undefined,
           appointment_date: date || undefined,
           appointment_time: time || undefined,

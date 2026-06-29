@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logError } from '@/lib/logger';
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { normalizePhone } from "@/lib/phone";
 
 // Sliding window IP rate limiter with automatic memory cleanup
 const rateLimitMap = new Map<string, number[]>();
@@ -81,17 +82,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. Validate Phone Number (Allow leading plus, spaces, dashes but require digits length 10-15)
-    const phoneRegex = /^\+?[0-9\s\-()]{10,15}$/;
-    if (typeof phone !== "string" || !phoneRegex.test(phone)) {
+    // 4. Validate Phone Number Using Centralized Utility
+    const phoneResult = normalizePhone(phone);
+    if (!phoneResult.isValid || !phoneResult.normalized) {
       return NextResponse.json(
-        { success: false, error: "Please enter a valid phone number." },
+        { success: false, error: phoneResult.error || "Please enter a valid phone number." },
         { status: 400 }
       );
     }
-
-    // Clean phone number for database query matching (keep only digits and optional +)
-    const cleanPhone = phone.trim().replace(/[\s\-()]/g, "");
+    const cleanPhone = phoneResult.normalized;
 
     // 5. Query Private Customer Table via Secure Admin Client
     const supabase = getSupabaseAdmin();

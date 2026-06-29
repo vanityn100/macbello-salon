@@ -75,13 +75,34 @@ export async function POST(req: Request) {
 
     // ── 1.5 CREATE PRODUCT (MANUAL ENTRY) ───────────────────
     if (action === "create_product") {
-      const { name, price, hsn, gstRate, targetBranch, initialStock, minimumStock } = body;
+      const { name, price, hsn, gstRate, targetBranch, initialStock, minimumStock, itemCode } = body;
 
       if (!name || isNaN(price) || isNaN(gstRate)) {
         return NextResponse.json({ success: false, error: "Invalid product details." }, { status: 400 });
       }
 
       const branchToAssign = role === "admin" ? (targetBranch === "All Branches" ? null : targetBranch) : userBranch;
+      
+      let finalItemCode = itemCode && typeof itemCode === "string" ? itemCode.trim().replace(/<[^>]*>/g, "") : null;
+      
+      if (!finalItemCode) {
+        const { data: lastItem } = await adminSupabase
+          .from("services")
+          .select("item_code")
+          .like("item_code", "MAC%")
+          .order("item_code", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        let nextNum = 1;
+        if (lastItem && lastItem.item_code) {
+          const match = lastItem.item_code.match(/^MAC(\d+)$/i);
+          if (match) {
+            nextNum = parseInt(match[1], 10) + 1;
+          }
+        }
+        finalItemCode = `MAC${nextNum.toString().padStart(3, '0')}`;
+      }
 
       const { data, error } = await adminSupabase.from("services").insert({
         name: name.trim(),
@@ -90,6 +111,7 @@ export async function POST(req: Request) {
         branch: null, // Retail products are globally defined
         hsn: hsn || "999729",
         tax_rate: Number(gstRate) / 100,
+        item_code: finalItemCode,
         status: "active",
         current_stock: 0,
         minimum_stock: 5
@@ -184,6 +206,21 @@ export async function POST(req: Request) {
         if (updateErr) throw updateErr;
       }
 
+      // Calculate new global stock for this product to update status
+      const { data: allInv } = await adminSupabase
+        .from("branch_inventory")
+        .select("current_stock")
+        .eq("service_id", productId);
+        
+      if (allInv) {
+        const totalStock = allInv.reduce((sum, item) => sum + (item.current_stock || 0), 0);
+        let newStatus = 'ACTIVE';
+        if (totalStock <= 0) newStatus = 'OUT OF STOCK';
+        else if (totalStock === 1) newStatus = 'LOW STOCK';
+
+        await adminSupabase.from("services").update({ status: newStatus }).eq("id", productId).not("status", "in", '("archived","ARCHIVED")');
+      }
+
       // 3. Log transaction
       await adminSupabase.from("inventory_transactions").insert({
         product_id: productId,
@@ -233,7 +270,40 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true });
     }
 
-    // ── 3. GET PRODUCT SUMMARY REPORT ───────────────────────
+    // ── 4. RESET INVENTORY ───────────────────────────────────
+    if (action === "reset_inventory") {
+      if (role !== "admin") {
+        return NextResponse.json({ success: false, error: "Only administrators can reset inventory." }, { status: 403 });
+      }
+
+      // 1. Reset all stock to 0
+      const { error: resetErr } = await adminSupabase
+        .from("branch_inventory")
+        .update({ current_stock: 0 })
+        .neq("current_stock", 0); // Optimization
+
+      if (resetErr) {
+        return NextResponse.json({ success: false, error: resetErr.message }, { status: 500 });
+      }
+
+      // Also reset product statuses to OUT OF STOCK (except archived ones)
+      await adminSupabase
+        .from("services")
+        .update({ status: 'OUT OF STOCK' })
+        .not("status", "in", '("archived","ARCHIVED")');
+
+      // 2. Log the INVENTORY_RESET event
+      await adminSupabase.from("audit_logs").insert({
+        user_id: user.email,
+        role: role,
+        action: "INVENTORY_RESET",
+        details: `Inventory was completely reset. All stock zeroed.`
+      });
+
+      return NextResponse.json({ success: true });
+    }
+
+    // ── 5. GET PRODUCT SUMMARY REPORT ───────────────────────
     if (action === "get_summary_report") {
       const { startDate, endDate, branch } = body;
       
@@ -259,6 +329,17 @@ export async function POST(req: Request) {
       const { data: products, error: pErr } = await productQuery;
       if (pErr) throw pErr;
 
+      // Fetch latest INVENTORY_RESET timestamp
+      const { data: resetLog } = await adminSupabase
+        .from("audit_logs")
+        .select("created_at")
+        .eq("action", "INVENTORY_RESET")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const resetTimestamp = resetLog ? new Date(resetLog.created_at) : null;
+      
       let invoiceQuery = adminSupabase
         .from("invoice_items")
         .select(`
@@ -267,8 +348,13 @@ export async function POST(req: Request) {
         `)
         .eq("category", "Retail")
         .neq("invoices.status", "archived")
-        .gte("invoices.created_at", startISO.toISOString())
         .lte("invoices.created_at", endISO.toISOString());
+
+      if (resetTimestamp && resetTimestamp > startISO) {
+          invoiceQuery = invoiceQuery.gte("invoices.created_at", resetTimestamp.toISOString());
+      } else {
+          invoiceQuery = invoiceQuery.gte("invoices.created_at", startISO.toISOString());
+      }
 
       if (targetBranch && targetBranch !== "All Branches") {
         invoiceQuery = invoiceQuery.eq("invoices.branch", targetBranch);
@@ -288,9 +374,10 @@ export async function POST(req: Request) {
         const lineTotal = parseFloat(sale.line_total) || 0;
         const rate = parseFloat(sale.tax_rate) || 0;
         
-        const taxable = lineTotal; // items stored pre-tax
-        const gst = lineTotal * rate;
-        const totalInc = taxable + gst;
+        // The line_total stored in the database is already GST-inclusive
+        const totalInc = lineTotal;
+        const taxable = totalInc / (1 + rate);
+        const gst = totalInc - taxable;
 
         salesMap[name].qty += sale.quantity;
         salesMap[name].taxable += taxable;
