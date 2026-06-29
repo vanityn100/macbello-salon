@@ -1071,10 +1071,10 @@ export async function POST(request: NextRequest) {
 
       // Save to database in a safe transaction sequence using RPC
       const finalPoints = customer.points - redeemAmt + pointsEarned;
-      const invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.floor(1000 + Math.random() * 9000)}`;
-
+      // The invoice number will now be generated natively in the database via the RPC.
+      // We pass an empty/placeholder value here which will be overwritten by the RPC.
       const p_invoice = {
-        invoice_number: invoiceNumber,
+        invoice_number: "TBD",
         customer_id: customerId,
         customer_name: customer.name,
         customer_phone: customer.phone || null,
@@ -1109,9 +1109,11 @@ export async function POST(request: NextRequest) {
       }
 
       const newInvoiceId = rpcData.invoice_id;
+      const finalInvoiceNumber = rpcData.invoice_number;
+      
       const itemsToInsert = invoiceItemsToInsert.map((item) => ({ ...item, invoice_id: newInvoiceId }));
       
-      const successResponse = { success: true, invoice: { id: newInvoiceId, ...p_invoice }, items: itemsToInsert, newPoints: finalPoints };
+      const successResponse = { success: true, invoice: { id: newInvoiceId, ...p_invoice, invoice_number: finalInvoiceNumber }, items: itemsToInsert, newPoints: finalPoints };
 
       // Log audit log asynchronously, store successResponse for idempotency checks
       try {
@@ -1120,7 +1122,7 @@ export async function POST(request: NextRequest) {
           role: user.role,
           branch: targetBranch,
           action: "checkout_invoice",
-          details: JSON.stringify({ message: `Generated Invoice #${invoiceNumber}`, successResponse }),
+          details: JSON.stringify({ message: `Generated Invoice #${finalInvoiceNumber}`, successResponse }),
           request_id: idempotencyKey || null
         }]);
       } catch (logErr) {

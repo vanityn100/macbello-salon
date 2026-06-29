@@ -1,0 +1,1475 @@
+{
+  "totalScanned": 253,
+  "normalized": 0,
+  "alreadyValid": 0,
+  "invalid": 244,
+  "duplicateConflicts": 0,
+  "skipped": 0,
+  "conflicts": [],
+  "invalidNumbers": [
+    {
+      "table": "customers",
+      "id": "2b373920-2d8b-484b-841a-3853a373863c",
+      "original": "9999999999",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "931c62c5-f4cc-4d3a-bde5-0dca9e5bffcc",
+      "original": "1075183383",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "a46c7464-d9f1-4a33-a594-7a1393ab27f1",
+      "original": "9561567036",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "ec724a23-a2ac-4f01-bfbe-84acc76c8e49",
+      "original": "6572444170",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "fb095977-819c-47ba-b9ae-fc22090ef0f0",
+      "original": "0000000000",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "8c9e8e65-b8f0-43e7-887b-5f25dda146b5",
+      "original": "6360305465",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "d1a71988-0fa8-4d3d-a789-39dae71d20e7",
+      "original": "8794843638",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "0e24fa47-4437-4e36-af03-cb6f1139914c",
+      "original": "8853645972",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "df5764f1-f4dd-4b2c-be64-3fb398c23d5c",
+      "original": "5676585409",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "ccf8a50e-36ed-46ff-9bc7-a65ef95bb991",
+      "original": "6079419148",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "4c54a222-9a2f-45e7-a7fd-0a2575501b50",
+      "original": "1144647313",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "b6435e45-e9ba-4ac6-a07e-c00a2fb5944e",
+      "original": "2374470866",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "1bfbafde-7937-4149-9798-742b7057eadd",
+      "original": "7247290272",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "3524fc82-4246-4588-8f8e-a5ca88a56d83",
+      "original": "8649380419",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "a47fa00d-5342-4051-ba58-1b1252920d5c",
+      "original": "2245712595",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "274082b7-a4a3-4247-979d-28ab3d38e7ec",
+      "original": "7588911092",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "1b401092-56b8-4eb6-b4a6-e8f847dde234",
+      "original": "1061139989",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "ed62dd21-df78-4cd1-8e21-30bda7734a71",
+      "original": "5527855520",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "70cd65eb-e1ce-44ca-91b7-984ed13c0409",
+      "original": "3812093169",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "da7e654b-12d3-486c-b239-2f7a8322fb91",
+      "original": "2715777993",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "a01619b7-608d-41aa-9105-50749d5ed66d",
+      "original": "2252049119",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "6e7abd4f-fdbf-436e-a57c-3d733d158b51",
+      "original": "5713539868",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "809ca8ac-af9d-43a1-b553-9c25a1afafe0",
+      "original": "8856947102",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "97c0c14c-b173-4889-817e-bb285543df00",
+      "original": "9686820008",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "51c2bc61-7c8c-43b7-a15c-8ae8fdea1d12",
+      "original": "4432126361",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "3b3a4d8e-105e-4ba9-bf66-145eac60b0e3",
+      "original": "9715394428",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "a139c9b5-7893-4cef-8b20-f7053e01e32b",
+      "original": "4009370671",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "1c5b0c22-7c25-4f78-9a1c-83d290bacd99",
+      "original": "6540829330",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "19fd89b5-4be7-4663-98b7-f4ddaa08bd25",
+      "original": "1339135027",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "2fd10852-d924-4daa-b4f7-34de749be4c2",
+      "original": "4738159292",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "0b85e5c9-d699-425a-a06d-c30dd08e6eb9",
+      "original": "2652501786",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "f8052124-c6b4-4011-a347-f720d7b8e708",
+      "original": "8155315640",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "27fb35c0-5dc0-46c2-81c1-98fa6bbcd00c",
+      "original": "9649685341",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "cc5eab68-fa38-49ae-bb97-193f13de511c",
+      "original": "5333800970",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "afe987c2-c55c-4033-b43b-a64e436de6ac",
+      "original": "6640092442",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "db1c0378-a05a-437e-946b-e76c410376e0",
+      "original": "9598345837",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "65e28056-54ea-46e0-9b52-2757953dea0e",
+      "original": "7781795526",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "a1326a86-b7da-4fbb-a138-2c4835664555",
+      "original": "4938741613",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "63c65d98-24ef-44cd-8819-b0a414ac03a0",
+      "original": "7919753204",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "ebc5fe50-bf10-4d98-ac76-b624683cc7fb",
+      "original": "5958971265",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "ac6c6c93-b503-4333-8404-16217659138e",
+      "original": "4388858612",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "bf9d4f47-198a-4678-a595-2d7e80f95523",
+      "original": "6351215615",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "ed630f96-55ba-4835-a667-5f118b230867",
+      "original": "5809879297",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "04372ec2-84ec-4322-9331-58fd6a1c57f3",
+      "original": "9725054166",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "efe3dcc7-3119-417e-8bf0-37656c2b81eb",
+      "original": "3912474656",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "92eac6ee-14bc-4d27-a577-b9fce86bf1e3",
+      "original": "9051896311",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "5dddb843-c730-41f0-b230-0ed3176f2f90",
+      "original": "8543445041",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "8ce8fb92-b286-4ff5-b3f8-6b1187d1159b",
+      "original": "7585437394",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "02a7061c-4e29-43cf-9f73-5683a7cd217f",
+      "original": "9695341400",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "070065d2-5b35-49e8-b586-b592fb9788fc",
+      "original": "8324868857",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "8ad28f59-488b-4bea-af43-369dfad59ae0",
+      "original": "6857303447",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "dbf6f074-c3fa-4c9b-83b9-e0130fcc0e17",
+      "original": "1472790282",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "2420c887-d44e-4c99-9a9a-98af578e0be5",
+      "original": "3651548015",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "5b63c618-40ed-4675-a78d-bc9e8311bf56",
+      "original": "8141375656",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "4aaeb27a-da8c-413b-aed7-26a830d6b8c9",
+      "original": "5637327583",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "bd8507db-3689-4d41-926f-2e6eba60825c",
+      "original": "5600892139",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "23b921b1-1f9b-4087-ba67-2142edfe6067",
+      "original": "2714174241",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "166a4c3a-d5e7-44f7-9e6f-61b8f62a9138",
+      "original": "6896564097",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "2d92109d-e48b-4d03-a25d-9bc1c9fded20",
+      "original": "3181753511",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "1bc80cdc-cdc7-4f45-b1ca-2b1823d8faba",
+      "original": "9641743160",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "f24c20a0-52c8-46c6-99a1-600bc2958cc4",
+      "original": "9992502907",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "fc8898be-8937-4319-8384-b251ae1c2e46",
+      "original": "4912245817",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "ce67257b-ab34-48ac-8d5d-9651ec67047a",
+      "original": "7890791651",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "9059842c-3064-4abf-bf9e-f42fef92e135",
+      "original": "5148107985",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "e17429d2-acf6-45e6-a309-73437df8881d",
+      "original": "2755626499",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "39bc2ea2-0577-4e0f-9a58-d9760d8177f9",
+      "original": "9246889011",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "84a07e9a-7fc1-4aca-9b82-d7de044e0fd3",
+      "original": "3142128961",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "f9140912-5824-4def-b187-6913dd4c03a8",
+      "original": "9424766186",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "9a066609-cfee-4098-a678-59f4759d771e",
+      "original": "5048716859",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "6d91d230-3534-4444-814f-f4a4e8340d0d",
+      "original": "6611975206",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "1d73d97c-f2f9-4f75-acc3-634c15268825",
+      "original": "4309171829",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "4671d814-e16f-408c-af0a-df9164f5b30a",
+      "original": "5098698302",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "7b0d703a-04b1-4df6-8587-e189e35e6c93",
+      "original": "2512622125",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "d63fe666-08c0-4638-8755-21a9d0339918",
+      "original": "7990775035",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "38e7f78b-160c-43ab-88ee-82becb45fc79",
+      "original": "8397805242",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "4d9f0133-8a7f-473e-a828-a2879ab1e60b",
+      "original": "2606709957",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "7e44e92d-05be-4220-b189-9cbaa9eeb3e6",
+      "original": "6534786704",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "3c2d4be4-d00d-4cd9-a3fb-d03b1a673154",
+      "original": "7994589100",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "8aaafcdd-f76c-421d-b49b-68f62dc1ad14",
+      "original": "6152718552",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "fb9a59f0-416a-4af2-bf81-40bb7d4afe2c",
+      "original": "6634026120",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "71586daa-f65b-42c7-b788-1a5b87b6af08",
+      "original": "4999951762",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "72d0155c-e33f-4c8c-8767-221e878d583e",
+      "original": "4728706907",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "5f9abaad-c25d-445a-bb00-a633de1990dd",
+      "original": "6222280864",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "f6ef336f-699d-4020-9f5d-b697e1e6ec9e",
+      "original": "6505877071",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "fc8d643a-64bc-4ff8-a115-04fa19bb683e",
+      "original": "5433072942",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "44049127-943a-4233-bf0a-b3bc6ec6125b",
+      "original": "9423601920",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "1455b469-4fbf-4535-926b-125d74bd239f",
+      "original": "9654478269",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "9058b1ba-4dfb-4092-9a22-fc268419126f",
+      "original": "1708665427",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "bd538513-e703-4a74-b670-776ca68a1a09",
+      "original": "9425252017",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "4e07bce1-4415-4e9e-b6fb-d9f0bed62815",
+      "original": "4811549066",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "76cc78c2-bcc1-4356-85c0-4546e1127432",
+      "original": "4323100870",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "025058b6-2735-48d6-8b55-37788dd1e2a2",
+      "original": "7293624826",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "689e2c46-47dc-4726-8ad6-d6206ee034ac",
+      "original": "1683795924",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "c46d2224-5024-4a97-8245-6a0b12db7a25",
+      "original": "1844774303",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "3e64ca8d-6b59-4645-a6dd-f9c996dcef30",
+      "original": "7203590819",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "3ff95e43-8068-4e52-9ab8-45c0fe113513",
+      "original": "6166811353",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "43b1c39e-cc35-446a-924a-6e6363b82b98",
+      "original": "9799636676",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "5e4b4ccf-ed2d-4768-95cb-b1508796f303",
+      "original": "4858209631",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "986d2888-e133-4d2a-b8df-6d37b82ad6c8",
+      "original": "3814093770",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "c98621ac-26f6-4826-8931-e64fad09408a",
+      "original": "3421214339",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "017c338c-5437-4f5b-87e6-621b7d5b180d",
+      "original": "3018400116",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "aef739dc-9448-45ef-b16f-8a319ea2a2b1",
+      "original": "8217222240",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "06434c19-2b1a-40f9-a45b-cddd9b2611f4",
+      "original": "5122881954",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "892c06ad-2b72-4148-8d56-a0622255e6c4",
+      "original": "6006598700",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "51a76aa2-38a7-4302-9b8d-d6bd9b8607ce",
+      "original": "1030832607",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "e3eeaf69-eb41-4a26-9f92-45fe75106269",
+      "original": "1794483280",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "09898ce7-2894-4b8b-b02f-308b9df7bd38",
+      "original": "2564445857",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "5a9e8f68-924d-461f-873e-14297d34d220",
+      "original": "5299750752",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "b7e5457b-3f66-4ea6-9309-8276e5bbf500",
+      "original": "4208127557",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "7c2b5081-5408-4ee5-b8d7-5200c98eade1",
+      "original": "5922262846",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "c018b20a-293b-428c-a077-556d4efe23db",
+      "original": "9616449619",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "e3d51626-2cca-4d0e-a88b-376fa8207ed2",
+      "original": "2228582931",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "1bf48696-2d35-46fd-aff2-66c9c7c7b764",
+      "original": "1888691644",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "44228a05-a960-4e49-83fb-119ca91502d7",
+      "original": "8035169192",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "3b9dec3e-c6b7-4416-a4d9-633f0a372c6c",
+      "original": "6842989745",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "93c550d6-0339-42a9-bbc8-a44203914978",
+      "original": "8057208870",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "69de3187-e477-4dd3-8f0f-2163b019562f",
+      "original": "4383647503",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "019604cd-f312-457f-b4bc-10312326fcd8",
+      "original": "8930220552",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "dabc45e4-8c77-4f56-894e-d2a48532e68f",
+      "original": "7850127145",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "5a83c87f-26c1-40ab-b041-18efcafde49e",
+      "original": "1216067113",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "861873d0-864a-4fb8-aa89-6da2fa3118fa",
+      "original": "4068416583",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "61e3fad0-a355-475f-b7e7-10b45784f969",
+      "original": "5064266558",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "31cebeaf-f591-4938-9393-bd615ee2eac4",
+      "original": "6559856363",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "6751c1e9-211a-4006-be14-bafdbdbeca65",
+      "original": "2710782500",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "4dcb55be-2ad5-48ba-bca5-170c5fe96499",
+      "original": "4294563716",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "a678e444-336b-4c40-887d-37da4d165212",
+      "original": "1358970493",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "b164aaf9-7fe7-40d6-874e-f2c90e9adfcf",
+      "original": "3196471984",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "d9ff084d-1ab6-4e54-8589-4eb9466fff02",
+      "original": "7688257635",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "febdc745-117f-4b34-a50d-967ee14fb113",
+      "original": "3633688334",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "eeb7179f-a29b-4eed-bd1e-57b9e34756f6",
+      "original": "7360035792",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "01573a16-bd21-4f31-a5d9-b2970f9dbec9",
+      "original": "4291288929",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "4c00b3d7-f582-4856-b097-a308750b9337",
+      "original": "3920124681",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "231d9a66-9093-4b96-a3d2-7dd3ccd577b7",
+      "original": "4708873410",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "c65d9dc6-d540-42c5-8f90-3b56708d1bdb",
+      "original": "3147908401",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "eb353dda-96f4-48aa-8e45-49774b65fc5f",
+      "original": "3075311412",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "2e6d77b0-9eb5-4437-a0fc-6ad57042e5ca",
+      "original": "8815498781",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "daaccf42-586c-46a6-90db-577e82a10d9e",
+      "original": "9764647005",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "a06088bc-0f8a-4356-9788-59406e90ae7a",
+      "original": "9126350612",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "ba32b72d-607d-4cef-a2d0-53653fa1eb1f",
+      "original": "7322293532",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "d70b85c0-8eb4-4d73-ab88-fc0fd3c981f0",
+      "original": "7490649898",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "64dbafbb-f2fe-4b3a-9263-a53bd3a69939",
+      "original": "7378414676",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "450bf166-cbcd-47cb-80fb-09292e9498fc",
+      "original": "4582498271",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "6a135d21-d4d9-49ed-bb32-183a0888675f",
+      "original": "6488572553",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "8be8fc3c-a513-4df9-801e-8418000e57cd",
+      "original": "1650536541",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "1da8e039-9f23-4b29-bce4-e81ee634f26c",
+      "original": "1023488163",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "60158897-51c7-483c-8b30-b4d168b6b603",
+      "original": "5888148576",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "f5c4e01e-7e94-45a9-a60f-a009d2217ce7",
+      "original": "1402939325",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "f09a8168-bf6e-4d6e-b790-e13957a4a737",
+      "original": "5487180113",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "b27be14c-e080-4726-90e7-41215dddf67c",
+      "original": "1840440569",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "15c72801-6039-42e9-80fb-b9c333739423",
+      "original": "7124462482",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "e363192c-ada1-47a0-a98d-cd0428ae3b93",
+      "original": "7307742402",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "a846247d-c975-4f26-a3b9-9832f7fbce79",
+      "original": "1338214842",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "9e95f996-64e1-4401-9574-be2e8b2a0bcb",
+      "original": "2684747605",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "b1294695-0a5a-4be3-b4d0-c7fd156e3b91",
+      "original": "6382926074",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "695fc747-f8ab-4a85-8d13-517b7e32ab83",
+      "original": "8281274233",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "590c4d6d-fc19-486c-a44b-7f7dab98304d",
+      "original": "8694341888",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "f315d6e1-2c69-41da-87f2-fe12ce58b94c",
+      "original": "3067318609",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "cd0f0359-9f6b-4e0e-9023-b242dd168fce",
+      "original": "3139327616",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "e834b8a9-b894-4755-b7ff-0163756042a2",
+      "original": "5897614475",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "8e2e783c-5e0b-4aa5-af62-9dd2dc3097e7",
+      "original": "4930285764",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "e1b6626a-5da1-4156-afec-95b9e6e0ee78",
+      "original": "6938238345",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "d5bde701-fdc8-4eb9-bff7-616f3aad1989",
+      "original": "6542149667",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "8964fb5c-24fb-460a-87d5-a7abc3e9a3ab",
+      "original": "9192232606",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "cfc29e43-201e-40da-b33b-b0afabe94249",
+      "original": "3006773095",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "a3c78468-2aa4-4ea8-a4e9-c42c56bb7375",
+      "original": "7122625403",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "bb323564-5392-4119-8cdf-32b0152a7896",
+      "original": "7699080046",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "217408a5-aea3-4322-922b-203d254f17d0",
+      "original": "4683289317",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "1362d1f9-cd26-4256-83bc-1d9562358d88",
+      "original": "5301939970",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "2f1893ae-29e7-412f-8d15-6c980d72f6c5",
+      "original": "1725312259",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "9d326e07-a104-45ea-bce6-c2bf2e0d86d5",
+      "original": "5797403228",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "bfba3138-34a0-448b-81c5-8ead2bd50dbf",
+      "original": "1180908133",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "996a6bcf-4975-4056-9f63-083261d198fa",
+      "original": "8668503294",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "737f5fc0-16ac-4555-83e9-2ba48229e101",
+      "original": "3136833653",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "d3f2de8a-97fe-47fc-baf5-167fe0eb45f8",
+      "original": "9678954164",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "634b9eb3-d971-4db2-aafb-52376024ffce",
+      "original": "5017092468",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "0cbfd4c0-ba46-46ef-a530-c863b966667d",
+      "original": "8538993600",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "96486129-8ca1-4b4a-8562-34a71d3cac2d",
+      "original": "2905351557",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "f5f61bea-b84b-4829-80ab-6291d4f25f29",
+      "original": "9916006067",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "88f1bdfe-b1b9-418d-9fe5-d22008f7aa87",
+      "original": "1299153168",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "266d99e0-162f-4cdf-b48d-3d8c08b7f212",
+      "original": "4555248575",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "8fbeb021-f225-4f9e-9fee-5bdd9632278d",
+      "original": "6003835679",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "aac0f7ab-9402-4a68-879a-7bab1061fc69",
+      "original": "1040429382",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "b77603e5-b1c0-4fca-b3a6-c25f7ecf8dde",
+      "original": "9863657362",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "5a196333-9b0a-4d2d-bc81-fd7922470f1a",
+      "original": "2579082485",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "4b9fa46b-de22-4fed-85af-5500ecbe3cf1",
+      "original": "5001970651",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "c08a4248-c5b4-42bc-b8a4-dcf434dec31b",
+      "original": "7200704973",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "e290635c-efbf-41ce-bd2f-a326533a60a7",
+      "original": "8372942038",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "36e872f2-906b-488b-96da-ff53279984f7",
+      "original": "1538786516",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "d93e4aee-2629-42b9-a848-2442ea73191c",
+      "original": "2304953677",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "ff34eb0d-3b70-4faa-abcd-e9eef2d5b2bb",
+      "original": "3077987040",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "3fc5f5f8-11b0-4677-9bc8-d862dd17ebef",
+      "original": "9171261252",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "934bb561-bd9b-4a48-bb3c-ef062f438ad2",
+      "original": "6751356121",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "aa13e983-4456-46de-a100-382a48b23a18",
+      "original": "5258958671",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "36c006da-5776-4c07-8774-8d5bb1cb6377",
+      "original": "3446810435",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "c7974c0e-3d44-439d-a99c-5009cf265e17",
+      "original": "5413509761",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "73e0e4ab-3a80-4c29-99b5-7b33ff19473e",
+      "original": "2527783117",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "9fa02dba-ddb7-4a7a-908c-8adb168a6040",
+      "original": "2706276965",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "068f6828-d1f6-4467-b3bc-69dbdcfd2404",
+      "original": "5189250448",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "5cf3ed56-714a-45f8-b16d-94e5cc9fa562",
+      "original": "7863827069",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "b623d6d6-e658-4467-b6bd-cd6b7d797fc4",
+      "original": "3572156894",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "fedc4df2-8621-4ec4-8f48-fb90bc754482",
+      "original": "6268954052",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "0779af88-2f71-4ad2-a18a-d9445362303d",
+      "original": "2591792285",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "308f1d10-fe53-44fb-b651-5c1a265c34bd",
+      "original": "9181718446",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "c6f45f96-ba02-498a-9a39-5428f2a332c6",
+      "original": "2581046246",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "29cac60b-ce5f-415f-ade7-889d3db4b6f1",
+      "original": "8317065205",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "cebdedcb-c642-4a97-ac69-edeaedbbe653",
+      "original": "1993568408",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "628d915b-1120-446a-8ef6-1c5207bc48c3",
+      "original": "3836923779",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "be2c0515-1a08-4e5f-b9ec-b1172734b4d3",
+      "original": "4937569992",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "34dbd5d9-0ca5-41b1-88cf-42e021b5c881",
+      "original": "2009046210",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "2f14cd32-70ec-4cc7-9b33-6361adc2abe9",
+      "original": "1155808888",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "cf01106b-50b9-4221-b6a2-68a12e14a2ad",
+      "original": "3560702063",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "6cf38fa1-a368-4b4e-a459-9016aa3ae56b",
+      "original": "7264275544",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "240407fd-07e2-49c3-987f-8d18586e262e",
+      "original": "3954971165",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "ac5d3f80-cbe4-4483-a1ee-858142e80927",
+      "original": "8110347213",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "7262d713-9564-4121-ba30-b0d97df561b7",
+      "original": "9339208250",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "92333c27-fe1b-495a-a14d-8fe0c820ab15",
+      "original": "1026745009",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "7702be34-aeb2-43e1-ab37-77f45519bc46",
+      "original": "2953243455",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "b8827389-4ac3-4add-b853-8ee09bc38dd9",
+      "original": "7830028488",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "6975b0f3-1f98-48e8-aa45-1ff381e3d20a",
+      "original": "2813493844",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "1a38251d-819a-4188-933a-21c7f6fbe1b8",
+      "original": "7909872755",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "1cd8730d-8da1-48a4-b4fe-502ba3528c0b",
+      "original": "2903127273",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "2cd85876-9ed8-4396-8e41-37af2b65be66",
+      "original": "6342081116",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "a622d843-c18c-4ef0-9a0b-b96ac044eefa",
+      "original": "5123651988",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "6e590446-6d56-484e-b410-05709485b474",
+      "original": "4697383625",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "492ad20e-5a5a-4d26-bbd8-8dedc8a13ee9",
+      "original": "4688108110",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "74201807-aa39-4ff3-a075-ad4275f649d8",
+      "original": "8158090366",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "06b888e0-6cbe-43cb-900d-1885ff9c5ff0",
+      "original": "5254069102",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "2b14e4d4-39e1-4e28-836e-258b6e4b7d74",
+      "original": "4393572021",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "9f57cff1-eccf-4006-b32d-54a46e6da9b2",
+      "original": "7611521460",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "857b5cad-9a4c-49fb-b912-dda04d830807",
+      "original": "3586480471",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "079e82b8-8640-4b8c-868e-24d642f2dcad",
+      "original": "9171698625",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "ccd1b97b-2c7d-46ed-b49c-fc985325a5d8",
+      "original": "8774789629",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "0b0bca72-7d7a-4fd4-9d8c-1fba6d29e080",
+      "original": "6569247870",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "f4e8019b-9829-4afb-ba58-2d626ec7f11d",
+      "original": "3870543372",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "fc20f273-0894-489f-b0f1-3b36c1eb9886",
+      "original": "2063516064",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "06dd9b33-11e1-4573-b111-f118de97c89e",
+      "original": "8344545674",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "c8afdebc-7638-48b0-a028-06141f0fb215",
+      "original": "9176127638",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "ee308e71-d533-4131-8917-dcf385892073",
+      "original": "5237232414",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "df696b12-4047-44c1-a12e-c318f44d650a",
+      "original": "1322212518",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "adcc1ec7-b077-4544-81ee-a059aee8af6e",
+      "original": "6913375141",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "e29b8d52-225a-4f89-9fff-e005a1668864",
+      "original": "9275407984",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "252d02a2-d5b9-4275-8cea-afce512a6b9b",
+      "original": "3462217472",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "1b8859f1-aadb-4438-af6a-a264a5bfbc82",
+      "original": "5792087352",
+      "reason": "Failed to parse phone number."
+    },
+    {
+      "table": "customers",
+      "id": "11b1a59e-bdba-45a4-83a9-5eb94ddc78b2",
+      "original": "6651402597",
+      "reason": "Failed to parse phone number."
+    }
+  ]
+}
