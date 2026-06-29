@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { supabaseAdminClient } from "@/lib/supabase";
 import { 
   ShieldAlert, Loader2, Download, FileSpreadsheet, Building2, Calendar, ChevronLeft, 
@@ -47,11 +47,6 @@ export default function AdminInventoryPage() {
   const [adjustType, setAdjustType] = useState<"STOCK_IN" | "ADJUSTMENT">("STOCK_IN");
   const [adjustLoading, setAdjustLoading] = useState(false);
 
-  // Create Product modal
-  const [createModal, setCreateModal] = useState(false);
-  const [createData, setCreateData] = useState({ name: "", price: "", hsn: "999729", gstRate: "18", initialStock: "0", minimumStock: "5" });
-  const [createLoading, setCreateLoading] = useState(false);
-
   // Warehouse Allocation system
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [whModal, setWhModal] = useState<{ type: 'RECEIVE'|'ALLOCATE'|'TRANSFER'|'RETURN', product: any } | null>(null);
@@ -59,6 +54,11 @@ export default function AdminInventoryPage() {
   const [whLoading, setWhLoading] = useState(false);
 
   const toggleRow = (id: string) => setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
+
+  // Create Product modal
+  const [createModal, setCreateModal] = useState(false);
+  const [createData, setCreateData] = useState({ name: "", price: "", hsn: "999729", gstRate: "18", initialStock: "0", minimumStock: "5" });
+  const [createLoading, setCreateLoading] = useState(false);
 
   const [userRole, setUserRole] = useState<string | null>(null);
 
@@ -171,7 +171,6 @@ export default function AdminInventoryPage() {
       alert("Something went wrong. Please try again.");
     }
   };
-
 
   const handleWhSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -453,7 +452,8 @@ export default function AdminInventoryPage() {
             </thead>
             <tbody>
               {filtered.map(p => (
-                <tr key={p.productId} className="border-b border-white/5 hover:bg-white/[0.01] cursor-pointer group" onClick={(e) => { if ((e.target as HTMLElement).tagName !== "BUTTON") toggleRow(p.productId); }}>
+                <Fragment key={p.productId}>
+                <tr className="border-b border-white/5 hover:bg-white/[0.01] cursor-pointer group" onClick={(e) => { if ((e.target as HTMLElement).tagName !== "BUTTON") toggleRow(p.productId); }}>
                   <td className="p-4">
                     <p className="text-sm font-medium text-white">{p.productName}</p>
                     <p className="text-[9px] text-ivory/40 mt-0.5">HSN: {p.hsn} · GST: {p.gstRate}</p>
@@ -489,6 +489,62 @@ export default function AdminInventoryPage() {
                     )}
                   </td>
                 </tr>
+                {/* Warehouse Panel */}
+                {expandedRows[p.productId] && userRole === "admin" && (
+                  <tr className="bg-luxury-black/50 border-b border-white/5">
+                    <td colSpan={6} className="p-4">
+                      <div className="grid grid-cols-4 gap-6 bg-white/[0.02] border border-white/5 p-4 rounded">
+                        <div className="col-span-1 border-r border-white/5 pr-4">
+                          <h4 className="text-xs uppercase tracking-widest text-gold-primary mb-3">Master Warehouse</h4>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-xs text-ivory/50">Total Received:</span>
+                            <span className="text-sm text-white font-bold">{p.totalReceived || 0}</span>
+                          </div>
+                          <div className="flex justify-between items-center mb-4">
+                            <span className="text-xs text-ivory/50">Available:</span>
+                            <span className="text-sm text-green-400 font-bold">
+                              {p.rawBranchInventory?.find((b:any)=>b.branch==="Warehouse")?.current_stock || 0}
+                            </span>
+                          </div>
+                          <button onClick={() => setWhModal({ type: 'RECEIVE', product: p })} className="w-full bg-white/5 hover:bg-white/10 text-white text-[10px] uppercase tracking-wider py-1.5 rounded transition">
+                            Receive Stock
+                          </button>
+                        </div>
+                        
+                        <div className="col-span-3">
+                          <h4 className="text-xs uppercase tracking-widest text-gold-primary mb-3 flex items-center justify-between">
+                            <span>Branch Allocations</span>
+                            <div className="flex gap-2">
+                              <button onClick={() => setWhModal({ type: 'ALLOCATE', product: p })} className="text-[10px] bg-gold-primary/10 text-gold-primary px-2 py-1 hover:bg-gold-primary/20 rounded transition">Allocate</button>
+                              <button onClick={() => setWhModal({ type: 'TRANSFER', product: p })} className="text-[10px] bg-white/5 text-white px-2 py-1 hover:bg-white/10 rounded transition">Transfer</button>
+                              <button onClick={() => setWhModal({ type: 'RETURN', product: p })} className="text-[10px] bg-red-500/10 text-red-400 px-2 py-1 hover:bg-red-500/20 rounded transition">Return</button>
+                            </div>
+                          </h4>
+                          <div className="grid grid-cols-3 gap-4">
+                            {BRANCHES.map(branch => {
+                              const currentStock = p.rawBranchInventory?.find((b:any)=>b.branch===branch)?.current_stock || 0;
+                              const allocated = p.productAllocations?.find((a:any)=>a.branch===branch)?.allocated_quantity || 0;
+                              return (
+                                <div key={branch} className="bg-black/30 p-3 border border-white/5 rounded">
+                                  <div className="text-xs font-bold text-white mb-2">{branch}</div>
+                                  <div className="flex justify-between items-center mb-1">
+                                    <span className="text-[10px] text-ivory/40 uppercase">Live Stock:</span>
+                                    <span className="text-xs text-white">{currentStock}</span>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-[10px] text-ivory/40 uppercase">Total Allocated:</span>
+                                    <span className="text-xs text-ivory/60">{allocated}</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+                </Fragment>
               ))}
             </tbody>
           </table>
@@ -498,7 +554,7 @@ export default function AdminInventoryPage() {
         </div>
       </div>
 
-
+      {/* Warehouse Allocation Modal */}
       {whModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="bg-luxury-black border border-white/10 p-6 w-full max-w-md">
