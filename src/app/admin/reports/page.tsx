@@ -250,12 +250,12 @@ export default function TaxComplianceReports() {
       drawHeader("INVOICE REGISTER (B2C/B2B)");
 
       const invHead = gstFormat === "combined"
-        ? [["Date", "Invoice #", "Customer", "GSTIN", "Branch", "Taxable (Pre-GST)", "Total GST", "Total (GST Incl.)", "Status"]]
-        : [["Date", "Invoice #", "Customer", "GSTIN", "Branch", "Taxable (Pre-GST)", "CGST", "SGST", "Total (GST Incl.)", "Status"]];
+        ? [["Date", "Invoice #", "Customer", "GSTIN", "Branch", "Item", "Category", "GST Rate", "Qty", "Unit Price", "Taxable", "Discount", "Total GST", "Total Amt", "Status"]]
+        : [["Date", "Invoice #", "Customer", "GSTIN", "Branch", "Item", "Category", "GST Rate", "Qty", "Unit Price", "Taxable", "Discount", "CGST", "SGST", "Total Amt", "Status"]];
 
       const invBody = dataToExport.invoiceRegister.map((inv: any) => gstFormat === "combined"
-        ? [formatDate(inv.invoiceDate), inv.invoiceNumber, inv.customerName, inv.customerGstin, inv.branch, pdfINR(inv.taxableValue), pdfINR(inv.cgst + inv.sgst + inv.igst), pdfINR(inv.totalValue), inv.status]
-        : [formatDate(inv.invoiceDate), inv.invoiceNumber, inv.customerName, inv.customerGstin, inv.branch, pdfINR(inv.taxableValue), pdfINR(inv.cgst), pdfINR(inv.sgst), pdfINR(inv.totalValue), inv.status]
+        ? [formatDate(inv.invoiceDate), inv.invoiceNumber, inv.customerName, inv.customerGstin, inv.branch, inv.itemName, inv.category, inv.gstRate, inv.quantity, pdfINR(inv.unitPrice), pdfINR(inv.taxableValue), pdfINR(inv.discount), pdfINR(inv.cgst + inv.sgst + inv.igst), pdfINR(inv.totalValue), inv.status]
+        : [formatDate(inv.invoiceDate), inv.invoiceNumber, inv.customerName, inv.customerGstin, inv.branch, inv.itemName, inv.category, inv.gstRate, inv.quantity, pdfINR(inv.unitPrice), pdfINR(inv.taxableValue), pdfINR(inv.discount), pdfINR(inv.cgst), pdfINR(inv.sgst), pdfINR(inv.totalValue), inv.status]
       );
 
       autoTable(doc, {
@@ -263,8 +263,8 @@ export default function TaxComplianceReports() {
         head: invHead,
         body: invBody,
         theme: "grid",
-        headStyles: { fillColor: [40, 40, 40], textColor: [255, 255, 255] },
-        styles: { fontSize: 7 }
+        headStyles: { fillColor: [40, 40, 40], textColor: [255, 255, 255], cellPadding: 1 },
+        styles: { fontSize: 6, cellPadding: 1 } // Reduced font size to fit extra columns
       });
 
       // PAGE 3: BRANCH & GST SUMMARY
@@ -300,9 +300,9 @@ export default function TaxComplianceReports() {
       drawHeader("ITEM SALES SUMMARY (SORTED BY QTY)");
       autoTable(doc, {
         startY: y,
-        head: [["Item Name", "Category", "Quantity Sold", "Total Revenue (GST Incl.)"]],
+        head: [["Item Name", "Category", "GST Rate", "Quantity Sold", "Total Revenue (GST Incl.)"]],
         body: dataToExport.itemSummary.map((item: any) => [
-          item.itemName, item.category, item.quantity, pdfINR(item.revenue)
+          item.itemName, item.category, item.gstRate, item.quantity, pdfINR(item.revenue)
         ]),
         theme: "grid",
         styles: { fontSize: 8 }
@@ -413,6 +413,7 @@ export default function TaxComplianceReports() {
       const wsItem = XLSX.utils.json_to_sheet(dataToExport.itemSummary.map((i: any) => ({
         "Item Name": i.itemName,
         "Category": i.category,
+        "GST Rate": i.gstRate,
         "Quantity Sold": i.quantity,
         "Total Revenue": i.revenue
       })));
@@ -427,6 +428,11 @@ export default function TaxComplianceReports() {
             "Customer Name": inv.customerName,
             "GSTIN": inv.customerGstin,
             "Branch": inv.branch,
+            "Item Name": inv.itemName,
+            "Category": inv.category,
+            "GST Rate": inv.gstRate,
+            "Quantity": inv.quantity,
+            "Unit Price": inv.unitPrice,
             "Taxable Value": inv.taxableValue,
             "Discount": inv.discount,
             "Total GST": inv.cgst + inv.sgst + inv.igst,
@@ -440,6 +446,11 @@ export default function TaxComplianceReports() {
             "Customer Name": inv.customerName,
             "GSTIN": inv.customerGstin,
             "Branch": inv.branch,
+            "Item Name": inv.itemName,
+            "Category": inv.category,
+            "GST Rate": inv.gstRate,
+            "Quantity": inv.quantity,
+            "Unit Price": inv.unitPrice,
             "Taxable Value": inv.taxableValue,
             "Discount": inv.discount,
             "CGST": inv.cgst,

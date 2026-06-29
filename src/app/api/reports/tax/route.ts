@@ -123,24 +123,33 @@ export async function POST(req: Request) {
         branchMap[invBranch].taxableValue += subtotal;
         branchMap[invBranch].gstCollected += taxTotal;
 
-        // Invoice Register
-        invoiceRegister.push({
-          invoiceNumber: inv.invoice_number,
-          invoiceDate: inv.created_at,
-          customerName: customerName,
-          customerGstin: "—",
-          branch: invBranch,
-          taxableValue: subtotal,
-          discount: parseFloat(inv.discount) || 0,
-          cgst: cgstAmount,
-          sgst: sgstAmount,
-          igst: igstAmount,
-          totalValue: grandTotal,
-          status: inv.status
-        });
+        // (Invoice Register moved to items loop)
 
         // Items logic
         const items = inv.invoice_items || [];
+        
+        if (items.length === 0) {
+          invoiceRegister.push({
+            invoiceNumber: inv.invoice_number,
+            invoiceDate: inv.created_at,
+            customerName: customerName,
+            customerGstin: "—",
+            branch: invBranch,
+            itemName: "—",
+            category: "—",
+            gstRate: "—",
+            quantity: 0,
+            unitPrice: 0,
+            taxableValue: subtotal,
+            discount: parseFloat(inv.discount) || 0,
+            cgst: cgstAmount,
+            sgst: sgstAmount,
+            igst: igstAmount,
+            totalValue: grandTotal,
+            status: inv.status
+          });
+        }
+        
         items.forEach((item: any) => {
           const qty = item.quantity || 1;
           const rate = parseFloat(item.tax_rate) || 0;
@@ -156,6 +165,30 @@ export async function POST(req: Request) {
 
           const rawRate = rate > 1 ? rate : rate * 100;
           const ratePercentage = rawRate.toFixed(0) + "%";
+
+          const rawUnitPrice = parseFloat(item.unit_price) || 0;
+          const taxableUnitPrice = rate > 0 ? rawUnitPrice / (1 + rate) : rawUnitPrice;
+
+          // Invoice Register (Item-level)
+          invoiceRegister.push({
+            invoiceNumber: inv.invoice_number,
+            invoiceDate: inv.created_at,
+            customerName: customerName,
+            customerGstin: "—",
+            branch: invBranch,
+            itemName: item.item_name || "Unknown Item",
+            category: item.category || "Service",
+            gstRate: ratePercentage,
+            quantity: qty,
+            unitPrice: taxableUnitPrice,
+            taxableValue: itemTaxable,
+            discount: parseFloat(inv.discount) || 0,
+            cgst: itemCgst,
+            sgst: itemSgst,
+            igst: 0,
+            totalValue: lineTotal,
+            status: inv.status
+          });
 
           // HSN Aggregation
           const hsnCode = item.hsn || "Unassigned";
@@ -190,6 +223,7 @@ export async function POST(req: Request) {
             itemMap[itemName] = {
               itemName,
               category: item.category || "Service",
+              gstRate: ratePercentage,
               quantity: 0,
               revenue: 0
             };
@@ -198,9 +232,7 @@ export async function POST(req: Request) {
           itemMap[itemName].revenue += lineTotal;
 
           // Detailed Transactions
-          const rawUnitPrice = parseFloat(item.unit_price) || 0;
           // unit_price in DB is GST-inclusive; compute taxable (pre-GST) unit price
-          const taxableUnitPrice = rate > 0 ? rawUnitPrice / (1 + rate) : rawUnitPrice;
           detailedTransactions.push({
             date: inv.created_at,
             invoiceNumber: inv.invoice_number,
