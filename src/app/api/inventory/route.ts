@@ -472,7 +472,7 @@ export async function POST(req: Request) {
           invoiceQuery = invoiceQuery.gte("invoices.created_at", startISO.toISOString());
       }
 
-      if (targetBranch && targetBranch !== "All Branches") {
+      if (targetBranch && targetBranch !== "All Branches" && targetBranch !== "Warehouse") {
         invoiceQuery = invoiceQuery.eq("invoices.branch", targetBranch);
       }
 
