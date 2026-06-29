@@ -10,6 +10,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { exportNumber } from "@/lib/format";
 import { formatINR, formatDate, monthKey, todayISO } from "@/lib/format";
 
 // PDF-safe currency formatter: jsPDF Helvetica cannot render ₹ (shows as ¹)
@@ -352,13 +353,13 @@ export default function TaxComplianceReports() {
 
       // SHEET 1: Summary
       const wsSummary = XLSX.utils.json_to_sheet([
-        { Metric: "Total Invoices", Value: dataToExport.summary.totalInvoices },
-        { Metric: "Total Sales Value (GST Incl.)", Value: dataToExport.summary.totalSales },
-        { Metric: "Taxable Value (Before GST)", Value: dataToExport.summary.totalTaxable },
-        { Metric: "Total GST Collected", Value: dataToExport.summary.totalGstCollected },
-        { Metric: "CGST Total", Value: dataToExport.summary.totalCgst },
-        { Metric: "SGST Total", Value: dataToExport.summary.totalSgst },
-        { Metric: "IGST Total", Value: dataToExport.summary.totalIgst },
+        { Metric: "Total Invoices", Value: exportNumber(dataToExport.summary.totalInvoices) },
+        { Metric: "Total Sales Value (GST Incl.)", Value: exportNumber(dataToExport.summary.totalSales) },
+        { Metric: "Taxable Value (Before GST)", Value: exportNumber(dataToExport.summary.totalTaxable) },
+        { Metric: "Total GST Collected", Value: exportNumber(dataToExport.summary.totalGstCollected) },
+        { Metric: "CGST Total", Value: exportNumber(dataToExport.summary.totalCgst) },
+        { Metric: "SGST Total", Value: exportNumber(dataToExport.summary.totalSgst) },
+        { Metric: "IGST Total", Value: exportNumber(dataToExport.summary.totalIgst) },
       ]);
       XLSX.utils.book_append_sheet(wb, wsSummary, "Summary");
 
@@ -368,23 +369,23 @@ export default function TaxComplianceReports() {
           return {
             "HSN Code": h.hsnCode,
             "Description": h.description,
-            "Quantity": h.quantity,
-            "Taxable Value": h.taxableValue,
-            "GST Rate": h.gstRate,
+            "Quantity": exportNumber(h.quantity),
+            "Taxable Value": exportNumber(h.taxableValue),
+            "GST Rate": exportNumber(h.gstRate),
             "Total GST": h.cgst + h.sgst + h.igst,
-            "Total Value": h.totalValue
+            "Total Value": exportNumber(h.totalValue)
           };
         } else {
           return {
             "HSN Code": h.hsnCode,
             "Description": h.description,
-            "Quantity": h.quantity,
-            "Taxable Value": h.taxableValue,
-            "GST Rate": h.gstRate,
-            "CGST": h.cgst,
-            "SGST": h.sgst,
-            "IGST": h.igst,
-            "Total Value": h.totalValue
+            "Quantity": exportNumber(h.quantity),
+            "Taxable Value": exportNumber(h.taxableValue),
+            "GST Rate": exportNumber(h.gstRate),
+            "CGST": exportNumber(h.cgst),
+            "SGST": exportNumber(h.sgst),
+            "IGST": exportNumber(h.igst),
+            "Total Value": exportNumber(h.totalValue)
           };
         }
       }));
@@ -392,10 +393,10 @@ export default function TaxComplianceReports() {
 
       // SHEET 3: GST Rate Summary
       const wsGst = XLSX.utils.json_to_sheet(dataToExport.gstRateSummary.map((g: any) => ({
-        "GST Rate": g.gstRate,
+        "GST Rate": exportNumber(g.gstRate),
         "Invoices": g.invoiceCount,
-        "Taxable Value": g.taxableValue,
-        "GST Collected": g.gstCollected
+        "Taxable Value": exportNumber(g.taxableValue),
+        "GST Collected": exportNumber(g.gstCollected)
       })));
       XLSX.utils.book_append_sheet(wb, wsGst, "GST Rate Summary");
 
@@ -405,7 +406,7 @@ export default function TaxComplianceReports() {
         "Invoices": b.invoiceCount,
         "Revenue (GST Incl.)": b.revenue,
         "Taxable (Pre-GST)": b.taxableValue,
-        "GST Collected": b.gstCollected
+        "GST Collected": exportNumber(b.gstCollected)
       })));
       XLSX.utils.book_append_sheet(wb, wsBranch, "Branch Summary");
 
@@ -413,9 +414,9 @@ export default function TaxComplianceReports() {
       const wsItem = XLSX.utils.json_to_sheet(dataToExport.itemSummary.map((i: any) => ({
         "Item Name": i.itemName,
         "Category": i.category,
-        "GST Rate": i.gstRate,
-        "Quantity Sold": i.quantity,
-        "Total Revenue": i.revenue
+        "GST Rate": exportNumber(i.gstRate),
+        "Quantity Sold": exportNumber(i.quantity),
+        "Total Revenue": exportNumber(i.revenue)
       })));
       XLSX.utils.book_append_sheet(wb, wsItem, "Item Sales Summary");
 
@@ -430,13 +431,13 @@ export default function TaxComplianceReports() {
             "Branch": inv.branch,
             "Item Name": inv.itemName,
             "Category": inv.category,
-            "GST Rate": inv.gstRate,
-            "Quantity": inv.quantity,
-            "Unit Price": inv.unitPrice,
-            "Taxable Value": inv.taxableValue,
-            "Discount": inv.discount,
+            "GST Rate": exportNumber(inv.gstRate),
+            "Quantity": exportNumber(inv.quantity),
+            "Unit Price": exportNumber(inv.unitPrice),
+            "Taxable Value": exportNumber(inv.taxableValue),
+            "Discount": exportNumber(inv.discount),
             "Total GST": inv.cgst + inv.sgst + inv.igst,
-            "Total Amount": inv.totalValue,
+            "Total Amount": exportNumber(inv.totalValue),
             "Status": inv.status
           };
         } else {
@@ -448,14 +449,14 @@ export default function TaxComplianceReports() {
             "Branch": inv.branch,
             "Item Name": inv.itemName,
             "Category": inv.category,
-            "GST Rate": inv.gstRate,
-            "Quantity": inv.quantity,
-            "Unit Price": inv.unitPrice,
-            "Taxable Value": inv.taxableValue,
-            "Discount": inv.discount,
-            "CGST": inv.cgst,
-            "SGST": inv.sgst,
-            "Total Amount": inv.totalValue,
+            "GST Rate": exportNumber(inv.gstRate),
+            "Quantity": exportNumber(inv.quantity),
+            "Unit Price": exportNumber(inv.unitPrice),
+            "Taxable Value": exportNumber(inv.taxableValue),
+            "Discount": exportNumber(inv.discount),
+            "CGST": exportNumber(inv.cgst),
+            "SGST": exportNumber(inv.sgst),
+            "Total Amount": exportNumber(inv.totalValue),
             "Status": inv.status
           };
         }

@@ -10,7 +10,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { formatINR, formatNumber, formatDate } from "@/lib/format";
+import { formatINR, formatNumber, formatDate, exportNumber } from "@/lib/format";
 import TransactionReportTable from "@/components/admin/TransactionReportTable";
 import CustomerManagement from "@/components/admin/CustomerManagement";
 import EditInvoiceModal from "@/components/admin/EditInvoiceModal";
@@ -592,9 +592,9 @@ export default function AdminPortal() {
             "Branch": inv.branch || "Global",
             "Item Name": item.item_name,
             "Category": item.category,
-            "Quantity": item.quantity,
-            "Unit Price": item.unit_price,
-            "Line Total": item.line_total,
+            "Quantity": exportNumber(item.quantity),
+            "Unit Price": exportNumber(item.unit_price),
+            "Line Total": exportNumber(item.line_total),
             "Discount": parseFloat(inv.discount as any) || 0,
             "Loyalty Redemption": parseFloat(inv.points_redeemed as any) || 0,
             "Taxable Amount": sub,

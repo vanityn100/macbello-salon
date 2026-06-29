@@ -13,7 +13,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { formatINR, formatDate } from "@/lib/format";
+import { formatINR, formatDate, exportNumber } from "@/lib/format";
 import { getBranchInfo } from "@/lib/branchInfo";
 
 // PDF-safe currency: jsPDF Helvetica cannot render ₹
@@ -318,8 +318,8 @@ export default function GSTR1Page() {
           : [["Date", "Invoice #", "Customer", "GSTIN", "Branch", "Taxable", "CGST", "SGST", "Total"]];
 
         const b2bBody = reportData.b2bSales.map((inv: any) => gstFormat === "combined"
-          ? [formatDate(inv.invoiceDate), inv.invoiceNumber, inv.customerName.substring(0, 18), inv.customerGstin, inv.branch, pdfINR(inv.taxableValue), pdfINR(inv.cgst + inv.sgst + inv.igst), pdfINR(inv.totalValue)]
-          : [formatDate(inv.invoiceDate), inv.invoiceNumber, inv.customerName.substring(0, 18), inv.customerGstin, inv.branch, pdfINR(inv.taxableValue), pdfINR(inv.cgst), pdfINR(inv.sgst), pdfINR(inv.totalValue)]
+          ? [formatDate(inv.invoiceDate), inv.invoiceNumber, inv.customerName.substring(0, 18), inv.customerGstin, inv.branch, pdfINR(exportNumber(inv.taxableValue)), pdfINR(exportNumber(inv.cgst) + exportNumber(inv.sgst) + exportNumber(inv.igst)), pdfINR(exportNumber(inv.totalValue))]
+          : [formatDate(inv.invoiceDate), inv.invoiceNumber, inv.customerName.substring(0, 18), inv.customerGstin, inv.branch, pdfINR(exportNumber(inv.taxableValue)), pdfINR(exportNumber(inv.cgst)), pdfINR(exportNumber(inv.sgst)), pdfINR(exportNumber(inv.totalValue))]
         );
 
         autoTable(doc, {
@@ -341,8 +341,8 @@ export default function GSTR1Page() {
         : [["HSN/SAC", "Description", "Qty", "Taxable (Before GST)", "Rate", "CGST", "SGST", "IGST", "Total (GST Incl.)"]];
 
       const hsnBody = reportData.hsnSummary.map((h: any) => gstFormat === "combined"
-        ? [h.hsnCode, h.description.substring(0, 20), h.quantity, pdfINR(h.taxableValue), h.gstRate, pdfINR(h.cgst + h.sgst + h.igst), pdfINR(h.totalValue)]
-        : [h.hsnCode, h.description.substring(0, 20), h.quantity, pdfINR(h.taxableValue), h.gstRate, pdfINR(h.cgst), pdfINR(h.sgst), pdfINR(h.igst), pdfINR(h.totalValue)]
+        ? [h.hsnCode, h.description.substring(0, 20), h.quantity, pdfINR(exportNumber(h.taxableValue)), h.gstRate, pdfINR(exportNumber(h.cgst) + exportNumber(h.sgst) + exportNumber(h.igst)), pdfINR(exportNumber(h.totalValue))]
+        : [h.hsnCode, h.description.substring(0, 20), h.quantity, pdfINR(exportNumber(h.taxableValue)), h.gstRate, pdfINR(exportNumber(h.cgst)), pdfINR(exportNumber(h.sgst)), pdfINR(exportNumber(h.igst)), pdfINR(exportNumber(h.totalValue))]
       );
 
       autoTable(doc, {
@@ -385,7 +385,7 @@ export default function GSTR1Page() {
         body: reportData.invoiceRegister.map((inv: any) => [
           inv.invoiceNumber, formatDate(inv.invoiceDate),
           inv.customerName.substring(0, 18), inv.branch,
-          inv.gstRate, pdfINR(inv.taxableValue), pdfINR(inv.gstAmount), pdfINR(inv.totalValue),
+          inv.gstRate, pdfINR(exportNumber(inv.taxableValue)), pdfINR(exportNumber(inv.gstAmount)), pdfINR(exportNumber(inv.totalValue)),
         ]),
         theme: "grid",
         headStyles: { fillColor: [20, 20, 20], textColor: [255, 255, 255] },
@@ -436,12 +436,12 @@ export default function GSTR1Page() {
           "Sale",
           inv.invoiceNumber,
           new Date(inv.invoiceDate).toLocaleDateString('en-GB'), // DD/MM/YYYY format
-          inv.totalValue,
+          exportNumber(inv.totalValue),
           inv.gstRate,
-          inv.taxableValue,
-          inv.igst,
-          inv.cgst,
-          inv.sgst
+          exportNumber(inv.taxableValue),
+          exportNumber(inv.igst),
+          exportNumber(inv.cgst),
+          exportNumber(inv.sgst)
         ])
       ];
 
@@ -465,12 +465,12 @@ export default function GSTR1Page() {
           h.description,
           "OTH-OTHERS",
           h.quantity,
-          Number(h.totalValue.toFixed(2)),
+          Number(exportNumber(h.totalValue).toFixed(2)),
           h.gstRate,
-          Number(h.taxableValue.toFixed(2)),
-          Number(h.igst.toFixed(2)),
-          Number(h.cgst.toFixed(2)),
-          Number(h.sgst.toFixed(2))
+          Number(exportNumber(h.taxableValue).toFixed(2)),
+          Number(exportNumber(h.igst).toFixed(2)),
+          Number(exportNumber(h.cgst).toFixed(2)),
+          Number(exportNumber(h.sgst).toFixed(2))
         ])
       ];
 
@@ -775,10 +775,10 @@ export default function GSTR1Page() {
                         <td className="py-2 pr-4 text-[11px]">{inv.customerName}</td>
                         <td className="py-2 pr-4 text-[11px] text-gold-primary">{inv.customerGstin}</td>
                         <td className="py-2 pr-4 text-[11px]">{inv.branch}</td>
-                        <td className="py-2 pr-4 text-[11px] ">{formatINR(inv.taxableValue)}</td>
-                        <td className="py-2 pr-4 text-[11px] ">{formatINR(inv.cgst)}</td>
-                        <td className="py-2 pr-4 text-[11px] ">{formatINR(inv.sgst)}</td>
-                        <td className="py-2 text-[11px] text-gold-primary/80">{formatINR(inv.totalValue)}</td>
+                        <td className="py-2 pr-4 text-[11px] ">{formatINR(exportNumber(inv.taxableValue))}</td>
+                        <td className="py-2 pr-4 text-[11px] ">{formatINR(exportNumber(inv.cgst))}</td>
+                        <td className="py-2 pr-4 text-[11px] ">{formatINR(exportNumber(inv.sgst))}</td>
+                        <td className="py-2 text-[11px] text-gold-primary/80">{formatINR(exportNumber(inv.totalValue))}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -808,12 +808,12 @@ export default function GSTR1Page() {
                       <td className="py-2 pr-4 text-[11px] text-gold-primary">{h.hsnCode}</td>
                       <td className="py-2 pr-4 text-[11px]">{h.description}</td>
                       <td className="py-2 pr-4 text-[11px]">{h.quantity}</td>
-                      <td className="py-2 pr-4 text-[11px] ">{formatINR(h.taxableValue)}</td>
+                      <td className="py-2 pr-4 text-[11px] ">{formatINR(exportNumber(h.taxableValue))}</td>
                       <td className="py-2 pr-4 text-[11px] text-gold-primary">{h.gstRate}</td>
-                      <td className="py-2 pr-4 text-[11px] ">{formatINR(h.cgst)}</td>
-                      <td className="py-2 pr-4 text-[11px] ">{formatINR(h.sgst)}</td>
-                      <td className="py-2 pr-4 text-[11px] ">{formatINR(h.igst)}</td>
-                      <td className="py-2 text-[11px] text-gold-primary/80">{formatINR(h.totalValue)}</td>
+                      <td className="py-2 pr-4 text-[11px] ">{formatINR(exportNumber(h.cgst))}</td>
+                      <td className="py-2 pr-4 text-[11px] ">{formatINR(exportNumber(h.sgst))}</td>
+                      <td className="py-2 pr-4 text-[11px] ">{formatINR(exportNumber(h.igst))}</td>
+                      <td className="py-2 text-[11px] text-gold-primary/80">{formatINR(exportNumber(h.totalValue))}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -876,9 +876,9 @@ export default function GSTR1Page() {
                       <td className="py-2 pr-4 text-[11px]">{inv.customerName}</td>
                       <td className="py-2 pr-4 text-[11px]">{inv.branch}</td>
                       <td className="py-2 pr-4 text-[11px] text-gold-primary">{inv.gstRate}</td>
-                      <td className="py-2 pr-4 text-[11px] ">{formatINR(inv.taxableValue)}</td>
-                      <td className="py-2 pr-4 text-[11px] ">{formatINR(inv.gstAmount)}</td>
-                      <td className="py-2 text-[11px] text-gold-primary/80">{formatINR(inv.totalValue)}</td>
+                      <td className="py-2 pr-4 text-[11px] ">{formatINR(exportNumber(inv.taxableValue))}</td>
+                      <td className="py-2 pr-4 text-[11px] ">{formatINR(exportNumber(inv.gstAmount))}</td>
+                      <td className="py-2 text-[11px] text-gold-primary/80">{formatINR(exportNumber(inv.totalValue))}</td>
                     </tr>
                   ))}
                 </tbody>

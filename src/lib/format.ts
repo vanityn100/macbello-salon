@@ -35,3 +35,8 @@ export function todayISO(): string {
 export function monthKey(date: Date = new Date()): string {
   return date.toISOString().slice(0, 7);
 }
+
+export function exportNumber(value: number | string | any): number {
+  const v = Number(value) || 0;
+  return Number(v.toFixed(2));
+}

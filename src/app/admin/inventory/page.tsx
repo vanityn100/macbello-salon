@@ -11,7 +11,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { formatINR, formatDate } from "@/lib/format";
+import { formatINR, formatDate, exportNumber } from "@/lib/format";
 
 function pdfINR(v: number) {
   return "Rs." + new Intl.NumberFormat("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(v) || 0);
@@ -339,12 +339,12 @@ export default function AdminInventoryPage() {
       "Product Name": p.productName,
       "Category": p.category,
       "HSN": p.hsn,
-      "GST Rate": p.gstRate,
+      "GST Rate": exportNumber(p.gstRate),
       "Current Stock": p.currentStock,
       "Status": p.status,
-      "Quantity Sold": p.quantitySold,
-      "Taxable Value": p.taxableValue,
-      "GST Collected": p.gstCollected,
+      "Quantity Sold": exportNumber(p.quantitySold),
+      "Taxable Value": exportNumber(p.taxableValue),
+      "GST Collected": exportNumber(p.gstCollected),
       "Revenue": p.revenue
     })));
     XLSX.utils.book_append_sheet(wb, ws, "Product Summary");
