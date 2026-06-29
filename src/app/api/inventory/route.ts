@@ -404,13 +404,16 @@ export async function POST(req: Request) {
           }
         }
 
+        const rawRate = parseFloat(p.tax_rate) || 0;
+        const rateLabel = (rawRate > 1 ? rawRate : rawRate * 100).toFixed(0) + "%";
+
         return {
           productId: p.id,
           productName: p.name,
           category: p.category,
           hsn: p.hsn || "—",
           itemCode: p.item_code || "",
-          gstRate: (parseFloat(p.tax_rate) * 100).toFixed(0) + "%",
+          gstRate: rateLabel,
           currentStock: currentStock,
           minimumStock: minimumStock,
           status: p.status,

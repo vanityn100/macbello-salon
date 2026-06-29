@@ -154,7 +154,8 @@ export async function POST(req: Request) {
           const itemCgst = itemTax / 2;
           const itemSgst = itemTax / 2;
 
-          const ratePercentage = (rate * 100).toFixed(0) + "%";
+          const rawRate = rate > 1 ? rate : rate * 100;
+          const ratePercentage = rawRate.toFixed(0) + "%";
 
           // HSN Aggregation
           const hsnCode = item.hsn || "Unassigned";
