@@ -41,6 +41,7 @@ export async function POST(req: Request) {
           )
         `)
         .eq("category", "Retail")
+        .not("status", "in", '("archived","ARCHIVED")')
         .order("name", { ascending: true });
 
       const { data, error } = await query;
@@ -324,6 +325,7 @@ export async function POST(req: Request) {
           branch_inventory ( branch, current_stock, minimum_stock )
         `)
         .eq("category", "Retail")
+        .not("status", "in", '("archived","ARCHIVED")')
         .order("name", { ascending: true });
 
       const { data: products, error: pErr } = await productQuery;
