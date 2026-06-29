@@ -52,6 +52,14 @@ export default function AdminInventoryPage() {
   const [createData, setCreateData] = useState({ name: "", price: "", hsn: "999729", gstRate: "18", initialStock: "0", minimumStock: "5" });
   const [createLoading, setCreateLoading] = useState(false);
 
+  // Warehouse Allocation system
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+  const [whModal, setWhModal] = useState<{ type: 'RECEIVE'|'ALLOCATE'|'TRANSFER'|'RETURN', product: any } | null>(null);
+  const [whData, setWhData] = useState({ quantity: "", notes: "", sourceBranch: "", targetBranch: "" });
+  const [whLoading, setWhLoading] = useState(false);
+
+  const toggleRow = (id: string) => setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
+
   const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
@@ -161,6 +169,41 @@ export default function AdminInventoryPage() {
       }
     } catch (err) {
       alert("Something went wrong. Please try again.");
+    }
+  };
+
+
+  const handleWhSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sessionToken || !whModal) return;
+    setWhLoading(true);
+    try {
+      const payload = {
+        action: whModal.type.toLowerCase() + "_stock",
+        productId: whModal.product.productId,
+        quantity: whData.quantity,
+        notes: whData.notes,
+        sourceBranch: whData.sourceBranch,
+        targetBranch: whData.targetBranch
+      };
+
+      const res = await fetch("/api/inventory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setWhModal(null);
+        setWhData({ quantity: "", notes: "", sourceBranch: "", targetBranch: "" });
+        loadReport();
+      } else {
+        alert(data.error || "Operation failed.");
+      }
+    } catch (err) {
+      alert("Something went wrong.");
+    } finally {
+      setWhLoading(false);
     }
   };
 
@@ -410,7 +453,7 @@ export default function AdminInventoryPage() {
             </thead>
             <tbody>
               {filtered.map(p => (
-                <tr key={p.productId} className="border-b border-white/5 hover:bg-white/[0.01]">
+                <tr key={p.productId} className="border-b border-white/5 hover:bg-white/[0.01] cursor-pointer group" onClick={(e) => { if ((e.target as HTMLElement).tagName !== "BUTTON") toggleRow(p.productId); }}>
                   <td className="p-4">
                     <p className="text-sm font-medium text-white">{p.productName}</p>
                     <p className="text-[9px] text-ivory/40 mt-0.5">HSN: {p.hsn} · GST: {p.gstRate}</p>
@@ -454,6 +497,55 @@ export default function AdminInventoryPage() {
           )}
         </div>
       </div>
+
+
+      {whModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-luxury-black border border-white/10 p-6 w-full max-w-md">
+            <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-4">
+              {whModal.type.replace('_', ' ')} - {whModal.product.productName}
+            </h3>
+            <form onSubmit={handleWhSubmit} className="space-y-4">
+              {(whModal.type === 'TRANSFER' || whModal.type === 'RETURN') && (
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-ivory/50 mb-2">Source Branch</label>
+                  <select required value={whData.sourceBranch} onChange={e => setWhData({ ...whData, sourceBranch: e.target.value })} className="w-full bg-white/[0.02] border border-white/10 p-2.5 text-xs text-white outline-none">
+                    <option value="">Select Source</option>
+                    {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
+                  </select>
+                </div>
+              )}
+              
+              {(whModal.type === 'ALLOCATE' || whModal.type === 'TRANSFER') && (
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-ivory/50 mb-2">Target Branch</label>
+                  <select required value={whData.targetBranch} onChange={e => setWhData({ ...whData, targetBranch: e.target.value })} className="w-full bg-white/[0.02] border border-white/10 p-2.5 text-xs text-white outline-none">
+                    <option value="">Select Target</option>
+                    {BRANCHES.map(b => <option key={b} value={b}>{b}</option>)}
+                  </select>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-ivory/50 mb-2">Quantity</label>
+                <input required type="number" min="1" step="1" value={whData.quantity} onChange={e => setWhData({ ...whData, quantity: e.target.value })} className="w-full bg-white/[0.02] border border-white/10 p-2.5 text-xs text-white outline-none" />
+              </div>
+
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-ivory/50 mb-2">Notes (Optional)</label>
+                <input type="text" value={whData.notes} onChange={e => setWhData({ ...whData, notes: e.target.value })} className="w-full bg-white/[0.02] border border-white/10 p-2.5 text-xs text-white outline-none" />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                <button type="button" onClick={() => setWhModal(null)} className="text-xs text-ivory/60 hover:text-white px-4 py-2 uppercase tracking-wider">Cancel</button>
+                <button type="submit" disabled={whLoading} className="bg-gold-primary text-black text-xs font-bold uppercase tracking-widest px-6 py-2 hover:bg-gold-dark disabled:opacity-50">
+                  {whLoading ? "Processing..." : "Confirm"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Adjust Modal */}
       {adjustModal && (
