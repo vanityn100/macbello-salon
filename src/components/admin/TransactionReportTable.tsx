@@ -1,3 +1,4 @@
+import { formatGst } from '@/lib/gst';
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
@@ -756,7 +757,7 @@ export default function TransactionReportTable({ invoices, onExportPDF, onExport
                         <td className="py-3">{item.item_name} <span className="text-[10px] text-gray-500 block">{item.category}</span></td>
                         <td className="py-3 text-center">{item.quantity}</td>
                         <td className="py-3 text-right">{formatINR(parseFloat(item.unit_price))}</td>
-                        <td className="py-3 text-right">{item.tax_rate * 100}%</td>
+                        <td className="py-3 text-right">{formatGst(item.tax_rate, item.category)}</td>
                         <td className="py-3 text-right">{formatINR(parseFloat(item.line_total))}</td>
                       </tr>
                     ))}

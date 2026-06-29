@@ -143,3 +143,24 @@ Every pull request or future update must preserve these behaviors:
 - [x] Inventory page, reports, and exports always display identical values.
 
 If any of these validations fail, the change must be rejected.
+
+# Permanent GST Engine (Fail-Proof)
+
+This GST architecture is permanent. Future developers must not introduce new GST calculations or formatting outside the centralized GST module (`src/lib/gst.ts`).
+
+## Single Source of Truth
+- Every product stores one GST rate. Allowed values: `5` or `18`. No other values are valid.
+- Normalize every incoming value to exactly `5` or `18` before saving to the database. Reject decimals, percentages, or high integers (e.g., `0.05`, `1800%`).
+
+## Product Creation & Invoices
+- **Product Creation:** If GST is not explicitly selected, assign the default GST based on the product category (`Service` -> `5`, `Retail` -> `18`).
+- **Persistence:** After the product is saved, that product's GST becomes the permanent source of truth. Future category changes must not silently change the product GST.
+- **Invoice Preservation:** Copy the product GST into the invoice item. Invoice items must preserve their historical GST forever. Changing a product later must never change old invoices.
+
+## Calculations & Storage
+- **Storage:** Store GST only as integer `5` or `18`.
+- **Calculations:** For financial calculations ONLY, convert internally to decimal `0.05` or `0.18`. Never expose this decimal GST to the UI or database storage.
+
+## Formatting & Reports
+- **Centralized Formatter:** Every UI element, Excel export, PDF, Tax Report, and Dashboard must use the central `formatGst()` utility.
+- **Display Output:** Allowed display formats are strictly `"5%"` and `"18%"`. Never display `"500%"`, `"0.18%"`, etc.

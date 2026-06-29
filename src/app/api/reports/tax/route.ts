@@ -1,3 +1,4 @@
+import { getDecimalGst, formatGst } from '@/lib/gst';
 import { NextResponse } from "next/server";
 import { logError } from '@/lib/logger';
 import { getSupabaseAdmin } from "@/lib/supabase";
@@ -142,6 +143,7 @@ export async function POST(req: Request) {
             unitPrice: 0,
             taxableValue: subtotal,
             discount: parseFloat(inv.discount) || 0,
+            loyaltyPoints: parseFloat(inv.points_redeemed) || 0,
             cgst: cgstAmount,
             sgst: sgstAmount,
             igst: igstAmount,
@@ -152,7 +154,7 @@ export async function POST(req: Request) {
         
         items.forEach((item: any) => {
           const qty = item.quantity || 1;
-          const rate = parseFloat(item.tax_rate) || 0;
+          const rate = getDecimalGst(item.tax_rate, item.category);
           const lineTotal = parseFloat(item.line_total) || 0;
           
           // Tax logic per item
@@ -163,8 +165,7 @@ export async function POST(req: Request) {
           const itemCgst = itemTax / 2;
           const itemSgst = itemTax / 2;
 
-          const rawRate = rate > 1 ? rate : rate * 100;
-          const ratePercentage = rawRate.toFixed(0) + "%";
+          const ratePercentage = formatGst(item.tax_rate, item.category);
 
           const rawUnitPrice = parseFloat(item.unit_price) || 0;
           const taxableUnitPrice = rate > 0 ? rawUnitPrice / (1 + rate) : rawUnitPrice;
@@ -183,6 +184,7 @@ export async function POST(req: Request) {
             unitPrice: taxableUnitPrice,
             taxableValue: itemTaxable,
             discount: parseFloat(inv.discount) || 0,
+            loyaltyPoints: parseFloat(inv.points_redeemed) || 0,
             cgst: itemCgst,
             sgst: itemSgst,
             igst: 0,

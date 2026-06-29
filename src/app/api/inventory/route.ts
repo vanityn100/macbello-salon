@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { formatGst } from "@/lib/gst";
 import { logError } from '@/lib/logger';
 import { getSupabaseAdmin } from "@/lib/supabase";
 
@@ -554,8 +555,8 @@ export async function POST(req: Request) {
           }
         }
 
-        const rawRate = parseFloat(p.tax_rate) || 0;
-        const rateLabel = (rawRate > 1 ? rawRate : rawRate * 100).toFixed(0) + "%";
+        
+        const rateLabel = formatGst(p.gst_rate, p.category);
 
         return {
           productId: p.id,

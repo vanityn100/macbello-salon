@@ -1,3 +1,4 @@
+import { formatGst, getDecimalGst } from '@/lib/gst';
 "use client";
 
 import { useState, useEffect } from "react";
@@ -700,14 +701,14 @@ export default function BillingModule() {
                   <td className="py-3.5 pr-8 text-white print-text-black">{item.hsn || "-"}</td>
                   <td className="py-3.5 text-gold-primary/70 print-text-gold font-medium">{item.category}</td>
                   <td className="metric-value py-3.5 text-center font-medium text-white print-text-black">{item.quantity}</td>
-                  <td className="currency-value py-3.5 text-white print-text-black">₹{(parseFloat(item.unit_price) * (1 + item.tax_rate)).toFixed(2)}</td>
+                  <td className="currency-value py-3.5 text-white print-text-black">₹{(parseFloat(item.unit_price) * (1 + getDecimalGst(item.tax_rate, item.category))).toFixed(2)}</td>
                   <td className="metric-value py-3.5 text-ivory/60 print-text-muted">
-                    {item.tax_rate * 100}%
+                    {formatGst(item.tax_rate, item.category)}
                     <span className="block text-[9px] text-ivory/40">
-                      ({(item.tax_rate * 50).toFixed(1)}% CGST + {(item.tax_rate * 50).toFixed(1)}% SGST)
+                      ({parseFloat(formatGst(item.tax_rate, item.category)) / 2}% CGST + {parseFloat(formatGst(item.tax_rate, item.category)) / 2}% SGST)
                     </span>
                   </td>
-                  <td className="currency-value py-3.5 text-right font-medium text-white print-text-black">₹{(parseFloat(item.line_total) * (1 + item.tax_rate)).toFixed(2)}</td>
+                  <td className="currency-value py-3.5 text-right font-medium text-white print-text-black">₹{(parseFloat(item.line_total) * (1 + getDecimalGst(item.tax_rate, item.category))).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -1136,7 +1137,7 @@ export default function BillingModule() {
                           </span>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
-                          <span className="currency-value text-xs md:text-sm text-white font-medium">₹{(item.price * (1 + item.tax_rate)).toFixed(2)} <span className="text-[9px] text-ivory/50 font-normal normal-case">(GST Included)</span></span>
+                          <span className="currency-value text-xs md:text-sm text-white font-medium">₹{(item.price * (1 + getDecimalGst(item.tax_rate, item.category))).toFixed(2)} <span className="text-[9px] text-ivory/50 font-normal normal-case">(GST Included)</span></span>
                           <button
                             type="button"
                             onClick={() => {
@@ -1215,14 +1216,14 @@ export default function BillingModule() {
                               />
                             </td>
                             <td className="metric-value py-3 font-medium">{quantity}</td>
-                            <td className="currency-value py-3">₹{(item.price * (1 + item.tax_rate)).toFixed(2)}</td>
+                            <td className="currency-value py-3">₹{(item.price * (1 + getDecimalGst(item.tax_rate, item.category))).toFixed(2)}</td>
                             <td className="metric-value py-3">
-                              {item.tax_rate * 100}%
+                              {formatGst(item.tax_rate, item.category)}
                               <span className="block text-[9px] text-ivory/45">
-                                ({(item.tax_rate * 50).toFixed(1)}% CGST + {(item.tax_rate * 50).toFixed(1)}% SGST)
+                                ({parseFloat(formatGst(item.tax_rate, item.category)) / 2}% CGST + {parseFloat(formatGst(item.tax_rate, item.category)) / 2}% SGST)
                               </span>
                             </td>
-                            <td className="currency-value py-3 text-white font-medium">₹{(lineTotal * (1 + item.tax_rate)).toFixed(2)}</td>
+                            <td className="currency-value py-3 text-white font-medium">₹{(lineTotal * (1 + getDecimalGst(item.tax_rate, item.category))).toFixed(2)}</td>
                             <td className="py-3 text-right">
                               <button
                                 onClick={() => removeFromCart(item.id)}

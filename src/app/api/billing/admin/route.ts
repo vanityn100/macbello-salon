@@ -1,3 +1,4 @@
+import { normalizeGst } from '@/lib/gst';
 import { NextRequest, NextResponse } from "next/server";
 import { normalizePhone } from "@/lib/phone";
 import { logError } from '@/lib/logger';
@@ -606,13 +607,7 @@ export async function POST(request: NextRequest) {
         safeItemCode = `MAC${nextNum.toString().padStart(3, '0')}`;
       }
 
-      let parsedTaxRate = category === "Service" ? 0.05 : 0.18;
-      if (taxRate !== undefined) {
-        const tempTax = parseFloat(taxRate);
-        if (!isNaN(tempTax) && tempTax >= 0 && tempTax <= 1) {
-          parsedTaxRate = tempTax;
-        }
-      }
+      let parsedTaxRate = normalizeGst(taxRate, category);
 
       const { data: newService, error } = await adminSupabase
         .from("services")
@@ -685,13 +680,7 @@ export async function POST(request: NextRequest) {
       const safeItemCode = itemCode && typeof itemCode === "string" ? itemCode.trim().replace(/<[^>]*>/g, "") : null;
       const safeHsn = hsn && typeof hsn === "string" ? hsn.trim().replace(/<[^>]*>/g, "") : null;
 
-      let parsedTaxRate = category === "Service" ? 0.05 : 0.18;
-      if (taxRate !== undefined) {
-        const tempTax = parseFloat(taxRate);
-        if (!isNaN(tempTax) && tempTax >= 0 && tempTax <= 1) {
-          parsedTaxRate = tempTax;
-        }
-      }
+      let parsedTaxRate = normalizeGst(taxRate, category);
 
       const { data: updatedService, error } = await adminSupabase
         .from("services")

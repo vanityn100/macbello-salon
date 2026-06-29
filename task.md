@@ -1,0 +1,9 @@
+- `[x]` Enshrine Permanent GST Engine rules into `.agents/AGENTS.md`
+- `[x]` Create `src/lib/gst.ts` centralized GST engine.
+- `[x]` Refactor `src/lib/invoiceUtils.ts` to use new GST engine.
+- `[ ]` Refactor Product API & UI (Creation/Edit) to strictly accept and store `5` or `18`.
+- `[ ]` Refactor Billing UI (`src/staff/billing/page.tsx`) to render `"5%"`/`"18%"` and use integer storage.
+- `[ ]` Refactor Inventory API (`src/app/api/inventory/route.ts`) to use exact formatting.
+- `[ ]` Refactor Tax Reports and Excel logic to use exact formatting.
+- `[ ]` Refactor PDF export (`src/lib/pdf.ts`) to use `formatGst`.
+- `[ ]` Verify unit tests (`src/__tests__/invoiceUtils.test.ts`).

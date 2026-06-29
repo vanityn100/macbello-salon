@@ -1,3 +1,4 @@
+import { formatGst, getDecimalGst } from '@/lib/gst';
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
@@ -200,7 +201,7 @@ export default function CatalogueManager({ portalType, pageTitle }: CatalogueMan
   const handleEditInit = (item: ServiceItem) => {
     setEditingId(item.id);
     setName(item.name);
-    setPrice((item.price * (1 + item.tax_rate)).toFixed(2));
+    setPrice((item.price * (1 + getDecimalGst(item.tax_rate, item.category))).toFixed(2));
     setCategory(item.category);
     setItemCode(item.item_code || "");
     setHsn(item.hsn || "");
@@ -520,8 +521,8 @@ export default function CatalogueManager({ portalType, pageTitle }: CatalogueMan
                           <td className="py-3 text-ivory/60 text-[10px] pr-8">{item.item_code || "-"}</td>
                           <td className="py-3 text-ivory/60 pr-8">{item.hsn || "-"}</td>
                           <td className="py-3 text-ivory/80">₹{item.price.toFixed(2)}</td>
-                          <td className="py-3 text-ivory/40">{(item.tax_rate * 100).toFixed(0)}%</td>
-                          <td className="py-3 text-white font-semibold">₹{(item.price * (1 + item.tax_rate)).toFixed(2)}</td>
+                          <td className="py-3 text-ivory/40">{formatGst(item.tax_rate, item.category)}</td>
+                          <td className="py-3 text-white font-semibold">₹{(item.price * (1 + getDecimalGst(item.tax_rate, item.category))).toFixed(2)}</td>
                           <td className="py-3 text-right">
                             <div className="inline-flex gap-2">
                               <button

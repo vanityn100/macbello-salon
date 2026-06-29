@@ -1,3 +1,5 @@
+import { getDecimalGst } from './gst';
+
 export interface InvoiceItemInput {
   category?: string | null;
   quantity: number;
@@ -48,19 +50,6 @@ export function recalculateInvoiceTotals(
     }
     return num;
   };
-  
-  const parseTaxRate = (rate: any) => {
-    let taxRate = 0;
-    if (typeof rate === 'string' && rate.trim() !== '') {
-      taxRate = validateNumeric(parseFloat(rate), "tax_rate");
-    } else if (typeof rate === 'number') {
-      taxRate = validateNumeric(rate, "tax_rate");
-    }
-    if (taxRate > 1) {
-      taxRate = taxRate / 100;
-    }
-    return taxRate;
-  };
 
   const cleanManualDiscount = validateNumeric(manualDiscount, "manualDiscount");
   const cleanPointsRedeemed = validateNumeric(pointsRedeemed, "pointsRedeemed");
@@ -75,7 +64,7 @@ export function recalculateInvoiceTotals(
     if (qty === 0) {
        throw new Error("Validation Error: Item quantity must be greater than zero.");
     }
-    const taxRate = parseTaxRate(item.tax_rate);
+    const taxRate = getDecimalGst(item.tax_rate, item.category);
     const originalBase = (qty * price) / (1 + taxRate);
     totalBase += originalBase;
   }
@@ -98,7 +87,7 @@ export function recalculateInvoiceTotals(
   for (const item of items) {
     const qty = validateNumeric(item.quantity, "quantity");
     const price = validateNumeric(item.unit_price, "unit_price");
-    const taxRate = parseTaxRate(item.tax_rate);
+    const taxRate = getDecimalGst(item.tax_rate, item.category);
 
     const originalBase = (qty * price) / (1 + taxRate);
     const discountedBase = originalBase * proportion;

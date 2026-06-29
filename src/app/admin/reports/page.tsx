@@ -250,13 +250,10 @@ export default function TaxComplianceReports() {
       doc.addPage();
       drawHeader("INVOICE REGISTER (B2C/B2B)");
 
-      const invHead = gstFormat === "combined"
-        ? [["Date", "Invoice #", "Customer", "GSTIN", "Branch", "Item", "Category", "GST Rate", "Qty", "Unit Price", "Taxable", "Discount", "Total GST", "Total Amt", "Status"]]
-        : [["Date", "Invoice #", "Customer", "GSTIN", "Branch", "Item", "Category", "GST Rate", "Qty", "Unit Price", "Taxable", "Discount", "CGST", "SGST", "Total Amt", "Status"]];
+      const invHead = [["Invoice Number", "Date", "Customer Name", "GSTIN", "Branch", "Item Name", "Category", "GST Rate", "Quantity", "Unit Price", "Taxable Value", "Discount", "Loyalty Points", "CGST", "SGST", "Total Amount", "Status"]];
 
-      const invBody = dataToExport.invoiceRegister.map((inv: any) => gstFormat === "combined"
-        ? [formatDate(inv.invoiceDate), inv.invoiceNumber, inv.customerName, inv.customerGstin, inv.branch, inv.itemName, inv.category, inv.gstRate, inv.quantity, pdfINR(inv.unitPrice), pdfINR(inv.taxableValue), pdfINR(inv.discount), pdfINR(inv.cgst + inv.sgst + inv.igst), pdfINR(inv.totalValue), inv.status]
-        : [formatDate(inv.invoiceDate), inv.invoiceNumber, inv.customerName, inv.customerGstin, inv.branch, inv.itemName, inv.category, inv.gstRate, inv.quantity, pdfINR(inv.unitPrice), pdfINR(inv.taxableValue), pdfINR(inv.discount), pdfINR(inv.cgst), pdfINR(inv.sgst), pdfINR(inv.totalValue), inv.status]
+      const invBody = dataToExport.invoiceRegister.map((inv: any) => 
+        [inv.invoiceNumber, formatDate(inv.invoiceDate), inv.customerName, inv.customerGstin, inv.branch, inv.itemName, inv.category, inv.gstRate, inv.quantity, pdfINR(inv.unitPrice), pdfINR(inv.taxableValue), pdfINR(inv.discount), pdfINR(inv.loyaltyPoints), pdfINR(inv.cgst), pdfINR(inv.sgst), pdfINR(inv.totalValue), inv.status]
       );
 
       autoTable(doc, {
@@ -421,46 +418,25 @@ export default function TaxComplianceReports() {
       XLSX.utils.book_append_sheet(wb, wsItem, "Item Sales Summary");
 
       // SHEET 6: Invoice Register
-      const wsInvoices = XLSX.utils.json_to_sheet(dataToExport.invoiceRegister.map((inv: any) => {
-        if (gstFormat === "combined") {
-          return {
-            "Invoice Number": inv.invoiceNumber,
-            "Date": formatDate(inv.invoiceDate),
-            "Customer Name": inv.customerName,
-            "GSTIN": inv.customerGstin,
-            "Branch": inv.branch,
-            "Item Name": inv.itemName,
-            "Category": inv.category,
-            "GST Rate": exportNumber(inv.gstRate),
-            "Quantity": exportNumber(inv.quantity),
-            "Unit Price": exportNumber(inv.unitPrice),
-            "Taxable Value": exportNumber(inv.taxableValue),
-            "Discount": exportNumber(inv.discount),
-            "Total GST": inv.cgst + inv.sgst + inv.igst,
-            "Total Amount": exportNumber(inv.totalValue),
-            "Status": inv.status
-          };
-        } else {
-          return {
-            "Invoice Number": inv.invoiceNumber,
-            "Date": formatDate(inv.invoiceDate),
-            "Customer Name": inv.customerName,
-            "GSTIN": inv.customerGstin,
-            "Branch": inv.branch,
-            "Item Name": inv.itemName,
-            "Category": inv.category,
-            "GST Rate": exportNumber(inv.gstRate),
-            "Quantity": exportNumber(inv.quantity),
-            "Unit Price": exportNumber(inv.unitPrice),
-            "Taxable Value": exportNumber(inv.taxableValue),
-            "Discount": exportNumber(inv.discount),
-            "CGST": exportNumber(inv.cgst),
-            "SGST": exportNumber(inv.sgst),
-            "Total Amount": exportNumber(inv.totalValue),
-            "Status": inv.status
-          };
-        }
-      }));
+      const wsInvoices = XLSX.utils.json_to_sheet(dataToExport.invoiceRegister.map((inv: any) => ({
+        "Invoice Number": inv.invoiceNumber,
+        "Date": formatDate(inv.invoiceDate),
+        "Customer Name": inv.customerName,
+        "GSTIN": inv.customerGstin,
+        "Branch": inv.branch,
+        "Item Name": inv.itemName,
+        "Category": inv.category,
+        "GST Rate": inv.gstRate,
+        "Quantity": exportNumber(inv.quantity),
+        "Unit Price": exportNumber(inv.unitPrice),
+        "Taxable Value": exportNumber(inv.taxableValue),
+        "Discount": exportNumber(inv.discount),
+        "Loyalty Points": exportNumber(inv.loyaltyPoints),
+        "CGST": exportNumber(inv.cgst),
+        "SGST": exportNumber(inv.sgst),
+        "Total Amount": exportNumber(inv.totalValue),
+        "Status": inv.status
+      })));
       XLSX.utils.book_append_sheet(wb, wsInvoices, "Invoice Register");
 
       const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });

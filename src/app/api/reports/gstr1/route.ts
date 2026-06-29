@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { logError } from '@/lib/logger';
+import { logError } from "@/lib/logger";
+import { getDecimalGst } from '@/lib/gst';
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { recalculateInvoiceTotals } from "@/lib/invoiceUtils";
 
@@ -175,7 +176,7 @@ export async function POST(req: Request) {
           };
         } else {
           items.forEach((item: any, i: number) => {
-            const rate = parseFloat(item.tax_rate) || 0;
+            const rate = getDecimalGst(item.tax_rate, item.category);
             const qty = item.quantity || 1;
 
             const breakdown = calculated.items_breakdown[i];
