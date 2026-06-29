@@ -601,7 +601,7 @@ export default function StaffPortal() {
             {/* Branch-wise breakdown */}
             {userRole === "admin" && stats.branchBreakdown && (
               <div className="flex flex-col justify-center space-y-1.5 border-t md:border-t-0 md:pr-6 border-white/5 pt-4 md:pt-0">
-                <span className="text-[10px] uppercase tracking-wider text-gold-primary block font-bold">Peruvaontribution</span>
+                <span className="text-[10px] uppercase tracking-wider text-gold-primary block font-bold">Branch Contribution</span>
                 <div className="grid grid-cols-3 gap-2 text-[10px] text-ivory/70 pt-0.5">
                   <div>
                     <span className="block font-medium text-white/90 truncate">Kaduthuruthy</span>

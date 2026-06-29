@@ -965,14 +965,14 @@ export default function AdminPortal() {
 
             {/* Performance Breakdowns Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {/* Peruvaontribution */}
+              {/* Branch Contribution */}
               {stats.branchBreakdown && (
                 <div className="border border-white/5 bg-white/[0.01] p-6 relative">
                   <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-gold-primary/25" />
                   <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-gold-primary/25" />
                   <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-gold-primary/25" />
                   <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-gold-primary/25" />
-                  <span className="text-[10px] uppercase tracking-wider text-gold-primary block font-bold mb-3">Peruvaontribution</span>
+                  <span className="text-[10px] uppercase tracking-wider text-gold-primary block font-bold mb-3">Branch Contribution</span>
                   <div className="grid grid-cols-3 gap-3 text-xs text-ivory/70">
                     <div className="bg-white/[0.02] border border-white/5 p-3 text-center">
                       <span className="block font-medium text-white/90 truncate mb-1 text-[10px]">Kaduthuruthy</span>
