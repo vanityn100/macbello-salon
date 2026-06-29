@@ -424,7 +424,7 @@ export default function TaxComplianceReports() {
         if (gstFormat === "combined") {
           return {
             "Invoice Number": inv.invoiceNumber,
-            "Date": inv.invoiceDate ? (inv.invoiceDate.includes("T") ? inv.invoiceDate.split("T")[0] : inv.invoiceDate) : "-",
+            "Date": formatDate(inv.invoiceDate),
             "Customer Name": inv.customerName,
             "GSTIN": inv.customerGstin,
             "Branch": inv.branch,
@@ -442,7 +442,7 @@ export default function TaxComplianceReports() {
         } else {
           return {
             "Invoice Number": inv.invoiceNumber,
-            "Date": inv.invoiceDate ? (inv.invoiceDate.includes("T") ? inv.invoiceDate.split("T")[0] : inv.invoiceDate) : "-",
+            "Date": formatDate(inv.invoiceDate),
             "Customer Name": inv.customerName,
             "GSTIN": inv.customerGstin,
             "Branch": inv.branch,

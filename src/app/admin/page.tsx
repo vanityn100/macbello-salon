@@ -492,7 +492,7 @@ export default function AdminPortal() {
         let totalTax = 0;
         
         invoicesToExport.forEach(inv => {
-          const dateStr = inv.created_at ? new Date(inv.created_at).toISOString().slice(0, 10) : "-";
+          const dateStr = formatDate(inv.created_at);
           const customerName = inv.customers?.name || "Anonymous";
           const grand = parseFloat(inv.grand_total as any) || 0;
           const tax = parseFloat(inv.total_tax as any) || 0;

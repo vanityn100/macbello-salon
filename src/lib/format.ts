@@ -17,11 +17,12 @@ export function formatNumber(value: number): string {
 export function formatDate(date: string | Date): string {
   if (!date) return '-';
   try {
-    return new Date(date).toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return String(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   } catch {
     return String(date);
   }
