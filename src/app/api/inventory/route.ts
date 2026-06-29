@@ -472,9 +472,7 @@ export async function POST(req: Request) {
           invoiceQuery = invoiceQuery.gte("invoices.created_at", startISO.toISOString());
       }
 
-      if (targetBranch && targetBranch !== "All Branches" && targetBranch !== "Warehouse") {
-        invoiceQuery = invoiceQuery.eq("invoices.branch", targetBranch);
-      }
+      // Removed branch filtering for invoices so that 'Sold' always shows global company sales
 
       const { data: soldItems, error: iErr } = await invoiceQuery;
       if (iErr) throw iErr;
