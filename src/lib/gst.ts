@@ -4,10 +4,7 @@
  * No other module may implement its own GST percentage calculation, multiplication, or display rendering.
  */
 
-import productMasterRaw from './productMaster.json';
 
-// Typecast the JSON so TypeScript knows its structure
-const productMaster: Record<string, { hsn: string, gstRate: number | null }> = productMasterRaw as any;
 
 /**
  * Normalizes any historical or incoming GST rate into the exact integer 5 or 18.
@@ -78,25 +75,22 @@ export function getTaxInfo(item: any): { isService: boolean, hsn: string, gstRat
   let gstRate: any = null;
 
   if (isService) {
-    finalHsn = item.hsn ? String(item.hsn) : "999729";
+    finalHsn = item.hsn ? String(item.hsn) : "Unassigned";
     gstRate = (item.tax_rate !== undefined && item.tax_rate !== null && item.tax_rate !== "") ? item.tax_rate : 5;
   } else {
     // Retail Item
     const itemName = String(item.item_name || item.name || "").trim().toUpperCase();
-    const prod = productMaster[itemName];
 
     if (item.hsn) {
       finalHsn = String(item.hsn);
-    } else if (prod && prod.hsn) {
-      finalHsn = String(prod.hsn);
+    } else {
+      finalHsn = "Unassigned";
     }
 
     if (item.tax_rate !== undefined && item.tax_rate !== null && item.tax_rate !== "") {
       gstRate = item.tax_rate;
-    } else if (prod && prod.gstRate !== undefined && prod.gstRate !== null) {
-      gstRate = prod.gstRate;
     } else {
-      throw new Error(`Validation Error: Missing GST for product ${itemName}`);
+      gstRate = 18;
     }
   }
 

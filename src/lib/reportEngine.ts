@@ -9,9 +9,9 @@
  * - CONSISTENCY: totalSales = SUM(grand_total) across ALL reports — the actual amount collected.
  */
 
+// ─────────────────────────────────────────────────────────────────────────────
 import productMasterExt from './productMasterExt.json';
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -54,7 +54,16 @@ export interface ReportAggregation {
 
 function normalizeName(name: string): string {
   if (!name) return '';
-  return name.trim().replace(/\s+/g, ' ').toUpperCase();
+  return name
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toUpperCase();
+}
+
+function normalizeCode(code: string | null | undefined): string {
+  if (!code) return '';
+  return String(code).replace(/[\u200B-\u200D\uFEFF\s]/g, '').toUpperCase();
 }
 
 /**
@@ -80,53 +89,60 @@ export async function buildCatalogueMap(
       hsn: s.hsn || null,
       category: s.category || 'Service',
       tax_rate: s.tax_rate,
+      price: s.price, // ensure price is attached
     };
     byName.set(normalizeName(s.name), entry);
-    if (s.item_code) {
-      byCode.set(String(s.item_code).trim().toUpperCase(), entry);
+    const code = normalizeCode(s.item_code);
+    if (code) {
+      byCode.set(code, entry);
     }
   }
 
   return { byName, byCode };
 }
 
-
 export function enrichItemWithCatalogue(
   item: any,
   catalogue: { byName: Map<string, CatalogueEntry>; byCode: Map<string, CatalogueEntry> }
 ): any {
   let entry: CatalogueEntry | undefined;
+  
   // Prefer item_code lookup (most precise identifier)
-  if (item.item_code) {
-    entry = catalogue.byCode.get(String(item.item_code).trim().toUpperCase());
+  const cleanItemCode = normalizeCode(item.item_code);
+  if (cleanItemCode) {
+    entry = catalogue.byCode.get(cleanItemCode);
   }
+  
   // Fallback: name lookup
-  const normalizedItemName = normalizeName(item.item_name || '');
-  if (!entry) {
+  const normalizedItemName = normalizeName(item.item_name || item.name || '');
+  if (!entry && normalizedItemName) {
     entry = catalogue.byName.get(normalizedItemName);
   }
 
-  // 1. Match with Product List
+  // 1. Match with Product List (MASTER reference)
   const productListEntry = (productMasterExt as Record<string, { hsn: string, gstRate: number }>)[normalizedItemName];
-  
-  // 2. Read HSN from Product List, fallback to catalogue. Ignore corrupted invoice item.hsn.
-  let validHsn = "Unmatched Record";
+
+  // 2. Determine HSN (Product List > Catalogue > NEVER INVOICE unless it's a Service)
+  let validHsn = "Unmatched";
   if (productListEntry && productListEntry.hsn) {
-    validHsn = String(productListEntry.hsn);
+    validHsn = String(productListEntry.hsn).trim();
   } else if (entry && entry.hsn) {
-    validHsn = String(entry.hsn);
+    validHsn = String(entry.hsn).trim();
+  } else if (item.category === 'Service' && item.hsn) {
+    // Only trust invoice item.hsn for Services if not found in catalogue (to avoid breaking custom services)
+    validHsn = String(item.hsn).trim();
   }
 
-  // 3. Read GST Rate from Product List if needed
+  // 3. Determine GST Rate (Product List > Catalogue > Invoice > Category Fallback)
   let catalogueRate = entry?.tax_rate;
   if (productListEntry && productListEntry.gstRate !== undefined && productListEntry.gstRate !== null) {
     catalogueRate = productListEntry.gstRate;
   }
   
   const storedRate = parseFloat(item.tax_rate);
-  const finalTaxRate = (storedRate > 0) 
-    ? storedRate 
-    : (catalogueRate !== undefined && catalogueRate !== null ? catalogueRate : (item.category === 'Retail' ? 18 : 5));
+  const finalTaxRate = (catalogueRate !== undefined && catalogueRate !== null) 
+    ? catalogueRate 
+    : ((storedRate > 0) ? storedRate : (item.category === 'Retail' ? 18 : 5));
 
   // OVERRIDE PRICE WITH CATALOGUE GST-INCLUSIVE PRICE (as requested)
   let correctedUnitPrice = parseFloat(item.unit_price) || 0;
