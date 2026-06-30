@@ -96,7 +96,7 @@
     "gstRate": 18
   },
   "STRX PRO SERUM": {
-    "hsn": "Unassigned",
+    "hsn": "33059090",
     "gstRate": 18
   },
   "AZV SUNSCREEN SPF 50": {
@@ -127,11 +127,11 @@
     "hsn": "330499",
     "gstRate": 18
   },
-  "SSP K’S BACKWASH CONDITIONER 5000ML": {
+  "SSP K'S BACKWASH CONDITIONER 5000ML": {
     "hsn": "330499",
     "gstRate": 18
   },
-  "SSP K’S BACKWASH ACTIVATOR SHAMPOO 5000ML": {
+  "SSP K'S BACKWASH ACTIVATOR SHAMPOO 5000ML": {
     "hsn": "33051090",
     "gstRate": 5
   },
@@ -155,10 +155,6 @@
     "hsn": "33049990",
     "gstRate": 18
   },
-  "MK REPL. SHAMOO WITH ARGAN OIL 500ML*2": {
-    "hsn": "33051090",
-    "gstRate": 5
-  },
   "MK REPL CONDITIONER 500ML*2": {
     "hsn": "33059090",
     "gstRate": 18
@@ -175,15 +171,19 @@
     "hsn": "33051090",
     "gstRate": 5
   },
-  "MK MAJESTIC REPL CONDTIONER 300ML": {
-    "hsn": "33059090",
-    "gstRate": 18
-  },
   "GP KERATIN REPAIR SHAMPOO 1000ML": {
     "hsn": "33051090",
     "gstRate": 5
   },
   "GP KERATIN REPAIR MASK 500GM": {
+    "hsn": "33059090",
+    "gstRate": 18
+  },
+  "MK REPL. SHAMPOO WITH ARGAN OIL 500ML*2": {
+    "hsn": "33051090",
+    "gstRate": 5
+  },
+  "MK MAJESTIC REPL CONDITIONER 300ML": {
     "hsn": "33059090",
     "gstRate": 18
   }
