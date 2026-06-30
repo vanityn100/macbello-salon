@@ -142,7 +142,16 @@ export async function POST(req: Request) {
       const { data, error } = await adminSupabase.from("services").insert(insertPayload).select().single();
 
       if (error) {
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        console.error("Create product error:", error);
+        if (error.code === "23505") {
+          if (error.message.includes("services_name_key")) {
+            return NextResponse.json({ success: false, error: "A product with this name already exists in the catalog." }, { status: 400 });
+          }
+          if (error.message.includes("services_item_code_key")) {
+            return NextResponse.json({ success: false, error: "A product with this item code already exists." }, { status: 400 });
+          }
+        }
+        return NextResponse.json({ success: false, error: "Failed to create product due to a database error." }, { status: 500 });
       }
 
       // Generate branch_inventory records for all 3 branches
