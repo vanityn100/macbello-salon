@@ -1,5 +1,5 @@
-import { formatGst } from '@/lib/gst';
 "use client";
+import { formatGst } from '@/lib/gst';
 
 import { useState, useEffect } from "react";
 import { X, Search, Plus, Trash2, Loader2, Save } from "lucide-react";
