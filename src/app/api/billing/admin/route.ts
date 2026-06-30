@@ -119,14 +119,27 @@ export async function GET(request: NextRequest) {
 
     // 3. DAILY OPERATIONS METRICS
     if (action === "get_daily_stats") {
-      const todayStart = new Date();
-      todayStart.setHours(0, 0, 0, 0);
+      // Determine the current Date in IST
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric', month: 'numeric', day: 'numeric',
+      });
+      const parts = formatter.formatToParts(new Date());
+      let year = 0, month = 0, day = 0;
+      parts.forEach(p => {
+        if (p.type === 'year') year = parseInt(p.value, 10);
+        if (p.type === 'month') month = parseInt(p.value, 10) - 1;
+        if (p.type === 'day') day = parseInt(p.value, 10);
+      });
+
+      // Midnight IST is UTC - 5.5 hours.
+      const todayStartUTC = new Date(Date.UTC(year, month, day, -5, -30, 0, 0));
 
       let query = adminSupabase
         .from("invoices")
         .select("id, grand_total, discount, branch, created_at, invoice_items(line_total, staff_contribution)")
         .eq("status", "active")
-        .gte("created_at", todayStart.toISOString());
+        .gte("created_at", todayStartUTC.toISOString());
 
       // Staff isolated to their assigned branch
       if (user.role === "staff") {
@@ -195,9 +208,23 @@ export async function GET(request: NextRequest) {
 
     // 3.5 FINANCIAL DASHBOARD METRICS
     if (action === "get_financial_stats") {
-      const todayStart = new Date();
-      todayStart.setHours(0, 0, 0, 0);
-      const monthStart = new Date(todayStart.getFullYear(), todayStart.getMonth(), 1);
+      // Determine the current Date in IST
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric', month: 'numeric', day: 'numeric',
+      });
+      const parts = formatter.formatToParts(new Date());
+      let year = 0, month = 0, day = 0;
+      parts.forEach(p => {
+        if (p.type === 'year') year = parseInt(p.value, 10);
+        if (p.type === 'month') month = parseInt(p.value, 10) - 1;
+        if (p.type === 'day') day = parseInt(p.value, 10);
+      });
+
+      // Calculate the exact UTC timestamps for midnight IST
+      // Midnight IST is UTC - 5.5 hours.
+      const todayStartUTC = new Date(Date.UTC(year, month, day, -5, -30, 0, 0));
+      const monthStartUTC = new Date(Date.UTC(year, month, 1, -5, -30, 0, 0));
 
       let invoicesQuery = adminSupabase.from("invoices").select("grand_total, created_at").eq("status", "active");
       let customersQuery = adminSupabase.from("customers").select("id", { count: "exact", head: true }).eq("status", "active");
@@ -249,8 +276,8 @@ export async function GET(request: NextRequest) {
       let monthlyRevenue = 0;
       let totalRevenue = 0;
 
-      const tISO = todayStart.toISOString();
-      const mISO = monthStart.toISOString();
+      const tISO = todayStartUTC.toISOString();
+      const mISO = monthStartUTC.toISOString();
 
       allInvoices.forEach(inv => {
         const amt = parseFloat(inv.grand_total as string) || 0;
