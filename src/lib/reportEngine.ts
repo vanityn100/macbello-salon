@@ -245,7 +245,8 @@ export function aggregateInvoices(
 
     enrichedItems.forEach((item: any, idx: number) => {
       const rawRate    = parseFloat(item.tax_rate) || 0;
-      const rateLabel  = `${Math.round(rawRate * 100)}%`;
+      const taxDecimal = rawRate / 100;
+      const rateLabel  = `${Math.round(rawRate)}%`;
       const qty        = item.quantity || 1;
       const lineTotal  = parseFloat(item.line_total) || 0;
       const hsnCode    = item.hsn || 'Unassigned';
@@ -254,7 +255,7 @@ export function aggregateInvoices(
       const category   = item.category || 'Service';
 
       const discountedInclusive = lineTotal * proportion;
-      let itemTaxable = discountedInclusive / (1 + rawRate);
+      let itemTaxable = discountedInclusive / (1 + taxDecimal);
       let itemTax     = discountedInclusive - itemTaxable;
 
       // ── Last-item correction: snap to stored invoice totals ───────────────
@@ -273,7 +274,7 @@ export function aggregateInvoices(
       totalSgst += itemSgst;
 
       const rawUnitPrice    = parseFloat(item.unit_price) || 0;
-      const taxableUnitPrice = rawRate > 0 ? rawUnitPrice / (1 + rawRate) : rawUnitPrice;
+      const taxableUnitPrice = taxDecimal > 0 ? rawUnitPrice / (1 + taxDecimal) : rawUnitPrice;
       const itemDiscount    = parseFloat((lineTotal * (1 - proportion)).toFixed(2));
 
       // ── Tax Report: invoice item register (one row per item) ─────────────
@@ -335,7 +336,7 @@ export function aggregateInvoices(
 
       // ── GST Rate Map (with GSTR-1 slab snapping) ─────────────────────────
       const buckets = [0, 5, 12, 18, 28];
-      const bucketRate = rawRate * 100;
+      const bucketRate = rawRate;
       const bucket = buckets.reduce((prev, curr) =>
         Math.abs(curr - bucketRate) < Math.abs(prev - bucketRate) ? curr : prev
       );
