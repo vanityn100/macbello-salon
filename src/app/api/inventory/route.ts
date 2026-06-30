@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { formatGst } from "@/lib/gst";
+import { validateAndCalculateServiceStatus } from "@/lib/validations/serviceStatus";
 import { logError } from '@/lib/logger';
 import { getSupabaseAdmin } from "@/lib/supabase";
 
@@ -113,7 +114,18 @@ export async function POST(req: Request) {
         finalItemCode = `MAC${nextNum.toString().padStart(3, '0')}`;
       }
 
-      const { data, error } = await adminSupabase.from("services").insert({
+      let validatedStatus = "ACTIVE";
+      try {
+        validatedStatus = validateAndCalculateServiceStatus(
+          undefined, 
+          Number(initialStock) || 0, 
+          Number(minimumStock) || 5
+        );
+      } catch (err: any) {
+        return NextResponse.json({ success: false, error: err.message }, { status: 400 });
+      }
+
+      const insertPayload = {
         name: name.trim(),
         category: "Retail",
         price: Number(price),
@@ -121,10 +133,13 @@ export async function POST(req: Request) {
         hsn: hsn || "999729",
         tax_rate: Number(gstRate) / 100,
         item_code: finalItemCode,
-        status: "active",
+        status: validatedStatus,
         current_stock: 0,
         minimum_stock: 5
-      }).select().single();
+      };
+      console.log("Supabase services payload (CREATE RETAIL PRODUCT):", insertPayload);
+
+      const { data, error } = await adminSupabase.from("services").insert(insertPayload).select().single();
 
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -223,11 +238,19 @@ export async function POST(req: Request) {
         
       if (allInv) {
         const totalStock = allInv.reduce((sum, item) => sum + (item.current_stock || 0), 0);
-        let newStatus = 'ACTIVE';
-        if (totalStock <= 0) newStatus = 'OUT OF STOCK';
-        else if (totalStock === 1) newStatus = 'LOW STOCK';
+        let validatedStatus = "ACTIVE";
+        try {
+          // Minimum stock is fixed at 5 in inventory logic
+          validatedStatus = validateAndCalculateServiceStatus(undefined, totalStock, 5);
+        } catch (err: any) {
+          console.error("Status validation error in update_stock:", err);
+          validatedStatus = "ACTIVE"; // fallback in extreme cases, though undefined shouldn't throw
+        }
+        
+        const updatePayload = { status: validatedStatus };
+        console.log("Supabase services payload (UPDATE STOCK -> STATUS):", updatePayload, "for product:", productId);
 
-        await adminSupabase.from("services").update({ status: newStatus }).eq("id", productId).not("status", "in", '("archived","ARCHIVED")');
+        await adminSupabase.from("services").update(updatePayload).eq("id", productId).not("status", "in", '("archived","ARCHIVED")');
       }
 
       // 3. Log transaction

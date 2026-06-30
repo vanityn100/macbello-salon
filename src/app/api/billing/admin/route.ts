@@ -1,4 +1,5 @@
 import { normalizeGst } from '@/lib/gst';
+import { validateAndCalculateServiceStatus } from "@/lib/validations/serviceStatus";
 import { NextRequest, NextResponse } from "next/server";
 import { normalizePhone } from "@/lib/phone";
 import { logError } from '@/lib/logger';
@@ -609,18 +610,28 @@ export async function POST(request: NextRequest) {
 
       let parsedTaxRate = normalizeGst(taxRate, category);
 
+      let validatedStatus = "ACTIVE";
+      try {
+        validatedStatus = validateAndCalculateServiceStatus(undefined, 0, 5, category);
+      } catch (err: any) {
+        return NextResponse.json({ success: false, error: err.message }, { status: 400 });
+      }
+
+      const insertPayload = {
+        name: cleanName,
+        price: parsedPrice,
+        category,
+        tax_rate: parsedTaxRate,
+        item_code: safeItemCode,
+        hsn: safeHsn,
+        branch: targetBranch,
+        status: validatedStatus
+      };
+      console.log("Supabase services payload (BILLING ADMIN CREATE):", insertPayload);
+
       const { data: newService, error } = await adminSupabase
         .from("services")
-        .insert([{
-          name: cleanName,
-          price: parsedPrice,
-          category,
-          tax_rate: parsedTaxRate,
-          item_code: safeItemCode,
-          hsn: safeHsn,
-          branch: targetBranch,
-          status: "active"
-        }])
+        .insert([insertPayload])
         .select("*")
         .single();
 
@@ -734,9 +745,19 @@ export async function POST(request: NextRequest) {
       // Removed branch constraint for archiving
 
       // Soft delete: status = archived
+      let validatedStatus = "archived";
+      try {
+        validatedStatus = validateAndCalculateServiceStatus("archived");
+      } catch (err: any) {
+        return NextResponse.json({ success: false, error: err.message }, { status: 400 });
+      }
+
+      const updatePayload = { status: validatedStatus };
+      console.log("Supabase services payload (BILLING ADMIN ARCHIVE):", updatePayload);
+
       const { error } = await adminSupabase
         .from("services")
-        .update({ status: "archived" })
+        .update(updatePayload)
         .eq("id", id);
 
       if (error) {
