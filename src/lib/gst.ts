@@ -74,40 +74,39 @@ export function getTaxInfo(item: any): { isService: boolean, hsn: string, gstRat
   const rawCategory = item.category || "Service";
   const isService = rawCategory.toLowerCase().includes("service") || rawCategory === "Service";
 
+  let finalHsn = "Unassigned";
+  let gstRate: any = null;
+
   if (isService) {
-    return {
-      isService: true,
-      hsn: "999729",
-      gstRate: 5,
-      gstLabel: "5%",
-      gstDecimal: 0.05
-    };
+    finalHsn = item.hsn ? String(item.hsn) : "999729";
+    gstRate = (item.tax_rate !== undefined && item.tax_rate !== null && item.tax_rate !== "") ? item.tax_rate : 5;
   } else {
     // Retail Item
     const itemName = String(item.item_name || item.name || "").trim().toUpperCase();
     const prod = productMaster[itemName];
 
-    let finalHsn = "Unassigned";
-    if (prod && prod.hsn) {
-      finalHsn = String(prod.hsn);
-    } else if (item.hsn) {
+    if (item.hsn) {
       finalHsn = String(item.hsn);
+    } else if (prod && prod.hsn) {
+      finalHsn = String(prod.hsn);
     }
 
-    let gstRate = prod ? prod.gstRate : item.tax_rate;
-    
-    if (gstRate === undefined || gstRate === null || gstRate === "") {
+    if (item.tax_rate !== undefined && item.tax_rate !== null && item.tax_rate !== "") {
+      gstRate = item.tax_rate;
+    } else if (prod && prod.gstRate !== undefined && prod.gstRate !== null) {
+      gstRate = prod.gstRate;
+    } else {
       throw new Error(`Validation Error: Missing GST for product ${itemName}`);
     }
-
-    const normalizedRate = normalizeGst(gstRate);
-
-    return {
-      isService: false,
-      hsn: finalHsn,
-      gstRate: normalizedRate,
-      gstLabel: `${normalizedRate}%`,
-      gstDecimal: normalizedRate / 100
-    };
   }
+
+  const normalizedRate = normalizeGst(gstRate, item.category);
+
+  return {
+    isService,
+    hsn: finalHsn,
+    gstRate: normalizedRate,
+    gstLabel: `${normalizedRate}%`,
+    gstDecimal: normalizedRate / 100
+  };
 }

@@ -205,7 +205,9 @@ export default function CatalogueManager({ portalType, pageTitle }: CatalogueMan
     setCategory(item.category);
     setItemCode(item.item_code || "");
     setHsn(item.hsn || "");
-    setGstRate((item.tax_rate * 100).toString());
+    // Handle both integer (e.g., 18) and decimal (e.g., 0.18) legacy formats
+    const parsedRate = item.tax_rate > 1 ? item.tax_rate : item.tax_rate * 100;
+    setGstRate(parsedRate.toString());
     setFormError("");
     setFormSuccess("");
   };
