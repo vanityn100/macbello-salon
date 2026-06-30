@@ -21,6 +21,7 @@ export interface CatalogueEntry {
   hsn: string | null;
   category: string;
   tax_rate: number;
+  price?: number;
 }
 
 export interface ReportAggregation {
@@ -64,7 +65,7 @@ export async function buildCatalogueMap(
 ): Promise<{ byName: Map<string, CatalogueEntry>; byCode: Map<string, CatalogueEntry> }> {
   const { data: services } = await adminSupabase
     .from('services')
-    .select('id, name, item_code, hsn, category, tax_rate')
+    .select('id, name, item_code, hsn, category, tax_rate, price')
     .not('status', 'in', '("archived","ARCHIVED")');
 
   const byName = new Map<string, CatalogueEntry>();
@@ -117,6 +118,28 @@ export function enrichItemWithCatalogue(
   // Authoritative HSN from the explicitly provided Product List file, fallback to catalogue, then invoice
   const productListHsn = (productListMap as Record<string, string>)[normalizedItemName];
 
+  // OVERRIDE PRICE WITH CATALOGUE GST-INCLUSIVE PRICE (as requested)
+  let correctedUnitPrice = parseFloat(item.unit_price) || 0;
+  let correctedLineTotal = parseFloat(item.line_total) || 0;
+  
+  if (entry?.price !== undefined && entry?.price !== null) {
+    const catExclusive = parseFloat(String(entry.price));
+    if (!isNaN(catExclusive)) {
+       // Normalize rate for calculation
+       let calcRate = finalTaxRate;
+       if (calcRate > 0 && calcRate <= 1) calcRate *= 100;
+       else if (calcRate >= 100) calcRate /= 100;
+       calcRate = Math.round(calcRate);
+       
+       const catInclusive = Math.round(catExclusive * (1 + (calcRate / 100)) * 100) / 100;
+       // If the reported unit price differs from the current catalogue inclusive price, force it to match
+       if (Math.abs(correctedUnitPrice - catInclusive) > 0.01) {
+           correctedUnitPrice = catInclusive;
+           correctedLineTotal = correctedUnitPrice * (item.quantity || 1);
+       }
+    }
+  }
+
   return {
     ...item,
     // Overlay current catalogue fields for display — stored financials untouched
@@ -124,6 +147,9 @@ export function enrichItemWithCatalogue(
     item_code: entry?.item_code || item.item_code || '',
     category: entry?.category || item.category || 'Service',
     tax_rate: finalTaxRate,
+    unit_price: correctedUnitPrice,
+    line_total: correctedLineTotal,
+    catalogue_price: entry?.price,
   };
 }
 
@@ -166,32 +192,15 @@ export function aggregateInvoices(
   const itemMap: Record<string, any> = {};
 
   for (const inv of invoices) {
-    const grandTotal  = parseFloat(inv.grand_total)     || 0;
-    const taxTotal    = parseFloat(inv.total_tax)        || 0;
-    const subtotal    = parseFloat(inv.subtotal)         || 0;
+    let grandTotal  = parseFloat(inv.grand_total)     || 0;
+    let taxTotal    = parseFloat(inv.total_tax)        || 0;
+    let subtotal    = parseFloat(inv.subtotal)         || 0;
     const discount    = parseFloat(inv.discount)         || 0;
     const pointsRedeemed = parseFloat(inv.points_redeemed) || 0;
     const invBranch   = inv.branch || 'Global';
 
-    // ── CONSISTENCY: all reports use grand_total for totalSales ──────────
-    totalSales        += grandTotal;
-    totalTaxable      += subtotal;
-    totalGstCollected += taxTotal;
-
-    // Branch summary (always from stored invoice values — never recalculated)
-    if (!branchMap[invBranch]) {
-      branchMap[invBranch] = {
-        branchName: invBranch,
-        invoiceCount: 0,
-        revenue: 0,
-        taxableValue: 0,
-        gstCollected: 0,
-      };
-    }
-    branchMap[invBranch].invoiceCount += 1;
-    branchMap[invBranch].revenue      += grandTotal;
-    branchMap[invBranch].taxableValue += subtotal;
-    branchMap[invBranch].gstCollected += taxTotal;
+    // Global counters and branch maps will be updated AFTER dynamic recalculation in the items loop
+    // to ensure total consistency across the report.
 
     // Customer info (prefer billing-time snapshot, fall back to joined record)
     const customerName = inv.customer_name || inv.customers?.name  || 'Walk-in';
@@ -238,17 +247,66 @@ export function aggregateInvoices(
       continue;
     }
 
-    // ── Enrich items with current catalogue data ───────────────────────────
+    // ── Enrich items with current catalogue data & override prices ───────────
     const enrichedItems = rawItems.map((it: any) => enrichItemWithCatalogue(it, catalogue));
 
-    // Proportion: discount distributed proportionally across GST-inclusive line totals
-    const totalInclusive = enrichedItems.reduce(
-      (sum: number, it: any) => sum + (parseFloat(it.line_total) || 0), 0
-    );
+    // RECALCULATE Invoice Totals dynamically based on the updated item prices
+    let dynamicInclusiveTotal = 0;
+    enrichedItems.forEach((it: any) => {
+      dynamicInclusiveTotal += (parseFloat(it.line_total) || 0);
+    });
+
+    // We must respect the original absolute discount and points redeemed
     const totalDeductions = discount + pointsRedeemed;
-    const proportion = (totalInclusive > 0 && totalDeductions > 0)
-      ? 1 - (totalDeductions / totalInclusive)
+    
+    // The new grand total is the new inclusive total minus deductions
+    grandTotal = Math.max(0, dynamicInclusiveTotal - totalDeductions);
+    
+    // Proportion for distributing discount
+    const proportion = (dynamicInclusiveTotal > 0 && totalDeductions > 0)
+      ? 1 - (totalDeductions / dynamicInclusiveTotal)
       : 1;
+
+    // Dynamically recalculate invoice subtotal and tax total based on proportional items
+    subtotal = 0;
+    taxTotal = 0;
+    
+    // We compute the true taxable base for the invoice
+    enrichedItems.forEach((it: any) => {
+       const lineTot = parseFloat(it.line_total) || 0;
+       const discInc = lineTot * proportion;
+       let rate = parseFloat(it.tax_rate) || 0;
+       if (rate > 0 && rate <= 1) rate = rate * 100;
+       else if (rate >= 100) rate = rate / 100;
+       rate = Math.round(rate);
+       const tDec = rate / 100;
+       
+       const itmTaxable = discInc / (1 + tDec);
+       const itmTax = discInc - itmTaxable;
+       
+       subtotal += itmTaxable;
+       taxTotal += itmTax;
+    });
+
+    // Update global counters with the dynamically corrected invoice totals
+    totalSales += grandTotal;
+    totalTaxable += subtotal;
+    totalGstCollected += taxTotal;
+
+    // Update Branch summary
+    if (!branchMap[invBranch]) {
+      branchMap[invBranch] = {
+        branchName: invBranch,
+        invoiceCount: 0,
+        revenue: 0,
+        taxableValue: 0,
+        gstCollected: 0,
+      };
+    }
+    branchMap[invBranch].invoiceCount += 1;
+    branchMap[invBranch].revenue      += grandTotal;
+    branchMap[invBranch].taxableValue += subtotal;
+    branchMap[invBranch].gstCollected += taxTotal;
 
     let sumItemTaxable = 0;
     let sumItemTax = 0;
