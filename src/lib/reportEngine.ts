@@ -257,9 +257,19 @@ export function aggregateInvoices(
     const rateBuckets: Record<string, any> = {};
 
     enrichedItems.forEach((item: any, idx: number) => {
-      const rawRate    = parseFloat(item.tax_rate) || 0;
+      let rawRate = parseFloat(item.tax_rate) || 0;
+      
+      // Normalize historical anomalies without destroying non-standard slabs (0%, 12%, 28%)
+      if (rawRate > 0 && rawRate <= 1) {
+        rawRate = rawRate * 100; // e.g., 0.05 -> 5
+      } else if (rawRate >= 100) {
+        rawRate = rawRate / 100; // e.g., 500 -> 5, 1800 -> 18
+      }
+      // Ensure we round to nearest integer to avoid float precision issues (e.g., 5.000000001)
+      rawRate = Math.round(rawRate);
+
       const taxDecimal = rawRate / 100;
-      const rateLabel  = `${Math.round(rawRate)}%`;
+      const rateLabel  = `${rawRate}%`;
       const qty        = item.quantity || 1;
       const lineTotal  = parseFloat(item.line_total) || 0;
       const hsnCode    = item.hsn || 'Unassigned';
