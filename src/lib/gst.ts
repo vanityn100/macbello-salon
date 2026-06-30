@@ -71,7 +71,8 @@ export function getDecimalGst(rate: any, category?: string | null): number {
  * and strict fallbacks for Service.
  */
 export function getTaxInfo(item: any): { isService: boolean, hsn: string, gstRate: number, gstLabel: string, gstDecimal: number } {
-  const isService = item.category?.toLowerCase().includes("service") || item.category === "Service";
+  const rawCategory = item.category || "Service";
+  const isService = rawCategory.toLowerCase().includes("service") || rawCategory === "Service";
 
   if (isService) {
     return {

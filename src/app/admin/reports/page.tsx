@@ -368,7 +368,7 @@ export default function TaxComplianceReports() {
             "Description": h.description,
             "Quantity": exportNumber(h.quantity),
             "Taxable Value": exportNumber(h.taxableValue),
-            "GST Rate": exportNumber(h.gstRate),
+            "GST Rate": h.gstRate,
             "Total GST": h.cgst + h.sgst + h.igst,
             "Total Value": exportNumber(h.totalValue)
           };
@@ -378,7 +378,7 @@ export default function TaxComplianceReports() {
             "Description": h.description,
             "Quantity": exportNumber(h.quantity),
             "Taxable Value": exportNumber(h.taxableValue),
-            "GST Rate": exportNumber(h.gstRate),
+            "GST Rate": h.gstRate,
             "CGST": exportNumber(h.cgst),
             "SGST": exportNumber(h.sgst),
             "IGST": exportNumber(h.igst),
@@ -390,7 +390,7 @@ export default function TaxComplianceReports() {
 
       // SHEET 3: GST Rate Summary
       const wsGst = XLSX.utils.json_to_sheet(dataToExport.gstRateSummary.map((g: any) => ({
-        "GST Rate": exportNumber(g.gstRate),
+        "GST Rate": g.gstRate,
         "Invoices": g.invoiceCount,
         "Taxable Value": exportNumber(g.taxableValue),
         "GST Collected": exportNumber(g.gstCollected)
@@ -411,7 +411,7 @@ export default function TaxComplianceReports() {
       const wsItem = XLSX.utils.json_to_sheet(dataToExport.itemSummary.map((i: any) => ({
         "Item Name": i.itemName,
         "Category": i.category,
-        "GST Rate": exportNumber(i.gstRate),
+        "GST Rate": i.gstRate,
         "Quantity Sold": exportNumber(i.quantity),
         "Total Revenue": exportNumber(i.revenue)
       })));
