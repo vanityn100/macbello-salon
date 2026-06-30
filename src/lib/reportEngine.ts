@@ -1,0 +1,470 @@
+/**
+ * Centralized Reporting Engine — Single Source of Truth for All Reports
+ *
+ * ARCHITECTURE RULES (permanent):
+ * - ALL report routes (tax, gstr1, inventory) MUST import from here.
+ * - No report may implement its own financial formula.
+ * - Financial values (line_total, subtotal, total_tax, grand_total) come from stored invoices — never recalculated.
+ * - Catalogue fields (hsn, item_code, category) are enriched from the live catalogue for display only.
+ * - CONSISTENCY: totalSales = SUM(grand_total) across ALL reports — the actual amount collected.
+ */
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface CatalogueEntry {
+  id: string;
+  name: string;
+  item_code: string | null;
+  hsn: string | null;
+  category: string;
+  tax_rate: number;
+}
+
+export interface ReportAggregation {
+  // For Tax Report (per-item rows)
+  invoiceItemRegister: any[];
+  detailedTransactions: any[];
+  // For GSTR-1 (per-invoice-per-rate-bucket rows)
+  b2bInvoices: any[];
+  b2cInvoices: any[];
+  gstr1InvoiceRegister: any[];
+  // Common maps
+  hsnMap: Record<string, any>;
+  gstRateMap: Record<string, { gstRate: string; taxableValue: number; cgst: number; sgst: number; igst: number; gstCollected: number; invoiceIds: Set<string> }>;
+  branchMap: Record<string, any>;
+  itemMap: Record<string, any>;
+  // Summary totals (consistent across all reports)
+  totalSales: number;        // SUM(grand_total) — actual amount collected
+  totalTaxable: number;      // SUM(subtotal)    — post-discount taxable base
+  totalGstCollected: number; // SUM(total_tax)   — GST on taxable base
+  totalCgst: number;
+  totalSgst: number;
+  totalIgst: number;
+  totalInvoices: number;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Catalogue Map Builder
+// ─────────────────────────────────────────────────────────────────────────────
+
+function normalizeName(name: string): string {
+  if (!name) return '';
+  return name.trim().replace(/\s+/g, ' ').toUpperCase();
+}
+
+/**
+ * Fetches the full master catalogue once and returns O(1) lookup maps.
+ * Call once per request — do NOT call per invoice.
+ */
+export async function buildCatalogueMap(
+  adminSupabase: any
+): Promise<{ byName: Map<string, CatalogueEntry>; byCode: Map<string, CatalogueEntry> }> {
+  const { data: services } = await adminSupabase
+    .from('services')
+    .select('id, name, item_code, hsn, category, tax_rate')
+    .not('status', 'in', '("archived","ARCHIVED")');
+
+  const byName = new Map<string, CatalogueEntry>();
+  const byCode = new Map<string, CatalogueEntry>();
+
+  for (const s of (services || [])) {
+    const entry: CatalogueEntry = {
+      id: s.id,
+      name: s.name,
+      item_code: s.item_code || null,
+      hsn: s.hsn || null,
+      category: s.category || 'Service',
+      tax_rate: s.tax_rate,
+    };
+    byName.set(normalizeName(s.name), entry);
+    if (s.item_code) {
+      byCode.set(String(s.item_code).trim().toUpperCase(), entry);
+    }
+  }
+
+  return { byName, byCode };
+}
+
+/**
+ * Enriches a single invoice_item with current catalogue data (hsn, item_code, category).
+ * Financial values (unit_price, line_total, tax_rate) are NEVER changed.
+ */
+export function enrichItemWithCatalogue(
+  item: any,
+  catalogue: { byName: Map<string, CatalogueEntry>; byCode: Map<string, CatalogueEntry> }
+): any {
+  let entry: CatalogueEntry | undefined;
+  // Prefer item_code lookup (most precise identifier)
+  if (item.item_code) {
+    entry = catalogue.byCode.get(String(item.item_code).trim().toUpperCase());
+  }
+  // Fallback: name lookup
+  if (!entry) {
+    entry = catalogue.byName.get(normalizeName(item.item_name || ''));
+  }
+
+  return {
+    ...item,
+    // Overlay current catalogue fields for display — stored financials untouched
+    hsn: entry?.hsn || item.hsn || 'Unassigned',
+    item_code: entry?.item_code || item.item_code || '',
+    category: entry?.category || item.category || 'Service',
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Core Aggregation Engine
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Single aggregation pass over all invoices.
+ * Produces every data structure needed by every report:
+ *   - Tax & Compliance Report (invoiceItemRegister, hsnMap, gstRateMap, branchMap, itemMap)
+ *   - GSTR-1 (b2bInvoices, b2cInvoices, gstr1InvoiceRegister)
+ *   - Inventory Summary (itemMap for Retail sales)
+ *
+ * FINANCIAL RULES:
+ * - totalSales      = SUM(grand_total)  → actual amount collected (consistent across ALL reports)
+ * - totalTaxable    = SUM(subtotal)     → post-discount taxable base (stored)
+ * - totalGstCollected = SUM(total_tax)  → GST on taxable base (stored)
+ * - Per-item base/tax use stored proportion (discount / totalInclusive) for breakdown
+ * - Last-item correction anchors to stored invoice totals (eliminates rounding drift)
+ */
+export function aggregateInvoices(
+  invoices: any[],
+  catalogue: { byName: Map<string, CatalogueEntry>; byCode: Map<string, CatalogueEntry> }
+): ReportAggregation {
+  let totalSales = 0;
+  let totalTaxable = 0;
+  let totalGstCollected = 0;
+  let totalCgst = 0;
+  let totalSgst = 0;
+
+  const invoiceItemRegister: any[] = [];
+  const detailedTransactions: any[] = [];
+  const b2bInvoices: any[] = [];
+  const b2cInvoices: any[] = [];
+  const gstr1InvoiceRegister: any[] = [];
+  const hsnMap: Record<string, any> = {};
+  const gstRateMap: Record<string, any> = {};
+  const branchMap: Record<string, any> = {};
+  const itemMap: Record<string, any> = {};
+
+  for (const inv of invoices) {
+    const grandTotal  = parseFloat(inv.grand_total)     || 0;
+    const taxTotal    = parseFloat(inv.total_tax)        || 0;
+    const subtotal    = parseFloat(inv.subtotal)         || 0;
+    const discount    = parseFloat(inv.discount)         || 0;
+    const pointsRedeemed = parseFloat(inv.points_redeemed) || 0;
+    const invBranch   = inv.branch || 'Global';
+
+    // ── CONSISTENCY: all reports use grand_total for totalSales ──────────
+    totalSales        += grandTotal;
+    totalTaxable      += subtotal;
+    totalGstCollected += taxTotal;
+
+    // Branch summary (always from stored invoice values — never recalculated)
+    if (!branchMap[invBranch]) {
+      branchMap[invBranch] = {
+        branchName: invBranch,
+        invoiceCount: 0,
+        revenue: 0,
+        taxableValue: 0,
+        gstCollected: 0,
+      };
+    }
+    branchMap[invBranch].invoiceCount += 1;
+    branchMap[invBranch].revenue      += grandTotal;
+    branchMap[invBranch].taxableValue += subtotal;
+    branchMap[invBranch].gstCollected += taxTotal;
+
+    // Customer info (prefer billing-time snapshot, fall back to joined record)
+    const customerName = inv.customer_name || inv.customers?.name  || 'Walk-in';
+    const custPhone    = inv.customer_phone || inv.customers?.phone || '';
+    const custGstin    = inv.customer_gstin
+      || (inv.customers?.gstin && inv.customers.gstin !== '' ? inv.customers.gstin : null)
+      || null;
+
+    const rawItems = inv.invoice_items || [];
+
+    // ── Empty invoice (no items) — use invoice-level totals ───────────────
+    if (rawItems.length === 0) {
+      const cgstFb = taxTotal / 2;
+      totalCgst += cgstFb;
+      totalSgst += cgstFb;
+
+      invoiceItemRegister.push({
+        invoiceNumber: inv.invoice_number,
+        invoiceDate:   inv.created_at,
+        customerName,
+        customerGstin: custGstin || '—',
+        branch:        invBranch,
+        itemName:      '—', hsnCode: '—', itemCode: '—', category: '—', gstRate: '—',
+        quantity:      0, unitPrice: 0,
+        taxableValue:  subtotal, discount, loyaltyPoints: pointsRedeemed,
+        cgst:          cgstFb, sgst: cgstFb, igst: 0,
+        totalValue:    grandTotal,
+        status:        inv.status,
+      });
+
+      // GSTR-1 fallback bucket (5%)
+      const gstr1Row = {
+        invoiceNumber: inv.invoice_number, invoiceDate: inv.created_at,
+        customerName, customerPhone: custPhone, customerGstin: custGstin || '',
+        branch: invBranch,
+        taxableValue: parseFloat(subtotal.toFixed(2)),
+        cgst: parseFloat(cgstFb.toFixed(2)), sgst: parseFloat(cgstFb.toFixed(2)),
+        igst: 0, gstAmount: parseFloat(taxTotal.toFixed(2)),
+        totalValue: parseFloat(grandTotal.toFixed(2)),
+        status: inv.status, gstRate: '5%',
+      };
+      (custGstin && custGstin.trim() !== '' ? b2bInvoices : b2cInvoices).push(gstr1Row);
+      gstr1InvoiceRegister.push(gstr1Row);
+      continue;
+    }
+
+    // ── Enrich items with current catalogue data ───────────────────────────
+    const enrichedItems = rawItems.map((it: any) => enrichItemWithCatalogue(it, catalogue));
+
+    // Proportion: discount distributed proportionally across GST-inclusive line totals
+    const totalInclusive = enrichedItems.reduce(
+      (sum: number, it: any) => sum + (parseFloat(it.line_total) || 0), 0
+    );
+    const totalDeductions = discount + pointsRedeemed;
+    const proportion = (totalInclusive > 0 && totalDeductions > 0)
+      ? 1 - (totalDeductions / totalInclusive)
+      : 1;
+
+    let sumItemTaxable = 0;
+    let sumItemTax = 0;
+
+    // GSTR-1: rate buckets per invoice (one record per GST rate per invoice)
+    const rateBuckets: Record<string, any> = {};
+
+    enrichedItems.forEach((item: any, idx: number) => {
+      const rawRate    = parseFloat(item.tax_rate) || 0;
+      const rateLabel  = `${Math.round(rawRate * 100)}%`;
+      const qty        = item.quantity || 1;
+      const lineTotal  = parseFloat(item.line_total) || 0;
+      const hsnCode    = item.hsn || 'Unassigned';
+      const itemCode   = item.item_code || '';
+      const itemName   = item.item_name || 'Unknown Item';
+      const category   = item.category || 'Service';
+
+      const discountedInclusive = lineTotal * proportion;
+      let itemTaxable = discountedInclusive / (1 + rawRate);
+      let itemTax     = discountedInclusive - itemTaxable;
+
+      // ── Last-item correction: snap to stored invoice totals ───────────────
+      // This eliminates cumulative floating-point drift across all items
+      if (idx === enrichedItems.length - 1) {
+        itemTaxable = subtotal - sumItemTaxable;
+        itemTax     = taxTotal  - sumItemTax;
+      }
+
+      sumItemTaxable += itemTaxable;
+      sumItemTax     += itemTax;
+
+      const itemCgst = itemTax / 2;
+      const itemSgst = itemTax / 2;
+      totalCgst += itemCgst;
+      totalSgst += itemSgst;
+
+      const rawUnitPrice    = parseFloat(item.unit_price) || 0;
+      const taxableUnitPrice = rawRate > 0 ? rawUnitPrice / (1 + rawRate) : rawUnitPrice;
+      const itemDiscount    = parseFloat((lineTotal * (1 - proportion)).toFixed(2));
+
+      // ── Tax Report: invoice item register (one row per item) ─────────────
+      invoiceItemRegister.push({
+        invoiceNumber: inv.invoice_number,
+        invoiceDate:   inv.created_at,
+        customerName,
+        customerGstin: custGstin || '—',
+        branch:        invBranch,
+        itemName,
+        hsnCode,
+        itemCode,
+        category,
+        gstRate:       rateLabel,
+        quantity:      qty,
+        unitPrice:     parseFloat(taxableUnitPrice.toFixed(2)),
+        taxableValue:  parseFloat(itemTaxable.toFixed(2)),
+        discount:      itemDiscount,
+        loyaltyPoints: pointsRedeemed,
+        cgst:          parseFloat(itemCgst.toFixed(2)),
+        sgst:          parseFloat(itemSgst.toFixed(2)),
+        igst:          0,
+        totalValue:    parseFloat((itemTaxable + itemTax).toFixed(2)),
+        status:        inv.status,
+      });
+
+      // ── Detailed Transactions ────────────────────────────────────────────
+      detailedTransactions.push({
+        date:          inv.created_at,
+        invoiceNumber: inv.invoice_number,
+        customer:      customerName,
+        itemName,
+        hsnCode,
+        itemCode,
+        quantity:      qty,
+        unitPrice:     parseFloat(taxableUnitPrice.toFixed(2)),
+        gstRate:       rateLabel,
+        gstAmount:     parseFloat(itemTax.toFixed(2)),
+        finalAmount:   parseFloat((itemTaxable + itemTax).toFixed(2)),
+        branch:        invBranch,
+      });
+
+      // ── HSN Map (compound key: hsnCode + rateLabel) ───────────────────────
+      // Compound key prevents merging same HSN at different rates (rare but possible)
+      const hsnKey = `${hsnCode}__${rateLabel}`;
+      if (!hsnMap[hsnKey]) {
+        hsnMap[hsnKey] = {
+          hsnCode, description: category,
+          quantity: 0, taxableValue: 0, gstRate: rateLabel,
+          cgst: 0, sgst: 0, igst: 0, total_gst: 0, totalValue: 0,
+        };
+      }
+      hsnMap[hsnKey].quantity     += qty;
+      hsnMap[hsnKey].taxableValue += itemTaxable;
+      hsnMap[hsnKey].cgst         += itemCgst;
+      hsnMap[hsnKey].sgst         += itemSgst;
+      hsnMap[hsnKey].total_gst    += itemTax;
+      hsnMap[hsnKey].totalValue   += (itemTaxable + itemTax);
+
+      // ── GST Rate Map (with GSTR-1 slab snapping) ─────────────────────────
+      const buckets = [0, 5, 12, 18, 28];
+      const bucketRate = rawRate * 100;
+      const bucket = buckets.reduce((prev, curr) =>
+        Math.abs(curr - bucketRate) < Math.abs(prev - bucketRate) ? curr : prev
+      );
+      const bucketKey = `${bucket}%`;
+      if (!gstRateMap[bucketKey]) {
+        gstRateMap[bucketKey] = {
+          gstRate: bucketKey,
+          taxableValue: 0, cgst: 0, sgst: 0, igst: 0,
+          gstCollected: 0,
+          invoiceIds: new Set<string>(),
+        };
+      }
+      gstRateMap[bucketKey].taxableValue  += itemTaxable;
+      gstRateMap[bucketKey].cgst          += itemCgst;
+      gstRateMap[bucketKey].sgst          += itemSgst;
+      gstRateMap[bucketKey].gstCollected  += itemTax;
+      gstRateMap[bucketKey].invoiceIds.add(inv.id);
+
+      // ── Item Sales Map ────────────────────────────────────────────────────
+      if (!itemMap[itemName]) {
+        itemMap[itemName] = { itemName, category, gstRate: rateLabel, quantity: 0, revenue: 0 };
+      }
+      itemMap[itemName].quantity += qty;
+      itemMap[itemName].revenue  += (itemTaxable + itemTax);
+
+      // ── GSTR-1: Rate buckets per invoice ────────────────────────────────
+      if (!rateBuckets[rateLabel]) {
+        rateBuckets[rateLabel] = {
+          taxableValue: 0, cgst: 0, sgst: 0, gstAmount: 0, totalValue: 0,
+        };
+      }
+      rateBuckets[rateLabel].taxableValue += itemTaxable;
+      rateBuckets[rateLabel].cgst         += itemCgst;
+      rateBuckets[rateLabel].sgst         += itemSgst;
+      rateBuckets[rateLabel].gstAmount    += itemTax;
+      rateBuckets[rateLabel].totalValue   += (itemTaxable + itemTax);
+    });
+
+    // ── GSTR-1 Invoice Register (one row per GST rate per invoice) ────────
+    Object.entries(rateBuckets).forEach(([rateLabel, bucket]: [string, any]) => {
+      const gstr1Row = {
+        invoiceNumber: inv.invoice_number,
+        invoiceDate:   inv.created_at,
+        customerName,
+        customerPhone:  custPhone,
+        customerGstin:  custGstin || '',
+        branch:         invBranch,
+        taxableValue:   parseFloat(bucket.taxableValue.toFixed(2)),
+        cgst:           parseFloat(bucket.cgst.toFixed(2)),
+        sgst:           parseFloat(bucket.sgst.toFixed(2)),
+        igst:           0,
+        gstAmount:      parseFloat(bucket.gstAmount.toFixed(2)),
+        totalValue:     parseFloat(bucket.totalValue.toFixed(2)),
+        status:         inv.status,
+        gstRate:        rateLabel,
+      };
+
+      if (custGstin && custGstin.trim() !== '') {
+        b2bInvoices.push(gstr1Row);
+      } else {
+        b2cInvoices.push(gstr1Row);
+      }
+      gstr1InvoiceRegister.push(gstr1Row);
+    });
+  }
+
+  return {
+    invoiceItemRegister,
+    detailedTransactions,
+    b2bInvoices,
+    b2cInvoices,
+    gstr1InvoiceRegister,
+    hsnMap,
+    gstRateMap,
+    branchMap,
+    itemMap,
+    totalSales:         parseFloat(totalSales.toFixed(2)),
+    totalTaxable:       parseFloat(totalTaxable.toFixed(2)),
+    totalGstCollected:  parseFloat(totalGstCollected.toFixed(2)),
+    totalCgst:          parseFloat(totalCgst.toFixed(2)),
+    totalSgst:          parseFloat(totalSgst.toFixed(2)),
+    totalIgst:          0,
+    totalInvoices:      invoices.length,
+  };
+}
+
+/**
+ * Finalizes the GST rate map into a sorted array for report output.
+ * Converts the invoiceIds Set into a count.
+ */
+export function finalizeGstRateSummary(
+  gstRateMap: ReportAggregation['gstRateMap']
+): any[] {
+  return Object.values(gstRateMap)
+    .map((g: any) => ({ ...g, invoiceCount: g.invoiceIds.size, invoiceIds: undefined }))
+    .sort((a: any, b: any) => parseInt(a.gstRate) - parseInt(b.gstRate));
+}
+
+/**
+ * Builds the B2C rate summary for GSTR-1.
+ */
+export function buildB2cRateSummary(b2cInvoices: any[]): any[] {
+  const b2cRateMap: Record<string, any> = {};
+  for (const inv of b2cInvoices) {
+    const key = inv.gstRate;
+    if (!b2cRateMap[key]) {
+      b2cRateMap[key] = { gstRate: key, invoiceCount: 0, taxableValue: 0, gstAmount: 0, totalValue: 0 };
+    }
+    b2cRateMap[key].invoiceCount += 1;
+    b2cRateMap[key].taxableValue += inv.taxableValue;
+    b2cRateMap[key].gstAmount    += inv.gstAmount;
+    b2cRateMap[key].totalValue   += inv.totalValue;
+  }
+  return Object.values(b2cRateMap).map((r: any) => ({
+    ...r,
+    taxableValue: parseFloat(r.taxableValue.toFixed(2)),
+    gstAmount:    parseFloat(r.gstAmount.toFixed(2)),
+    totalValue:   parseFloat(r.totalValue.toFixed(2)),
+  }));
+}
+
+export function finalizeHsnSummary(hsnMap: ReportAggregation['hsnMap']): any[] {
+  return Object.values(hsnMap).map((h: any) => ({
+    ...h,
+    taxableValue: parseFloat(h.taxableValue.toFixed(2)),
+    cgst:         parseFloat(h.cgst.toFixed(2)),
+    sgst:         parseFloat(h.sgst.toFixed(2)),
+    igst:         parseFloat(h.igst.toFixed(2)),
+    total_gst:    parseFloat(h.total_gst.toFixed(2)),
+    totalValue:   parseFloat(h.totalValue.toFixed(2)),
+  }));
+}

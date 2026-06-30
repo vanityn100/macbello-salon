@@ -9,6 +9,10 @@ export interface InvoiceItemInput {
 
 export interface InvoiceCalculationResult {
   subtotal: number;
+  service_base: number;
+  retail_base: number;
+  service_inclusive: number;
+  retail_inclusive: number;
   service_tax: number;
   retail_tax: number;
   total_tax: number;
@@ -53,53 +57,55 @@ export function recalculateInvoiceTotals(
 
   const cleanManualDiscount = validateNumeric(manualDiscount, "manualDiscount");
   const cleanPointsRedeemed = validateNumeric(pointsRedeemed, "pointsRedeemed");
-  const totalDiscount = cleanManualDiscount + cleanPointsRedeemed;
 
-  let totalBase = 0;
+  let gstIncludedTotal = 0;
 
-  // First pass: Calculate Total Taxable Base
+  // First pass: Calculate Total GST-Inclusive amount
   for (const item of items) {
     const qty = validateNumeric(item.quantity, "quantity");
     const price = validateNumeric(item.unit_price, "unit_price"); // GST-Inclusive
     if (qty === 0) {
        throw new Error("Validation Error: Item quantity must be greater than zero.");
     }
-    const taxRate = getTaxInfo(item).gstDecimal;
-    const originalBase = (qty * price) / (1 + taxRate);
-    totalBase += originalBase;
+    gstIncludedTotal += (qty * price);
   }
 
-  // Calculate proportional discount factor against the BASE
+  // Calculate proportional discount factor against the GST-Inclusive total
   let proportion = 1;
-  if (totalBase > 0 && totalDiscount > 0) {
-    proportion = 1 - (totalDiscount / totalBase);
+  const totalDeductions = cleanManualDiscount + cleanPointsRedeemed;
+  if (gstIncludedTotal > 0 && totalDeductions > 0) {
+    proportion = 1 - (totalDeductions / gstIncludedTotal);
     if (proportion < 0) {
-      throw new Error(`Validation Error: Total discount (${totalDiscount}) exceeds total taxable base (${totalBase}).`);
+      throw new Error(`Validation Error: Total deductions (${totalDeductions}) exceed total GST-inclusive amount (${gstIncludedTotal}).`);
     }
   }
 
   let subtotal = 0;
   let serviceTax = 0;
   let retailTax = 0;
+  let serviceBase = 0;
+  let retailBase = 0;
+  let serviceInclusive = 0;
+  let retailInclusive = 0;
   const items_breakdown = [];
 
-  // Second pass: Calculate Base Amount and GST per item
+  // Second pass: Calculate Base Amount and GST per item after discount
   for (const item of items) {
     const qty = validateNumeric(item.quantity, "quantity");
     const price = validateNumeric(item.unit_price, "unit_price");
     const taxRate = getTaxInfo(item).gstDecimal;
 
-    const originalBase = (qty * price) / (1 + taxRate);
-    const discountedBase = originalBase * proportion;
-    const taxAmount = discountedBase * taxRate;
+    const originalInclusive = qty * price;
+    const discountedInclusive = originalInclusive * proportion;
     
-    // The line total shown in breakdowns should reflect the inclusive amount after discount
-    const discountedLineTotal = discountedBase + taxAmount;
+    // Base Price is extracted from the discounted inclusive amount
+    const discountedBase = discountedInclusive / (1 + taxRate);
+    const taxAmount = discountedInclusive - discountedBase;
 
     items_breakdown.push({
       baseAmount: parseFloat(discountedBase.toFixed(2)),
       taxAmount: parseFloat(taxAmount.toFixed(2)),
-      discountedLineTotal: parseFloat(discountedLineTotal.toFixed(2))
+      discountedLineTotal: parseFloat(discountedInclusive.toFixed(2))
     });
 
     subtotal += discountedBase;
@@ -107,18 +113,28 @@ export function recalculateInvoiceTotals(
     const category = (item.category || 'Service').toLowerCase();
     if (category === 'service') {
       serviceTax += taxAmount;
+      serviceBase += discountedBase;
+      serviceInclusive += discountedInclusive;
     } else {
       retailTax += taxAmount;
+      retailBase += discountedBase;
+      retailInclusive += discountedInclusive;
     }
   }
 
   const totalTax = serviceTax + retailTax;
-  const grandTotal = subtotal + totalTax;
+  
+  // Grand Total is strictly GST Included Total - Manual Discount - Loyalty Redemption
+  const grandTotal = gstIncludedTotal - cleanManualDiscount - cleanPointsRedeemed;
 
   const pointsEarned = Math.floor(grandTotal / 100);
 
   return {
     subtotal: parseFloat(subtotal.toFixed(2)),
+    service_base: parseFloat(serviceBase.toFixed(2)),
+    retail_base: parseFloat(retailBase.toFixed(2)),
+    service_inclusive: parseFloat(serviceInclusive.toFixed(2)),
+    retail_inclusive: parseFloat(retailInclusive.toFixed(2)),
     service_tax: parseFloat(serviceTax.toFixed(2)),
     retail_tax: parseFloat(retailTax.toFixed(2)),
     total_tax: parseFloat(totalTax.toFixed(2)),

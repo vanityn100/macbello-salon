@@ -126,7 +126,8 @@ export default function EditInvoiceModal({ invoiceId, sessionToken, onClose, onS
     if (existing) {
       setCart(cart.map(c => c.item.name === service.name ? { ...c, quantity: c.quantity + 1 } : c));
     } else {
-      const inclusivePrice = parseFloat((service.price * (1 + (service.tax_rate / 100))).toFixed(2));
+      // Catalogue price is already GST-inclusive — use it directly.
+      const inclusivePrice = Math.round(service.price * 100) / 100;
       setCart([...cart, { item: service, quantity: 1, unit_price: inclusivePrice }]);
     }
   };

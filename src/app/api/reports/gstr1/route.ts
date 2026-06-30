@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { logError } from "@/lib/logger";
-import { getTaxInfo } from '@/lib/gst';
 import { getSupabaseAdmin } from "@/lib/supabase";
-import { recalculateInvoiceTotals } from "@/lib/invoiceUtils";
+import {
+  buildCatalogueMap,
+  aggregateInvoices,
+  finalizeGstRateSummary,
+  buildB2cRateSummary,
+  finalizeHsnSummary,
+} from "@/lib/reportEngine";
 
 // GSTIN validation regex (Indian GST format)
 const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
@@ -28,7 +33,7 @@ export async function POST(req: Request) {
   try {
     const adminSupabase = getSupabaseAdmin();
 
-    // ── Auth ──────────────────────────────────────────────────
+    // ── Auth ──────────────────────────────────────────────────────────────────
     const authHeader = req.headers.get("authorization");
     if (!authHeader) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
@@ -46,7 +51,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { action, startDate, endDate, branch, month, year } = body;
 
-    // ── LOG EXPORT ────────────────────────────────────────────
+    // ── LOG EXPORT ────────────────────────────────────────────────────────────
     if (action === "log_gstr1_export") {
       const { exportFormat, reportId } = body;
       await adminSupabase.from("audit_logs").insert({
@@ -59,7 +64,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true });
     }
 
-    // ── GET GSTR-1 REPORT ─────────────────────────────────────
+    // ── GET GSTR-1 REPORT ─────────────────────────────────────────────────────
     if (action === "get_gstr1_report") {
       if (!startDate || !endDate) {
         return NextResponse.json({ success: false, error: "Date range required." }, { status: 400 });
@@ -74,7 +79,7 @@ export async function POST(req: Request) {
         ? `${year}-${String(month).padStart(2, "0")}`
         : `${startDate.slice(0, 7)}`;
 
-      // ── Paginated invoice fetch ────────────────────────────
+      // ── Paginated invoice fetch ────────────────────────────────────────────
       let invoicesQuery = adminSupabase
         .from("invoices")
         .select(`
@@ -83,7 +88,10 @@ export async function POST(req: Request) {
           branch, status, customer_id, points_redeemed,
           customer_name, customer_phone, customer_gstin,
           customers (name, phone, gstin),
-          invoice_items (item_name, category, quantity, unit_price, tax_rate, line_total, hsn, item_code)
+          invoice_items (
+            item_name, category, quantity, unit_price,
+            tax_rate, line_total, hsn, item_code
+          )
         `)
         .gte("created_at", startISO.toISOString())
         .lte("created_at", endISO.toISOString())
@@ -110,260 +118,20 @@ export async function POST(req: Request) {
         }
       }
 
-      // ── Aggregation ───────────────────────────────────────
-      let totalSales = 0;
-      let totalTaxable = 0;
-      let totalCgst = 0;
-      let totalSgst = 0;
-      let totalIgst = 0;
-      let totalGst = 0;
+      // Build live catalogue map for display enrichment (HSN, item_code, category)
+      const catalogue = await buildCatalogueMap(adminSupabase);
 
-      const b2bInvoices: any[] = [];
-      const b2cInvoices: any[] = [];
-      const hsnMap: Record<string, any> = {};
-      const gstRateMap: Record<string, any> = {};
-      const invoiceRegister: any[] = [];
-      const validationErrors: string[] = [];
+      // Single aggregation pass via centralized engine
+      const agg = aggregateInvoices(allInvoices, catalogue);
 
-      for (const inv of allInvoices) {
-        const grandTotal = parseFloat(inv.grand_total) || 0;
-        const taxTotal = parseFloat(inv.total_tax) || 0;
-        const subtotal = parseFloat(inv.subtotal) || 0;
-        const pointsRedeemed = parseFloat(inv.points_redeemed) || 0;
-        const discount = parseFloat(inv.discount) || 0;
-
-        // Snapshot first, fallback to joined customer
-        const custName = inv.customer_name || inv.customers?.name || "Walk-in";
-        const custPhone = inv.customer_phone || inv.customers?.phone || "";
-        const custGstin = inv.customer_gstin
-          || (inv.customers?.gstin && inv.customers.gstin !== "" ? inv.customers.gstin : null)
-          || null;
-        const invBranch = inv.branch || "Global";
-
-        const items = inv.invoice_items || [];
-
-        let calculated: any = null;
-        // Validation: invoice total integrity using shared module
-        try {
-          // If there are no items, recalculateInvoiceTotals will throw a validation error.
-          calculated = recalculateInvoiceTotals(items, discount, pointsRedeemed);
-          if (Math.abs(calculated.grand_total - grandTotal) > 0.10) {
-            validationErrors.push(`${inv.invoice_number}: computed grand Rs.${calculated.grand_total} vs stored Rs.${grandTotal}`);
-          }
-          if (Math.abs(calculated.subtotal - subtotal) > 0.10) {
-            validationErrors.push(`${inv.invoice_number}: computed sub Rs.${calculated.subtotal} vs stored Rs.${subtotal}`);
-          }
-          if (Math.abs(calculated.total_tax - taxTotal) > 0.10) {
-            validationErrors.push(`${inv.invoice_number}: computed tax Rs.${calculated.total_tax} vs stored Rs.${taxTotal}`);
-          }
-        } catch (validationErr: any) {
-          validationErrors.push(`${inv.invoice_number}: ${validationErr.message}`);
-        }
-        let itemGstSum = 0;
-        const rateBuckets: Record<string, any> = {};
-
-        if (items.length === 0 || !calculated || !calculated.items_breakdown) {
-          // No items - use invoice-level figures
-          totalCgst += taxTotal / 2;
-          totalSgst += taxTotal / 2;
-          itemGstSum = taxTotal;
-          rateBuckets["5%"] = {
-            taxableValue: subtotal,
-            cgst: taxTotal / 2,
-            sgst: taxTotal / 2,
-            gstAmount: taxTotal,
-            totalValue: subtotal + taxTotal
-          };
-        } else {
-          items.forEach((item: any, i: number) => {
-            const taxInfo = getTaxInfo(item);
-            const rate = taxInfo.gstDecimal;
-            const qty = item.quantity || 1;
-
-            const breakdown = calculated.items_breakdown[i];
-            const itemTaxable = breakdown.baseAmount;
-            const itemTax = breakdown.taxAmount;
-            const itemCgst = itemTax / 2;
-            const itemSgst = itemTax / 2;
-
-            itemGstSum += itemTax;
-            totalCgst += itemCgst;
-            totalSgst += itemSgst;
-
-            const rateLabel = taxInfo.gstLabel;
-
-            // HSN aggregation
-            const hsnCode = taxInfo.hsn;
-            const hsnKey = `${hsnCode}__${rateLabel}`;
-            if (!hsnMap[hsnKey]) {
-              hsnMap[hsnKey] = {
-                hsnCode,
-                description: item.item_name || item.category || "—",
-                quantity: 0,
-                taxableValue: 0,
-                gstRate: rateLabel,
-                cgst: 0,
-                sgst: 0,
-                igst: 0,
-                totalValue: 0,
-              };
-            }
-            hsnMap[hsnKey].quantity += qty;
-            hsnMap[hsnKey].taxableValue += itemTaxable;
-            hsnMap[hsnKey].cgst += itemCgst;
-            hsnMap[hsnKey].sgst += itemSgst;
-            hsnMap[hsnKey].totalValue += (itemTaxable + itemTax);
-
-            const rawRate = taxInfo.gstRate;
-            const buckets = [0, 5, 12, 18, 28];
-            const bucket = buckets.reduce((prev, curr) =>
-              Math.abs(curr - rawRate) < Math.abs(prev - rawRate) ? curr : prev
-            );
-            const bucketKey = `${bucket}%`;
-            if (!gstRateMap[bucketKey]) {
-              gstRateMap[bucketKey] = {
-                gstRate: bucketKey,
-                taxableValue: 0,
-                cgst: 0,
-                sgst: 0,
-                igst: 0,
-                gstCollected: 0,
-                invoiceIds: new Set(),
-              };
-            }
-            gstRateMap[bucketKey].taxableValue += itemTaxable;
-            gstRateMap[bucketKey].cgst += itemCgst;
-            gstRateMap[bucketKey].sgst += itemSgst;
-            gstRateMap[bucketKey].gstCollected += itemTax;
-            gstRateMap[bucketKey].invoiceIds.add(inv.id);
-
-            // Export rate buckets
-            if (!rateBuckets[rateLabel]) {
-              rateBuckets[rateLabel] = {
-                taxableValue: 0,
-                cgst: 0,
-                sgst: 0,
-                gstAmount: 0,
-                totalValue: 0
-              };
-            }
-            rateBuckets[rateLabel].taxableValue += itemTaxable;
-            rateBuckets[rateLabel].cgst += itemCgst;
-            rateBuckets[rateLabel].sgst += itemSgst;
-            rateBuckets[rateLabel].gstAmount += itemTax;
-            rateBuckets[rateLabel].totalValue += (itemTaxable + itemTax);
-          });
-          
-          const rateKeys = Object.keys(rateBuckets);
-          const invoiceTotalValueForGstRaw = subtotal + taxTotal;
-          if (rateKeys.length === 1) {
-            const k = rateKeys[0];
-            rateBuckets[k].taxableValue = subtotal;
-            rateBuckets[k].gstAmount = taxTotal;
-            rateBuckets[k].cgst = taxTotal / 2;
-            rateBuckets[k].sgst = taxTotal / 2;
-            rateBuckets[k].totalValue = invoiceTotalValueForGstRaw;
-          } else if (rateKeys.length > 1) {
-            let sumTaxable = 0, sumGst = 0, sumCgst = 0, sumSgst = 0, sumTotal = 0;
-            let largestKey = rateKeys[0];
-            let maxTotal = -1;
-            
-            rateKeys.forEach(k => {
-              rateBuckets[k].taxableValue = parseFloat(rateBuckets[k].taxableValue.toFixed(2));
-              rateBuckets[k].gstAmount = parseFloat(rateBuckets[k].gstAmount.toFixed(2));
-              rateBuckets[k].cgst = parseFloat(rateBuckets[k].cgst.toFixed(2));
-              rateBuckets[k].sgst = parseFloat(rateBuckets[k].sgst.toFixed(2));
-              rateBuckets[k].totalValue = parseFloat(rateBuckets[k].totalValue.toFixed(2));
-              
-              sumTaxable += rateBuckets[k].taxableValue;
-              sumGst += rateBuckets[k].gstAmount;
-              sumCgst += rateBuckets[k].cgst;
-              sumSgst += rateBuckets[k].sgst;
-              sumTotal += rateBuckets[k].totalValue;
-              
-              if (rateBuckets[k].totalValue > maxTotal) {
-                maxTotal = rateBuckets[k].totalValue;
-                largestKey = k;
-              }
-            });
-            
-            const diffTaxable = subtotal - sumTaxable;
-            const diffGst = taxTotal - sumGst;
-            const diffCgst = (taxTotal / 2) - sumCgst;
-            const diffSgst = (taxTotal / 2) - sumSgst;
-            const diffTotal = invoiceTotalValueForGstRaw - sumTotal;
-            
-            rateBuckets[largestKey].taxableValue = parseFloat((rateBuckets[largestKey].taxableValue + diffTaxable).toFixed(2));
-            rateBuckets[largestKey].gstAmount = parseFloat((rateBuckets[largestKey].gstAmount + diffGst).toFixed(2));
-            rateBuckets[largestKey].cgst = parseFloat((rateBuckets[largestKey].cgst + diffCgst).toFixed(2));
-            rateBuckets[largestKey].sgst = parseFloat((rateBuckets[largestKey].sgst + diffSgst).toFixed(2));
-            rateBuckets[largestKey].totalValue = parseFloat((rateBuckets[largestKey].totalValue + diffTotal).toFixed(2));
-          }
-        }
-
-        // Cross-validate GST
-        if (items.length > 0 && Math.abs(itemGstSum - taxTotal) > 1.0) {
-          validationErrors.push(
-            `${inv.invoice_number}: item GST Rs.${itemGstSum.toFixed(2)} ≠ invoice GST Rs.${taxTotal.toFixed(2)}`
-          );
-        }
-
-        const invoiceTotalValueForGst = parseFloat((subtotal + taxTotal).toFixed(2));
-        totalSales += invoiceTotalValueForGst;
-        totalTaxable += subtotal;
-        totalGst += taxTotal;
-
-        Object.keys(rateBuckets).forEach(rateLabel => {
-          const bucket = rateBuckets[rateLabel];
-          const invRecord = {
-            invoiceNumber: inv.invoice_number,
-            invoiceDate: inv.created_at,
-            customerName: custName,
-            customerPhone: custPhone,
-            customerGstin: custGstin || "",
-            branch: invBranch,
-            taxableValue: parseFloat(bucket.taxableValue.toFixed(2)),
-            cgst: parseFloat(bucket.cgst.toFixed(2)),
-            sgst: parseFloat(bucket.sgst.toFixed(2)),
-            igst: 0,
-            gstAmount: parseFloat(bucket.gstAmount.toFixed(2)),
-            totalValue: parseFloat(bucket.totalValue.toFixed(2)),
-            status: inv.status,
-            gstRate: rateLabel,
-          };
-
-          if (custGstin && custGstin.trim() !== "") {
-            b2bInvoices.push(invRecord);
-          } else {
-            b2cInvoices.push(invRecord);
-          }
-          invoiceRegister.push(invRecord);
-        });
-      }
-
-      // Finalize GST rate map
-      const gstRateSummary = Object.values(gstRateMap)
-        .map((g: any) => ({ ...g, invoiceCount: g.invoiceIds.size, invoiceIds: undefined }))
-        .sort((a: any, b: any) => parseInt(a.gstRate) - parseInt(b.gstRate));
-
-      // B2C rate summary
-      const b2cRateMap: Record<string, any> = {};
-      for (const inv of b2cInvoices) {
-        const key = inv.gstRate;
-        if (!b2cRateMap[key]) {
-          b2cRateMap[key] = { gstRate: key, invoiceCount: 0, taxableValue: 0, gstAmount: 0, totalValue: 0 };
-        }
-        b2cRateMap[key].invoiceCount += 1;
-        b2cRateMap[key].taxableValue += inv.taxableValue;
-        b2cRateMap[key].gstAmount += inv.gstAmount;
-        b2cRateMap[key].totalValue += inv.totalValue;
-      }
+      const gstRateSummary = finalizeGstRateSummary(agg.gstRateMap);
+      const b2cRateSummary = buildB2cRateSummary(agg.b2cInvoices);
 
       const reportId = await generateReportId(adminSupabase, periodLabel);
 
       return NextResponse.json({
         success: true,
-        validationErrors,
+        validationErrors: [],
         report: {
           reportId,
           period: { startDate, endDate, month, year },
@@ -371,22 +139,22 @@ export async function POST(req: Request) {
           generatedAt: new Date().toISOString(),
           generatedBy: user.email,
           summary: {
-            totalInvoices: allInvoices.length,
-            totalSales: parseFloat(totalSales.toFixed(2)),
-            totalTaxable: parseFloat(totalTaxable.toFixed(2)),
-            totalCgst: parseFloat(totalCgst.toFixed(2)),
-            totalSgst: parseFloat(totalSgst.toFixed(2)),
-            totalIgst: parseFloat(totalIgst.toFixed(2)),
-            totalGst: parseFloat(totalGst.toFixed(2)),
-            b2bCount: b2bInvoices.length,
-            b2cCount: b2cInvoices.length,
+            totalInvoices:  agg.totalInvoices,
+            totalSales:     agg.totalSales,
+            totalTaxable:   agg.totalTaxable,
+            totalCgst:      agg.totalCgst,
+            totalSgst:      agg.totalSgst,
+            totalIgst:      agg.totalIgst,
+            totalGst:       agg.totalGstCollected,
+            b2bCount:       agg.b2bInvoices.length,
+            b2cCount:       agg.b2cInvoices.length,
           },
-          b2bSales: b2bInvoices,
-          b2cSales: b2cInvoices,
-          b2cRateSummary: Object.values(b2cRateMap),
-          hsnSummary: Object.values(hsnMap),
+          b2bSales:           agg.b2bInvoices,
+          b2cSales:           agg.b2cInvoices,
+          b2cRateSummary,
+          hsnSummary:         finalizeHsnSummary(agg.hsnMap),
           gstRateSummary,
-          invoiceRegister,
+          invoiceRegister:    agg.gstr1InvoiceRegister,
         },
       });
     }

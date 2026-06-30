@@ -581,26 +581,44 @@ export default function AdminPortal() {
         const dateStr = formatDate(inv.created_at);
         const customerName = inv.customers?.name || "Anonymous";
         const grand = parseFloat(inv.grand_total as any) || 0;
-        const tax = parseFloat(inv.total_tax as any) || 0;
-        const sub = parseFloat(inv.subtotal as any) || 0;
+        const invDiscount = parseFloat(inv.discount as any) || 0;
+        const loyalty = parseFloat(inv.points_redeemed as any) || 0;
         
-        inv.invoice_items.forEach((item: any) => {
+        // Compute per-item values using the same discount-proportion formula as reportEngine.
+        // Old bug: entire invoice subtotal/total_tax was put on EVERY item row, multiplying totals.
+        const totalLineInclusive = (inv.invoice_items as any[]).reduce(
+          (s: number, it: any) => s + (parseFloat(it.line_total) || 0), 0
+        );
+        const proportion = (totalLineInclusive > 0 && invDiscount > 0)
+          ? 1 - (invDiscount / totalLineInclusive)
+          : 1;
+
+        inv.invoice_items.forEach((item: any, itemIdx: number) => {
+          const lineTotal = parseFloat(item.line_total) || 0;
+          const taxRate   = parseFloat(item.tax_rate)   || 0;
+          const discountedInclusive = lineTotal * proportion;
+          const itemBase  = taxRate > 0 ? discountedInclusive / (1 + taxRate) : discountedInclusive;
+          const itemGst   = discountedInclusive - itemBase;
+          const itemDiscount = lineTotal * (1 - proportion);
+
           rows.push({
-            "Date": dateStr,
-            "Invoice #": inv.invoice_number,
-            "Customer": customerName,
-            "Branch": inv.branch || "Global",
-            "Item Name": item.item_name,
-            "Category": item.category,
-            "Quantity": exportNumber(item.quantity),
-            "Unit Price": exportNumber(item.unit_price),
-            "Line Total": exportNumber(item.line_total),
-            "Discount": parseFloat(inv.discount as any) || 0,
-            "Loyalty Redemption": parseFloat(inv.points_redeemed as any) || 0,
-            "Taxable Amount": sub,
-            "GST Amount": tax,
-            "Grand Total": grand,
-            "Status": inv.status
+            "Date":                   dateStr,
+            "Invoice #":              inv.invoice_number,
+            "Customer":               customerName,
+            "Branch":                 inv.branch || "Global",
+            "Item Name":              item.item_name,
+            "Category":               item.category,
+            "Quantity":               exportNumber(item.quantity),
+            "Unit Price (GST Incl.)": exportNumber(item.unit_price),
+            "Line Total (GST Incl.)": exportNumber(lineTotal),
+            "Item Discount":          exportNumber(itemDiscount),
+            // Loyalty and grand total only on first item to avoid row multiplication
+            "Loyalty Redemption":     itemIdx === 0 ? exportNumber(loyalty) : 0,
+            "Taxable Amount":         exportNumber(itemBase),
+            "GST Amount":             exportNumber(itemGst),
+            "GST Incl. Item Total":   exportNumber(discountedInclusive),
+            "Invoice Grand Total":    itemIdx === 0 ? exportNumber(grand) : 0,
+            "Status":                 inv.status
           });
         });
       });

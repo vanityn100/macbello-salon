@@ -68,21 +68,18 @@ export async function GET(request: NextRequest) {
     const adminSupabase = getSupabaseAdmin();
 
     // 1. GET CATALOGUE SERVICES
+    // Master catalogue: all branches and staff read from the same services table.
+    // Only archived items are excluded. Branch filtering is NOT applied here.
     if (action === "get_services") {
-      let query = adminSupabase
-        .from("services")
-        .select("*")
-        .neq("status", "archived");
-
-      // Staff can only see services belonging to their branch or global (null branch)
-      if (user.role === "staff") {
-        if (!user.branch) {
-          return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
-        }
-        query = query.or(`branch.is.null,branch.eq."${user.branch}"`);
+      if (user.role === "staff" && !user.branch) {
+        return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
       }
 
-      const { data: services, error } = await query.order("name", { ascending: true });
+      const { data: services, error } = await adminSupabase
+        .from("services")
+        .select("*")
+        .not("status", "in", '("archived","ARCHIVED")')
+        .order("name", { ascending: true });
 
       if (error) {
         console.error("Fetch services error:", error);
@@ -211,7 +208,7 @@ export async function GET(request: NextRequest) {
         if (!user.branch) return NextResponse.json({ success: false, error: "Staff account not assigned to a branch." }, { status: 403 });
         invoicesQuery = invoicesQuery.eq("branch", user.branch);
         customersQuery = customersQuery.eq("branch", user.branch);
-        servicesQuery = servicesQuery.or(`branch.is.null,branch.eq."${user.branch}"`);
+        // servicesQuery is no longer filtered by branch, reflecting the master catalogue
         appointmentsQuery = appointmentsQuery.eq("branch", user.branch);
       }
 
@@ -566,13 +563,10 @@ export async function POST(request: NextRequest) {
     if (action === "create_service") {
       const { name, price, category, itemCode, hsn, taxRate, branch } = body;
 
-      // Staff branch validation
-      let targetBranch = branch;
-      if (user.role === "staff") {
-        targetBranch = user.branch || "Global";
-      } else if (!targetBranch) {
-        targetBranch = "Global";
-      }
+      // For the master catalogue, services belong to no specific branch (null = global).
+      // Staff-created items still go to the master catalogue, not a branch copy.
+      let targetBranch: string | null = branch || null;
+      // Staff are allowed to create services for the master catalogue too; branch is for informational use only.
 
       if (!name || typeof name !== "string" || name.trim() === "") {
         return NextResponse.json({ success: false, error: "Name is required." }, { status: 400 });
@@ -610,7 +604,9 @@ export async function POST(request: NextRequest) {
 
       let parsedTaxRate = normalizeGst(taxRate, category);
 
-      let validatedStatus = "ACTIVE";
+      // For Service category, status is always ACTIVE (services don't have stock)
+      // For Retail category, new products start as OUT OF STOCK (no stock received yet)
+      let validatedStatus: string;
       try {
         validatedStatus = validateAndCalculateServiceStatus(undefined, 0, 5, category);
       } catch (err: any) {
@@ -1039,19 +1035,17 @@ export async function POST(request: NextRequest) {
         if (!dbItem) {
           return NextResponse.json({ success: false, error: `Item ID ${reqItem.id} not found.` }, { status: 400 });
         }
-        // Staff branch item check (IDOR check)
-        if (user.role === "staff" && dbItem.branch && dbItem.branch !== user.branch) {
-          return NextResponse.json({ success: false, error: `Forbidden: Item ${dbItem.name} belongs to another branch.` }, { status: 403 });
-        }
+        // Staff branch item check removed: All branches share the master catalogue.
 
         const qty = parseInt(reqItem.quantity, 10);
         if (isNaN(qty) || qty <= 0) {
           return NextResponse.json({ success: false, error: "Quantity must be positive integer." }, { status: 400 });
         }
 
-        const taxDecimal = dbItem.tax_rate === 18 ? 0.18 : 0.05;
-        const inclusivePrice = parseFloat((dbItem.price * (1 + taxDecimal)).toFixed(2));
-        const lineTotal = inclusivePrice * qty;
+        // Catalogue price is already GST-inclusive — use it directly.
+        // DO NOT multiply by (1 + taxDecimal): that would add GST a second time.
+        const inclusivePrice = Math.round(parseFloat(dbItem.price) * 100) / 100;
+        const lineTotal = Math.round(inclusivePrice * qty * 100) / 100;
 
         if (dbItem.category !== "Service") {
           retailDeductions.push({
@@ -1432,14 +1426,14 @@ export async function POST(request: NextRequest) {
 
         const invoiceItemsToInsert = items.map((item: any) => {
           const qty = parseInt(item.quantity, 10) || 1;
-          const price = parseFloat(item.unit_price) || 0;
+          const price = Math.round((parseFloat(item.unit_price) || 0) * 100) / 100;
           return {
             item_name: item.item_name,
             category: item.category || "Service",
             quantity: qty,
             unit_price: price,
             tax_rate: parseFloat(item.tax_rate) || 0,
-            line_total: qty * price,
+            line_total: Math.round(qty * price * 100) / 100,
             item_code: item.item_code || null,
             hsn: item.hsn || null,
             staff_contribution: item.staff_contribution || null,

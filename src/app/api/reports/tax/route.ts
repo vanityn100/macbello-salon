@@ -1,7 +1,12 @@
-import { getTaxInfo } from '@/lib/gst';
 import { NextResponse } from "next/server";
 import { logError } from '@/lib/logger';
 import { getSupabaseAdmin } from "@/lib/supabase";
+import {
+  buildCatalogueMap,
+  aggregateInvoices,
+  finalizeGstRateSummary,
+  finalizeHsnSummary,
+} from "@/lib/reportEngine";
 
 export async function POST(req: Request) {
   try {
@@ -24,6 +29,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { action, startDate, endDate, branch } = body;
 
+    // ── LOG EXPORT ────────────────────────────────────────────────────────────
     if (action === "log_export") {
       const { exportType, exportFormat } = body;
       await adminSupabase.from("audit_logs").insert({
@@ -36,6 +42,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true });
     }
 
+    // ── GET TAX REPORT ────────────────────────────────────────────────────────
     if (action === "get_tax_report") {
       if (!startDate || !endDate) {
         return NextResponse.json({ success: false, error: "Date range required" }, { status: 400 });
@@ -46,22 +53,28 @@ export async function POST(req: Request) {
       const endISO = new Date(endDate);
       endISO.setHours(23, 59, 59, 999);
 
+      // Fetch all invoices with items — paginated to handle large datasets
       let invoicesQuery = adminSupabase
         .from("invoices")
         .select(`
-          id, invoice_number, created_at, subtotal, discount, total_tax, grand_total, branch, status,
-          customers (name),
-          invoice_items (item_name, category, quantity, unit_price, tax_rate, line_total, hsn)
+          id, invoice_number, created_at,
+          subtotal, discount, points_redeemed, total_tax, grand_total,
+          branch, status,
+          customer_name, customer_phone, customer_gstin,
+          customers (name, gstin),
+          invoice_items (
+            item_name, category, quantity, unit_price,
+            tax_rate, line_total, hsn, item_code
+          )
         `)
         .gte("created_at", startISO.toISOString())
         .lte("created_at", endISO.toISOString())
-        .neq("status", "archived"); // Exclude permanently deleted/archived, but keep active for tax
+        .neq("status", "archived");
 
       if (branch && branch !== "All Branches") {
         invoicesQuery = invoicesQuery.eq("branch", branch);
       }
 
-      // Paginate to fetch all invoices in range safely
       let allInvoices: any[] = [];
       let page = 0;
       let hasMore = true;
@@ -79,207 +92,31 @@ export async function POST(req: Request) {
         }
       }
 
-      // Process Data server-side
-      let totalSales = 0;
-      let totalTaxable = 0;
-      let totalGstCollected = 0;
-      let totalCgst = 0;
-      let totalSgst = 0;
-      let totalIgst = 0; // Keeping structure ready if IGST is introduced
+      // Build live catalogue map for display enrichment (HSN, item_code, category)
+      const catalogue = await buildCatalogueMap(adminSupabase);
 
-      const invoiceRegister: any[] = [];
-      const detailedTransactions: any[] = [];
-      const hsnMap: Record<string, any> = {};
-      const gstRateMap: Record<string, any> = {};
-      const branchMap: Record<string, any> = {};
-      const itemMap: Record<string, any> = {};
-
-      allInvoices.forEach(inv => {
-        const grandTotal = parseFloat(inv.grand_total) || 0;
-        const taxTotal = parseFloat(inv.total_tax) || 0;
-        const subtotal = parseFloat(inv.subtotal) || 0;
-        
-        totalSales += grandTotal;
-        totalTaxable += subtotal;
-        totalGstCollected += taxTotal;
-
-        // Splitting logic strictly based on existing architecture: 50% CGST / 50% SGST
-        const cgstAmount = taxTotal / 2;
-        const sgstAmount = taxTotal / 2;
-        const igstAmount = 0;
-
-        totalCgst += cgstAmount;
-        totalSgst += sgstAmount;
-        totalIgst += igstAmount;
-
-        const customerName = inv.customers?.name || "Walk-in";
-        const invBranch = inv.branch || "Global";
-
-        // Kaduthuruthyggregation
-        if (!branchMap[invBranch]) {
-          branchMap[invBranch] = { branchName: invBranch, invoiceCount: 0, revenue: 0, taxableValue: 0, gstCollected: 0 };
-        }
-        branchMap[invBranch].invoiceCount += 1;
-        branchMap[invBranch].revenue += grandTotal;
-        branchMap[invBranch].taxableValue += subtotal;
-        branchMap[invBranch].gstCollected += taxTotal;
-
-        // (Invoice Register moved to items loop)
-
-        // Items logic
-        const items = inv.invoice_items || [];
-        
-        if (items.length === 0) {
-          invoiceRegister.push({
-            invoiceNumber: inv.invoice_number,
-            invoiceDate: inv.created_at,
-            customerName: customerName,
-            customerGstin: "—",
-            branch: invBranch,
-            itemName: "—",
-            category: "—",
-            gstRate: "—",
-            quantity: 0,
-            unitPrice: 0,
-            taxableValue: subtotal,
-            discount: parseFloat(inv.discount) || 0,
-            loyaltyPoints: parseFloat(inv.points_redeemed) || 0,
-            cgst: cgstAmount,
-            sgst: sgstAmount,
-            igst: igstAmount,
-            totalValue: grandTotal,
-            status: inv.status
-          });
-        }
-        
-        items.forEach((item: any) => {
-          const qty = item.quantity || 1;
-          const taxInfo = getTaxInfo(item);
-          const rate = taxInfo.gstDecimal;
-          const lineTotal = parseFloat(item.line_total) || 0;
-          
-          // Tax logic per item
-          // Since line_total = taxable + tax, and tax = taxable * rate
-          // taxable = line_total / (1 + rate)
-          const itemTaxable = lineTotal / (1 + rate);
-          const itemTax = lineTotal - itemTaxable;
-          const itemCgst = itemTax / 2;
-          const itemSgst = itemTax / 2;
-
-          const ratePercentage = taxInfo.gstLabel;
-
-          const rawUnitPrice = parseFloat(item.unit_price) || 0;
-          const taxableUnitPrice = rate > 0 ? rawUnitPrice / (1 + rate) : rawUnitPrice;
-
-          // Invoice Register (Item-level)
-          invoiceRegister.push({
-            invoiceNumber: inv.invoice_number,
-            invoiceDate: inv.created_at,
-            customerName: customerName,
-            customerGstin: "—",
-            branch: invBranch,
-            itemName: item.item_name || "Unknown Item",
-              hsnCode: taxInfo.hsn,
-              category: item.category || "Service",
-            gstRate: ratePercentage,
-            quantity: qty,
-            unitPrice: taxableUnitPrice,
-            taxableValue: itemTaxable,
-            discount: parseFloat(inv.discount) || 0,
-            loyaltyPoints: parseFloat(inv.points_redeemed) || 0,
-            cgst: itemCgst,
-            sgst: itemSgst,
-            igst: 0,
-            totalValue: lineTotal,
-            status: inv.status
-          });
-
-          // HSN Aggregation
-          const hsnCode = taxInfo.hsn;
-          if (!hsnMap[hsnCode]) {
-            hsnMap[hsnCode] = { 
-              hsnCode, 
-              description: item.category, // using category as a proxy
-              quantity: 0, 
-              taxableValue: 0, 
-              gstRate: ratePercentage,
-              cgst: 0, sgst: 0, igst: 0, 
-              totalValue: 0 
-            };
-          }
-          hsnMap[hsnCode].quantity += qty;
-          hsnMap[hsnCode].taxableValue += itemTaxable;
-          hsnMap[hsnCode].cgst += itemCgst;
-          hsnMap[hsnCode].sgst += itemSgst;
-          hsnMap[hsnCode].totalValue += lineTotal;
-
-          // GST Rate Aggregation
-          if (!gstRateMap[ratePercentage]) {
-            gstRateMap[ratePercentage] = { gstRate: ratePercentage, taxableValue: 0, gstCollected: 0, invoiceCount: new Set() };
-          }
-          gstRateMap[ratePercentage].taxableValue += itemTaxable;
-          gstRateMap[ratePercentage].gstCollected += itemTax;
-          gstRateMap[ratePercentage].invoiceCount.add(inv.id);
-
-          // Item Sales Aggregation
-          const itemName = item.item_name || "Unknown Item";
-          if (!itemMap[itemName]) {
-            itemMap[itemName] = {
-              itemName,
-              category: item.category || "Service",
-              gstRate: ratePercentage,
-              quantity: 0,
-              revenue: 0
-            };
-          }
-          itemMap[itemName].quantity += qty;
-          itemMap[itemName].revenue += lineTotal;
-
-          // Detailed Transactions
-          // unit_price in DB is GST-inclusive; compute taxable (pre-GST) unit price
-          detailedTransactions.push({
-            date: inv.created_at,
-            invoiceNumber: inv.invoice_number,
-            customer: customerName,
-            itemName: item.item_name,
-            hsnCode: taxInfo.hsn,
-            quantity: qty,
-            unitPrice: taxableUnitPrice,   // Pre-GST price per unit
-            gstRate: ratePercentage,
-            gstAmount: itemTax,
-            finalAmount: lineTotal,        // GST-inclusive total
-            branch: invBranch
-          });
-        });
-      });
-
-      // Format sets back to counts
-      const finalGstRateSummary = Object.values(gstRateMap).map((g: any) => ({
-        ...g,
-        invoiceCount: g.invoiceCount.size
-      }));
-
-      const itemSummary = Object.values(itemMap).sort((a: any, b: any) => b.quantity - a.quantity);
+      // Single aggregation pass — all maps built by the centralized engine
+      const agg = aggregateInvoices(allInvoices, catalogue);
 
       return NextResponse.json({
         success: true,
         report: {
           summary: {
-            totalSales,
-            totalTaxable,
-            totalGstCollected,
-            totalCgst,
-            totalSgst,
-            totalIgst,
-            totalTransactions: detailedTransactions.length,
-            totalInvoices: allInvoices.length
+            totalSales:         agg.totalSales,
+            totalTaxable:       agg.totalTaxable,
+            totalGstCollected:  agg.totalGstCollected,
+            totalCgst:          agg.totalCgst,
+            totalSgst:          agg.totalSgst,
+            totalIgst:          agg.totalIgst,
+            totalTransactions:  agg.detailedTransactions.length,
+            totalInvoices:      agg.totalInvoices,
           },
-          hsnSummary: Object.values(hsnMap),
-          gstRateSummary: finalGstRateSummary,
-          branchSummary: Object.values(branchMap),
-          itemSummary,
-          invoiceRegister,
-          detailedTransactions
+          hsnSummary:         finalizeHsnSummary(agg.hsnMap),
+          gstRateSummary:     finalizeGstRateSummary(agg.gstRateMap),
+          branchSummary:      Object.values(agg.branchMap),
+          itemSummary:        Object.values(agg.itemMap).sort((a: any, b: any) => b.quantity - a.quantity),
+          invoiceRegister:    agg.invoiceItemRegister,
+          detailedTransactions: agg.detailedTransactions,
         }
       });
     }

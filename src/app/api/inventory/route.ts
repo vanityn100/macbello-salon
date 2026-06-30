@@ -133,7 +133,7 @@ export async function POST(req: Request) {
         hsn: hsn || "999729",
         tax_rate: Number(gstRate) / 100,
         item_code: finalItemCode,
-        status: validatedStatus,
+        status: validatedStatus === 'active' ? 'OUT OF STOCK' : validatedStatus,
         current_stock: 0,
         minimum_stock: 5
       };
@@ -434,10 +434,12 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: false, error: resetErr.message }, { status: 500 });
       }
 
-      // Also reset product statuses to OUT OF STOCK (except archived ones)
+      // Reset product statuses to OUT OF STOCK for Retail items only.
+      // Service-category items are NEVER affected by inventory resets.
       await adminSupabase
         .from("services")
         .update({ status: 'OUT OF STOCK' })
+        .eq("category", "Retail")
         .not("status", "in", '("archived","ARCHIVED")');
 
       // 2. Log the INVENTORY_RESET event
@@ -490,11 +492,13 @@ export async function POST(req: Request) {
           .toUpperCase();
       };
 
+      // Also fetch invoice-level discount so we can apply the correct proportion
+      // per-item (matching the centralized reportEngine formula exactly).
       let baseQuery = adminSupabase
         .from("invoice_items")
         .select(`
-          item_name, quantity, line_total, tax_rate,
-          invoices!inner(branch, created_at, status)
+          item_name, quantity, line_total, tax_rate, invoice_id,
+          invoices!inner(id, branch, created_at, status, discount, subtotal, total_tax)
         `)
         .neq("invoices.status", "archived")
         .lte("invoices.created_at", endISO.toISOString())
@@ -513,7 +517,7 @@ export async function POST(req: Request) {
         
         if (pageData && pageData.length > 0) {
           allSoldItems = allSoldItems.concat(pageData);
-          pageData.forEach((item: any) => totalInvoicesFound.add(item.invoices?.created_at + item.invoices?.branch));
+          pageData.forEach((item: any) => totalInvoicesFound.add(item.invoices?.id || (item.invoices?.created_at + item.invoices?.branch)));
           if (pageData.length < pageSize) {
             hasMore = false;
           } else {
@@ -524,7 +528,25 @@ export async function POST(req: Request) {
         }
       }
 
-      // Exact pseudo code implementation using normalized keys
+      // Pre-compute per-invoice totals (sum of all line_totals) for proportion calculation.
+      // This mirrors the centralized reportEngine formula:
+      //   proportion = 1 - (discount / totalInclusive)
+      //   discountedInclusive = lineTotal * proportion
+      //   taxable = discountedInclusive / (1 + rate)
+      const invoiceTotalsMap: Record<string, { totalInclusive: number; discount: number }> = {};
+      for (const item of allSoldItems) {
+        const invId = item.invoices?.id || item.invoice_id || "";
+        if (!invId) continue;
+        if (!invoiceTotalsMap[invId]) {
+          invoiceTotalsMap[invId] = {
+            totalInclusive: 0,
+            discount: parseFloat(item.invoices?.discount) || 0,
+          };
+        }
+        invoiceTotalsMap[invId].totalInclusive += parseFloat(item.line_total) || 0;
+      }
+
+      // Aggregation using normalized keys — discount proportion applied
       const salesMap: Record<string, { qty: number, taxable: number, gst: number, revenue: number }> = {};
       
       for (const item of allSoldItems) {
@@ -533,16 +555,23 @@ export async function POST(req: Request) {
           salesMap[key] = { qty: 0, taxable: 0, gst: 0, revenue: 0 };
         }
         
+        const invId = item.invoices?.id || item.invoice_id || "";
+        const invTotals = invoiceTotalsMap[invId] || { totalInclusive: 0, discount: 0 };
+        
+        // Apply invoice-level discount proportion (same formula as reportEngine)
         const lineTotal = parseFloat(item.line_total) || 0;
         const rate = parseFloat(item.tax_rate) || 0;
-        const totalInc = lineTotal;
-        const taxable = totalInc / (1 + rate);
-        const gst = totalInc - taxable;
+        const proportion = (invTotals.totalInclusive > 0 && invTotals.discount > 0)
+          ? 1 - (invTotals.discount / invTotals.totalInclusive)
+          : 1;
+        const discountedInclusive = lineTotal * proportion;
+        const taxable = rate > 0 ? discountedInclusive / (1 + rate) : discountedInclusive;
+        const gst = discountedInclusive - taxable;
 
-        salesMap[key].qty += item.quantity;
+        salesMap[key].qty     += item.quantity;
         salesMap[key].taxable += taxable;
-        salesMap[key].gst += gst;
-        salesMap[key].revenue += totalInc;
+        salesMap[key].gst     += gst;
+        salesMap[key].revenue += discountedInclusive;
       }
 
       // Debug validation requested by user

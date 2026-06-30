@@ -285,19 +285,26 @@ export default function BillingModule() {
   const invoiceItemsInput = cart.map(c => ({
     category: c.item.category,
     quantity: c.quantity,
-    unit_price: parseFloat((c.item.price * (1 + getTaxInfo(c.item).gstDecimal)).toFixed(2)),
+    // Catalogue price is already GST-inclusive — pass it directly.
+    // DO NOT multiply by (1 + gstDecimal): that adds GST a second time.
+    unit_price: Math.round(c.item.price * 100) / 100,
     tax_rate: c.item.tax_rate
   }));
 
   // Safe fallback to prevent crash on empty cart
   let calcTotals = {
     subtotal: 0,
+    service_base: 0,
+    retail_base: 0,
+    service_inclusive: 0,
+    retail_inclusive: 0,
     service_tax: 0,
     retail_tax: 0,
     total_tax: 0,
     discount: 0,
     points_redeemed: 0,
-    grand_total: 0
+    grand_total: 0,
+    points_earned: 0
   };
 
   if (invoiceItemsInput.length > 0) {
@@ -311,10 +318,10 @@ export default function BillingModule() {
   const {
     subtotal,
     total_tax: totalTax,
-    grand_total: grandTotal
+    grand_total: grandTotal,
+    points_earned: pointsEarned
   } = calcTotals;
 
-  const pointsEarned = Math.floor(grandTotal / 100);
   const preDiscountTotal = subtotal + totalTax; // Used ONLY for points redemption validation ceiling
 
   // Validate points redemption
@@ -702,14 +709,14 @@ export default function BillingModule() {
                   <td className="py-3.5 pr-8 text-white print-text-black">{getTaxInfo(item).hsn}</td>
                   <td className="py-3.5 text-gold-primary/70 print-text-gold font-medium">{item.category}</td>
                   <td className="metric-value py-3.5 text-center font-medium text-white print-text-black">{item.quantity}</td>
-                  <td className="currency-value py-3.5 text-white print-text-black">₹{(parseFloat(item.unit_price) * (1 + getTaxInfo(item).gstDecimal)).toFixed(2)}</td>
+                  <td className="currency-value py-3.5 text-white print-text-black">₹{parseFloat(item.unit_price).toFixed(2)}</td>
                   <td className="metric-value py-3.5 text-ivory/60 print-text-muted">
                     {getTaxInfo(item).gstLabel}
                     <span className="block text-[9px] text-ivory/40">
                       ({parseFloat(getTaxInfo(item).gstLabel) / 2}% CGST + {parseFloat(getTaxInfo(item).gstLabel) / 2}% SGST)
                     </span>
                   </td>
-                  <td className="currency-value py-3.5 text-right font-medium text-white print-text-black">₹{(parseFloat(item.line_total) * (1 + getTaxInfo(item).gstDecimal)).toFixed(2)}</td>
+                  <td className="currency-value py-3.5 text-right font-medium text-white print-text-black">₹{parseFloat(item.line_total).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -1138,7 +1145,7 @@ export default function BillingModule() {
                           </span>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
-                          <span className="currency-value text-xs md:text-sm text-white font-medium">₹{(item.price * (1 + getTaxInfo(item).gstDecimal)).toFixed(2)} <span className="text-[9px] text-ivory/50 font-normal normal-case">(GST Included)</span></span>
+                          <span className="currency-value text-xs md:text-sm text-white font-medium">₹{Number(item.price).toFixed(2)} <span className="text-[9px] text-ivory/50 font-normal normal-case">(GST Included)</span></span>
                           <button
                             type="button"
                             onClick={() => {
@@ -1217,14 +1224,14 @@ export default function BillingModule() {
                               />
                             </td>
                             <td className="metric-value py-3 font-medium">{quantity}</td>
-                            <td className="currency-value py-3">₹{(item.price * (1 + getTaxInfo(item).gstDecimal)).toFixed(2)}</td>
+                            <td className="currency-value py-3">₹{Number(item.price).toFixed(2)}</td>
                             <td className="metric-value py-3">
                               {getTaxInfo(item).gstLabel}
                               <span className="block text-[9px] text-ivory/45">
                                 ({parseFloat(getTaxInfo(item).gstLabel) / 2}% CGST + {parseFloat(getTaxInfo(item).gstLabel) / 2}% SGST)
                               </span>
                             </td>
-                            <td className="currency-value py-3 text-white font-medium">₹{(lineTotal * (1 + getTaxInfo(item).gstDecimal)).toFixed(2)}</td>
+                            <td className="currency-value py-3 text-white font-medium">₹{(lineTotal).toFixed(2)}</td>
                             <td className="py-3 text-right">
                               <button
                                 onClick={() => removeFromCart(item.id)}
@@ -1328,19 +1335,19 @@ export default function BillingModule() {
               <div className="space-y-3.5 text-xs font-light border-b border-white/5 pb-5">
                 <div className="flex justify-between text-zinc-400">
                   <span>Services Subtotal (Inc. GST)</span>
-                  <span className="currency-value font-medium">₹{(calcTotals.subtotal + calcTotals.service_tax).toFixed(2)}</span>
+                  <span className="currency-value font-medium">₹{calcTotals.service_inclusive.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-zinc-400">
                   <span>Retail Subtotal (Inc. GST)</span>
-                  <span className="currency-value font-medium">₹{(calcTotals.retail_tax > 0 ? (calcTotals.retail_tax * 100 / 18 + calcTotals.retail_tax) : 0).toFixed(2)}</span>
+                  <span className="currency-value font-medium">₹{calcTotals.retail_inclusive.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pl-3 text-[11px] text-ivory/40 border-l border-white/5">
                   <span className="font-semibold text-ivory/70">Services Base Price (Before GST):</span>
-                  <span className="currency-value font-semibold text-ivory/70">₹{calcTotals.subtotal.toFixed(2)}</span>
+                  <span className="currency-value font-semibold text-ivory/70">₹{calcTotals.service_base.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pl-3 text-[11px] text-ivory/40 border-l border-white/5">
                   <span className="font-semibold text-ivory/70">Retail Base Price (Before GST):</span>
-                  <span className="currency-value font-semibold text-ivory/70">₹{(calcTotals.retail_tax > 0 ? calcTotals.retail_tax * 100 / 18 : 0).toFixed(2)}</span>
+                  <span className="currency-value font-semibold text-ivory/70">₹{calcTotals.retail_base.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between border-t border-white/5 pt-3">
                   <span className="text-ivory/50">Combined GST Included:</span>

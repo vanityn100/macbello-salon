@@ -58,56 +58,51 @@ describe('Invoice Calculation Engine - GST Inclusive', () => {
     expect(result.grand_total).toBeCloseTo(223);
   });
 
-  test('Single Service with Manual Discount (GST calculated on discounted amount)', () => {
+  test('Single Service with Manual Discount (Discount on Inclusive Price)', () => {
     const items = [
       { category: 'Service', quantity: 1, unit_price: 600, tax_rate: '0.05' }
     ];
     const manualDiscount = 60; 
     
     // Line Total = 600
-    // Macbello Rule:
-    // Base Amount = 600 / 1.05 = 571.43
-    // Discount applied to Base = 571.43 - 60 = 511.43
-    // Tax Amount = 511.43 * 0.05 = 25.57
-    // Grand Total = 511.43 + 25.57 = 537
+    // Discount applied to Inclusive = 600 - 60 = 540
+    // Base Amount = 540 / 1.05 = 514.2857 -> 514.29
+    // Tax Amount = 540 - 514.29 = 25.71
+    // Grand Total = 540
     
     const result = recalculateInvoiceTotals(items, manualDiscount, 0);
     
     expect(result.discount).toBe(60);
-    expect(result.subtotal).toBeCloseTo(511.43);
-    expect(result.service_tax).toBeCloseTo(25.57);
-    expect(result.total_tax).toBeCloseTo(25.57);
-    expect(result.grand_total).toBeCloseTo(537);
+    expect(result.subtotal).toBeCloseTo(514.29);
+    expect(result.service_tax).toBeCloseTo(25.71);
+    expect(result.total_tax).toBeCloseTo(25.71);
+    expect(result.grand_total).toBeCloseTo(540);
+    expect(result.points_earned).toBe(5);
   });
 
-  test('Mixed Items with Loyalty Points (Proportional Discount)', () => {
+  test('Mixed Items with Loyalty Points Redemption (Redemption AFTER GST)', () => {
     const items = [
       { category: 'Service', quantity: 1, unit_price: 105, tax_rate: '0.05' }, // Base 100, Tax 5
       { category: 'Retail', quantity: 1, unit_price: 118, tax_rate: '0.18' }   // Base 100, Tax 18
     ];
-    const pointsRedeemed = 22.3; // 10% discount
+    const pointsRedeemed = 23; 
     
+    // Loyalty redemption does NOT alter Base or Tax!
     // Total Line Total = 223
-    // Total Discount = 22.3
-    // Proportion = 1 - (22.3 / 223) = 0.9
-    // Remaining Payable = 200.7
-    // Service Discounted Payable = 105 * 0.9 = 94.5
-    // Service Base = 94.5 / 1.05 = 90
-    // Service Tax = 94.5 - 90 = 4.5
-    
-    // Retail Discounted Payable = 118 * 0.9 = 106.2
-    // Retail Base = 106.2    // Total Discount = 22.30
-    // Mixed Services and Products (Proportional Discount against Base)
-    // Subtotal = 177.70
+    // Service Base = 100, Tax = 5
+    // Retail Base = 100, Tax = 18
+    // Subtotal = 200, Total Tax = 23
+    // Grand Total = 223 - 23 = 200
     
     const result = recalculateInvoiceTotals(items, 0, pointsRedeemed);
     
-    expect(result.points_redeemed).toBe(22.3);
-    expect(result.subtotal).toBeCloseTo(177.70);
-    expect(result.service_tax).toBeCloseTo(4.44);
-    expect(result.retail_tax).toBeCloseTo(15.99);
-    expect(result.total_tax).toBeCloseTo(20.44);
-    expect(result.grand_total).toBeCloseTo(198.14);
+    expect(result.points_redeemed).toBe(23);
+    expect(result.subtotal).toBeCloseTo(200);
+    expect(result.service_tax).toBeCloseTo(5);
+    expect(result.retail_tax).toBeCloseTo(18);
+    expect(result.total_tax).toBeCloseTo(23);
+    expect(result.grand_total).toBeCloseTo(200);
+    expect(result.points_earned).toBe(2);
   });
 
   test('Handles old tax_rate integer values (e.g. 5 instead of 0.05)', () => {
