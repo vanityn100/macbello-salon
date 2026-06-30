@@ -126,7 +126,8 @@ export default function EditInvoiceModal({ invoiceId, sessionToken, onClose, onS
     if (existing) {
       setCart(cart.map(c => c.item.name === service.name ? { ...c, quantity: c.quantity + 1 } : c));
     } else {
-      setCart([...cart, { item: service, quantity: 1, unit_price: service.price }]);
+      const inclusivePrice = parseFloat((service.price * (1 + (service.tax_rate / 100))).toFixed(2));
+      setCart([...cart, { item: service, quantity: 1, unit_price: inclusivePrice }]);
     }
   };
 

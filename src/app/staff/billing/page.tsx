@@ -285,7 +285,7 @@ export default function BillingModule() {
   const invoiceItemsInput = cart.map(c => ({
     category: c.item.category,
     quantity: c.quantity,
-    unit_price: c.item.price,
+    unit_price: parseFloat((c.item.price * (1 + getTaxInfo(c.item).gstDecimal)).toFixed(2)),
     tax_rate: c.item.tax_rate
   }));
 

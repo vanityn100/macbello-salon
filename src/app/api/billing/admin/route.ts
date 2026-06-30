@@ -1039,7 +1039,6 @@ export async function POST(request: NextRequest) {
         if (!dbItem) {
           return NextResponse.json({ success: false, error: `Item ID ${reqItem.id} not found.` }, { status: 400 });
         }
-
         // Staff branch item check (IDOR check)
         if (user.role === "staff" && dbItem.branch && dbItem.branch !== user.branch) {
           return NextResponse.json({ success: false, error: `Forbidden: Item ${dbItem.name} belongs to another branch.` }, { status: 403 });
@@ -1050,7 +1049,9 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ success: false, error: "Quantity must be positive integer." }, { status: 400 });
         }
 
-        const lineTotal = dbItem.price * qty;
+        const taxDecimal = dbItem.tax_rate === 18 ? 0.18 : 0.05;
+        const inclusivePrice = parseFloat((dbItem.price * (1 + taxDecimal)).toFixed(2));
+        const lineTotal = inclusivePrice * qty;
 
         if (dbItem.category !== "Service") {
           retailDeductions.push({
@@ -1064,7 +1065,7 @@ export async function POST(request: NextRequest) {
           item_name: dbItem.name,
           category: dbItem.category,
           quantity: qty,
-          unit_price: dbItem.price,
+          unit_price: inclusivePrice,
           tax_rate: dbItem.tax_rate,
           line_total: lineTotal,
           item_code: dbItem.item_code || null,
