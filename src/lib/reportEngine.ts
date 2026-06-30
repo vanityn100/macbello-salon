@@ -8,6 +8,7 @@
  * - Catalogue fields (hsn, item_code, category) are enriched from the live catalogue for display only.
  * - CONSISTENCY: totalSales = SUM(grand_total) across ALL reports — the actual amount collected.
  */
+import productListMap from './productListMap.json';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -101,8 +102,9 @@ export function enrichItemWithCatalogue(
     entry = catalogue.byCode.get(String(item.item_code).trim().toUpperCase());
   }
   // Fallback: name lookup
+  const normalizedItemName = normalizeName(item.item_name || '');
   if (!entry) {
-    entry = catalogue.byName.get(normalizeName(item.item_name || ''));
+    entry = catalogue.byName.get(normalizedItemName);
   }
 
   const storedRate = parseFloat(item.tax_rate);
@@ -112,10 +114,13 @@ export function enrichItemWithCatalogue(
     ? storedRate 
     : (catalogueRate !== undefined && catalogueRate !== null ? catalogueRate : (item.category === 'Retail' ? 18 : 5));
 
+  // Authoritative HSN from the explicitly provided Product List file, fallback to catalogue, then invoice
+  const productListHsn = (productListMap as Record<string, string>)[normalizedItemName];
+
   return {
     ...item,
     // Overlay current catalogue fields for display — stored financials untouched
-    hsn: entry?.hsn || item.hsn || 'Unassigned',
+    hsn: productListHsn || entry?.hsn || item.hsn || 'Unassigned',
     item_code: entry?.item_code || item.item_code || '',
     category: entry?.category || item.category || 'Service',
     tax_rate: finalTaxRate,
