@@ -250,10 +250,10 @@ export default function TaxComplianceReports() {
       doc.addPage();
       drawHeader("INVOICE REGISTER (B2C/B2B)");
 
-      const invHead = [["Invoice Number", "Date", "Customer Name", "GSTIN", "Branch", "Item Name", "Category", "GST Rate", "Quantity", "Unit Price", "Taxable Value", "Discount", "Loyalty Points", "CGST", "SGST", "Total Amount", "Status"]];
+      const invHead = [["Invoice Number", "Date", "Customer Name", "GSTIN", "Branch", "Item Name", "HSN", "Category", "GST Rate", "Quantity", "Unit Price", "Taxable Value", "Discount", "Loyalty Points", "CGST", "SGST", "Total Amount", "Status"]];
 
       const invBody = dataToExport.invoiceRegister.map((inv: any) => 
-        [inv.invoiceNumber, formatDate(inv.invoiceDate), inv.customerName, inv.customerGstin, inv.branch, inv.itemName, inv.category, inv.gstRate, inv.quantity, pdfINR(inv.unitPrice), pdfINR(inv.taxableValue), pdfINR(inv.discount), pdfINR(inv.loyaltyPoints), pdfINR(inv.cgst), pdfINR(inv.sgst), pdfINR(inv.totalValue), inv.status]
+        [inv.invoiceNumber, formatDate(inv.invoiceDate), inv.customerName, inv.customerGstin, inv.branch, inv.itemName, inv.hsnCode, inv.category, inv.gstRate, inv.quantity, pdfINR(inv.unitPrice), pdfINR(inv.taxableValue), pdfINR(inv.discount), pdfINR(inv.loyaltyPoints), pdfINR(inv.cgst), pdfINR(inv.sgst), pdfINR(inv.totalValue), inv.status]
       );
 
       autoTable(doc, {
@@ -425,7 +425,8 @@ export default function TaxComplianceReports() {
         "GSTIN": inv.customerGstin,
         "Branch": inv.branch,
         "Item Name": inv.itemName,
-        "Category": inv.category,
+          "HSN": inv.hsnCode,
+          "Category": inv.category,
         "GST Rate": inv.gstRate,
         "Quantity": exportNumber(inv.quantity),
         "Unit Price": exportNumber(inv.unitPrice),
