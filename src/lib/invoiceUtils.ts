@@ -115,7 +115,7 @@ export function recalculateInvoiceTotals(
   const totalTax = serviceTax + retailTax;
   const grandTotal = subtotal + totalTax;
 
-  const pointsEarned = Math.floor(grandTotal / 10);
+  const pointsEarned = Math.floor(grandTotal / 100);
 
   return {
     subtotal: parseFloat(subtotal.toFixed(2)),

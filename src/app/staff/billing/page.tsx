@@ -314,7 +314,7 @@ export default function BillingModule() {
     grand_total: grandTotal
   } = calcTotals;
 
-  const pointsEarned = Math.floor(grandTotal / 10);
+  const pointsEarned = Math.floor(grandTotal / 100);
   const preDiscountTotal = subtotal + totalTax; // Used ONLY for points redemption validation ceiling
 
   // Validate points redemption
