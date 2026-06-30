@@ -105,12 +105,20 @@ export function enrichItemWithCatalogue(
     entry = catalogue.byName.get(normalizeName(item.item_name || ''));
   }
 
+  const storedRate = parseFloat(item.tax_rate);
+  const catalogueRate = entry?.tax_rate;
+  // Fallback: 1. Stored invoice item GST (if > 0), 2. Catalogue GST, 3. Default based on category
+  const finalTaxRate = (storedRate > 0) 
+    ? storedRate 
+    : (catalogueRate !== undefined && catalogueRate !== null ? catalogueRate : (item.category === 'Retail' ? 18 : 5));
+
   return {
     ...item,
     // Overlay current catalogue fields for display — stored financials untouched
     hsn: entry?.hsn || item.hsn || 'Unassigned',
     item_code: entry?.item_code || item.item_code || '',
     category: entry?.category || item.category || 'Service',
+    tax_rate: finalTaxRate,
   };
 }
 
@@ -334,13 +342,8 @@ export function aggregateInvoices(
       hsnMap[hsnKey].total_gst    += itemTax;
       hsnMap[hsnKey].totalValue   += (itemTaxable + itemTax);
 
-      // ── GST Rate Map (with GSTR-1 slab snapping) ─────────────────────────
-      const buckets = [0, 5, 12, 18, 28];
-      const bucketRate = rawRate;
-      const bucket = buckets.reduce((prev, curr) =>
-        Math.abs(curr - bucketRate) < Math.abs(prev - bucketRate) ? curr : prev
-      );
-      const bucketKey = `${bucket}%`;
+      // ── GST Rate Map (Dynamic Grouping by Actual Rates) ─────────────────────
+      const bucketKey = rateLabel;
       if (!gstRateMap[bucketKey]) {
         gstRateMap[bucketKey] = {
           gstRate: bucketKey,
