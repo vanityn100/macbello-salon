@@ -472,7 +472,7 @@ export default function AdminPortal() {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.text("GSTIN: 32AABCM1029F1Z4 | Phone: +91 95625 14002", 14, 20);
-      doc.text("Email: accounts@macbellosalon.com", 14, 25);
+      doc.text("Email: accounts@macbello.com", 14, 25);
       
       doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
@@ -1144,7 +1144,7 @@ export default function AdminPortal() {
                 type="email"
                 value={newStaffEmail}
                 onChange={(e) => setNewStaffEmail(e.target.value)}
-                placeholder="staff@macbellosalon.com"
+                placeholder="staff@macbello.com"
                 className="bg-luxury-black border border-white/10 px-4 py-2.5 text-xs text-white rounded-none focus:outline-none focus:border-gold-primary/50"
                 required
               />

@@ -16,6 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://macbello.com"),
   title: "Macbello Family Salon | Premium Salon in Kaduthuruthy, Ettumanoor & Peruva",
   description: "Luxury hair styling, beauty treatments, hair botox, grooming and bridal services across 3 branches — Kaduthuruthy, Ettumanoor & Peruva, Kerala.",
   keywords: [
@@ -34,13 +35,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Macbello Family Salon | Premium Salon in Kaduthuruthy, Ettumanoor & Peruva",
     description: "Luxury hair styling, beauty treatments, hair botox, grooming and bridal services across 3 branches in Kerala.",
-    url: "https://macbellosalon.com",
+    url: "https://macbello.com",
     siteName: "Macbello Family Salon",
     locale: "en_IN",
     type: "website",
     images: [
       {
-        url: "https://macbellosalon.com/images/hero/hero_salon.webp",
+        url: "https://macbello.com/images/hero/hero_salon.webp",
         width: 1200,
         height: 630,
         alt: "Macbello Family Salon Luxury Interior",
@@ -51,10 +52,10 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Macbello Family Salon | Premium Salon in Kaduthuruthy, Ettumanoor & Peruva",
     description: "Luxury hair styling, beauty treatments and bridal services across 3 branches in Kerala.",
-    images: ["https://macbellosalon.com/images/hero/hero_salon.webp"],
+    images: ["https://macbello.com/images/hero/hero_salon.webp"],
   },
   alternates: {
-    canonical: "https://macbellosalon.com",
+    canonical: "https://macbello.com",
   },
   robots: {
     index: true,
@@ -78,9 +79,9 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "BeautySalon",
     "name": "Macbello Family Salon",
-    "image": "https://macbellosalon.com/images/hero/hero_salon.webp",
-    "@id": "https://macbellosalon.com/#salon",
-    "url": "https://macbellosalon.com",
+    "image": "https://macbello.com/images/hero/hero_salon.webp",
+    "@id": "https://macbello.com/#salon",
+    "url": "https://macbello.com",
     "telephone": "+919562514002",
     "priceRange": "$$",
     "address": {

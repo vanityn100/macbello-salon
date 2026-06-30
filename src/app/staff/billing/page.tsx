@@ -805,7 +805,7 @@ export default function BillingModule() {
             <p className="text-gold-primary print-text-gold font-medium">Thank you for visiting Macbello Salon. Premium self-care is a luxury you deserve.</p>
             <p>Join our Loyalty Rewards program and earn points on every service or retail transaction.</p>
             <p className="text-[9px] pt-1">
-              Contact us at <span className="text-white print-text-black font-medium">{activeBranch.phone}</span> | Website: <span className="text-white print-text-black font-medium">www.macbellosalon.com</span>
+              Contact us at <span className="text-white print-text-black font-medium">{activeBranch.phone}</span> | Website: <span className="text-white print-text-black font-medium">www.macbello.com</span>
             </p>
           </div>
         </div>

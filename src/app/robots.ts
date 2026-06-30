@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin', '/staff', '/api/'],
     },
-    sitemap: 'https://macbellosalon.com/sitemap.xml',
+    sitemap: 'https://macbello.com/sitemap.xml',
   };
 }

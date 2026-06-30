@@ -323,7 +323,7 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
   doc.text("Thank you for visiting Macbello Salon. Premium self-care is a luxury you deserve.", 20, 262);
   
   doc.setFont("helvetica", "normal");
-  doc.text(`Contact Branch: ${activeBranch.phone} | Website: www.macbellosalon.com`, 20, 267);
+  doc.text(`Contact Branch: ${activeBranch.phone} | Website: www.macbello.com`, 20, 267);
 
   return doc;
 }

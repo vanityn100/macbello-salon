@@ -31,7 +31,7 @@ const BUSINESS_INFO = {
   gstin: "32AABCM1029F1Z4",
   address: "Corporate Office, Kerala, India",
   phone: "+91 95625 14002",
-  email: "accounts@macbellosalon.com",
+  email: "accounts@macbello.com",
 };
 
 export default function GSTR1Page() {

@@ -102,7 +102,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <div className="bg-white/5 p-6 rounded-xl border border-white/10 text-ivory/80 mt-4">
               <p><strong>Macbello Family Salon</strong></p>
-              <p>Email: <a href="mailto:info@macbellosalon.com" className="text-gold-primary hover:text-gold-hover transition-colors">info@macbellosalon.com</a></p>
+              <p>Email: <a href="mailto:info@macbello.com" className="text-gold-primary hover:text-gold-hover transition-colors">info@macbello.com</a></p>
             </div>
           </div>
 
