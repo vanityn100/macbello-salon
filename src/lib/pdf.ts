@@ -1,4 +1,4 @@
-import { formatGst } from '@/lib/gst';
+import { formatGst, getTaxInfo } from '@/lib/gst';
 import { jsPDF } from "jspdf";
 
 export interface CompletedInvoice {
@@ -191,6 +191,7 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
 
   // Table Rows
   items.forEach((item) => {
+    const taxInfo = getTaxInfo(item);
     const hasStaff = !!item.staff_contribution;
 
     doc.setFont("helvetica", "bold");
@@ -219,9 +220,9 @@ export function buildInvoicePDFDocument(completedInvoice: CompletedInvoice): jsP
     }
 
     doc.setFont("helvetica", "normal");
-    doc.text(item.hsn || "-", 95, textY);
+    doc.text(taxInfo.hsn, 95, textY);
     doc.text(item.category, 110, textY);
-    doc.text(`${formatGst(item.tax_rate, item.category)}`, 125, textY);
+    doc.text(taxInfo.gstLabel, 125, textY);
     doc.text(String(item.quantity), 140, textY);
     const inclUnitPrice = parseFloat(item.unit_price);
     const inclLineTotal = parseFloat(item.line_total);

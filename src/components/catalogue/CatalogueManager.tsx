@@ -1,5 +1,5 @@
 "use client";
-import { formatGst, getDecimalGst } from '@/lib/gst';
+import { getTaxInfo } from '@/lib/gst';
 
 import { useState, useEffect, useMemo } from "react";
 import { supabaseStaffClient, supabaseAdminClient } from "@/lib/supabase";
@@ -201,7 +201,7 @@ export default function CatalogueManager({ portalType, pageTitle }: CatalogueMan
   const handleEditInit = (item: ServiceItem) => {
     setEditingId(item.id);
     setName(item.name);
-    setPrice((item.price * (1 + getDecimalGst(item.tax_rate, item.category))).toFixed(2));
+    setPrice((item.price * (1 + getTaxInfo(item).gstDecimal)).toFixed(2));
     setCategory(item.category);
     setItemCode(item.item_code || "");
     setHsn(item.hsn || "");
@@ -519,10 +519,10 @@ export default function CatalogueManager({ portalType, pageTitle }: CatalogueMan
                         <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                           <td className="py-3 text-white font-medium">{item.name}</td>
                           <td className="py-3 text-ivory/60 text-[10px] pr-8">{item.item_code || "-"}</td>
-                          <td className="py-3 text-ivory/60 pr-8">{item.hsn || "-"}</td>
+                          <td className="py-3 text-ivory/60 pr-8">{getTaxInfo(item).hsn}</td>
                           <td className="py-3 text-ivory/80">₹{item.price.toFixed(2)}</td>
-                          <td className="py-3 text-ivory/40">{formatGst(item.tax_rate, item.category)}</td>
-                          <td className="py-3 text-white font-semibold">₹{(item.price * (1 + getDecimalGst(item.tax_rate, item.category))).toFixed(2)}</td>
+                          <td className="py-3 text-ivory/40">{getTaxInfo(item).gstLabel}</td>
+                          <td className="py-3 text-white font-semibold">₹{(item.price * (1 + getTaxInfo(item).gstDecimal)).toFixed(2)}</td>
                           <td className="py-3 text-right">
                             <div className="inline-flex gap-2">
                               <button

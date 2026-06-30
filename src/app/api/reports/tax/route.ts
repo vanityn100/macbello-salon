@@ -1,4 +1,4 @@
-import { getDecimalGst, formatGst } from '@/lib/gst';
+import { getTaxInfo } from '@/lib/gst';
 import { NextResponse } from "next/server";
 import { logError } from '@/lib/logger';
 import { getSupabaseAdmin } from "@/lib/supabase";
@@ -154,7 +154,8 @@ export async function POST(req: Request) {
         
         items.forEach((item: any) => {
           const qty = item.quantity || 1;
-          const rate = getDecimalGst(item.tax_rate, item.category);
+          const taxInfo = getTaxInfo(item);
+          const rate = taxInfo.gstDecimal;
           const lineTotal = parseFloat(item.line_total) || 0;
           
           // Tax logic per item
@@ -165,7 +166,7 @@ export async function POST(req: Request) {
           const itemCgst = itemTax / 2;
           const itemSgst = itemTax / 2;
 
-          const ratePercentage = formatGst(item.tax_rate, item.category);
+          const ratePercentage = taxInfo.gstLabel;
 
           const rawUnitPrice = parseFloat(item.unit_price) || 0;
           const taxableUnitPrice = rate > 0 ? rawUnitPrice / (1 + rate) : rawUnitPrice;
@@ -193,7 +194,7 @@ export async function POST(req: Request) {
           });
 
           // HSN Aggregation
-          const hsnCode = item.hsn || "Unassigned";
+          const hsnCode = taxInfo.hsn;
           if (!hsnMap[hsnCode]) {
             hsnMap[hsnCode] = { 
               hsnCode, 
@@ -240,7 +241,7 @@ export async function POST(req: Request) {
             invoiceNumber: inv.invoice_number,
             customer: customerName,
             itemName: item.item_name,
-            hsnCode: hsnCode,
+            hsnCode: taxInfo.hsn,
             quantity: qty,
             unitPrice: taxableUnitPrice,   // Pre-GST price per unit
             gstRate: ratePercentage,

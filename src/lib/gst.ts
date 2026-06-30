@@ -4,6 +4,11 @@
  * No other module may implement its own GST percentage calculation, multiplication, or display rendering.
  */
 
+import productMasterRaw from './productMaster.json';
+
+// Typecast the JSON so TypeScript knows its structure
+const productMaster: Record<string, { hsn: string, gstRate: number | null }> = productMasterRaw as any;
+
 /**
  * Normalizes any historical or incoming GST rate into the exact integer 5 or 18.
  * Rejects or coerces any invalid anomalies (0.05, 1800, etc.).
@@ -48,8 +53,6 @@ export function formatGst(rate: any, category?: string | null): string {
     const validRate = normalizeGst(rate, category);
     return `${validRate}%`;
   } catch (err) {
-    // If strict validation fails in a purely view-layer context without category info, 
-    // we default to 5% to prevent UI crashes, but this should ideally be caught by backend validation.
     return "5%";
   }
 }
@@ -60,4 +63,50 @@ export function formatGst(rate: any, category?: string | null): string {
  */
 export function getDecimalGst(rate: any, category?: string | null): number {
   return normalizeGst(rate, category) / 100;
+}
+
+/**
+ * Centralized GST & HSN Engine
+ * Returns authoritative tax info for any item, prioritizing the Product Master for Retail
+ * and strict fallbacks for Service.
+ */
+export function getTaxInfo(item: any): { isService: boolean, hsn: string, gstRate: number, gstLabel: string, gstDecimal: number } {
+  const isService = item.category?.toLowerCase().includes("service") || item.category === "Service";
+
+  if (isService) {
+    return {
+      isService: true,
+      hsn: "999729",
+      gstRate: 5,
+      gstLabel: "5%",
+      gstDecimal: 0.05
+    };
+  } else {
+    // Retail Item
+    const itemName = String(item.item_name || item.name || "").trim().toUpperCase();
+    const prod = productMaster[itemName];
+
+    let finalHsn = "Unassigned";
+    if (prod && prod.hsn) {
+      finalHsn = String(prod.hsn);
+    } else if (item.hsn) {
+      finalHsn = String(item.hsn);
+    }
+
+    let gstRate = prod ? prod.gstRate : item.tax_rate;
+    
+    if (gstRate === undefined || gstRate === null || gstRate === "") {
+      throw new Error(`Validation Error: Missing GST for product ${itemName}`);
+    }
+
+    const normalizedRate = normalizeGst(gstRate);
+
+    return {
+      isService: false,
+      hsn: finalHsn,
+      gstRate: normalizedRate,
+      gstLabel: `${normalizedRate}%`,
+      gstDecimal: normalizedRate / 100
+    };
+  }
 }

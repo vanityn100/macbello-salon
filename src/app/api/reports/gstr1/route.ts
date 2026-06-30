@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { logError } from "@/lib/logger";
-import { getDecimalGst } from '@/lib/gst';
+import { getTaxInfo } from '@/lib/gst';
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { recalculateInvoiceTotals } from "@/lib/invoiceUtils";
 
@@ -176,7 +176,8 @@ export async function POST(req: Request) {
           };
         } else {
           items.forEach((item: any, i: number) => {
-            const rate = getDecimalGst(item.tax_rate, item.category);
+            const taxInfo = getTaxInfo(item);
+            const rate = taxInfo.gstDecimal;
             const qty = item.quantity || 1;
 
             const breakdown = calculated.items_breakdown[i];
@@ -189,11 +190,10 @@ export async function POST(req: Request) {
             totalCgst += itemCgst;
             totalSgst += itemSgst;
 
-            const rawRate = rate > 1 ? rate : rate * 100;
-            const rateLabel = rawRate.toFixed(0) + "%";
+            const rateLabel = taxInfo.gstLabel;
 
             // HSN aggregation
-            const hsnCode = item.hsn || "Unassigned";
+            const hsnCode = taxInfo.hsn;
             const hsnKey = `${hsnCode}__${rateLabel}`;
             if (!hsnMap[hsnKey]) {
               hsnMap[hsnKey] = {
@@ -214,7 +214,7 @@ export async function POST(req: Request) {
             hsnMap[hsnKey].sgst += itemSgst;
             hsnMap[hsnKey].totalValue += (itemTaxable + itemTax);
 
-            // GST rate bucket (5, 12, 18, 28)
+            const rawRate = taxInfo.gstRate;
             const buckets = [0, 5, 12, 18, 28];
             const bucket = buckets.reduce((prev, curr) =>
               Math.abs(curr - rawRate) < Math.abs(prev - rawRate) ? curr : prev
