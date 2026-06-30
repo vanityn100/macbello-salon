@@ -8,7 +8,8 @@
  * - Catalogue fields (hsn, item_code, category) are enriched from the live catalogue for display only.
  * - CONSISTENCY: totalSales = SUM(grand_total) across ALL reports — the actual amount collected.
  */
-import productListMap from './productListMap.json';
+
+import productMasterExt from './productMasterExt.json';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -89,10 +90,7 @@ export async function buildCatalogueMap(
   return { byName, byCode };
 }
 
-/**
- * Enriches a single invoice_item with current catalogue data (hsn, item_code, category).
- * Financial values (unit_price, line_total, tax_rate) are NEVER changed.
- */
+
 export function enrichItemWithCatalogue(
   item: any,
   catalogue: { byName: Map<string, CatalogueEntry>; byCode: Map<string, CatalogueEntry> }
@@ -108,15 +106,27 @@ export function enrichItemWithCatalogue(
     entry = catalogue.byName.get(normalizedItemName);
   }
 
+  // 1. Match with Product List
+  const productListEntry = (productMasterExt as Record<string, { hsn: string, gstRate: number }>)[normalizedItemName];
+  
+  // 2. Read HSN from Product List, fallback to catalogue. Ignore corrupted invoice item.hsn.
+  let validHsn = "Unmatched Record";
+  if (productListEntry && productListEntry.hsn) {
+    validHsn = String(productListEntry.hsn);
+  } else if (entry && entry.hsn) {
+    validHsn = String(entry.hsn);
+  }
+
+  // 3. Read GST Rate from Product List if needed
+  let catalogueRate = entry?.tax_rate;
+  if (productListEntry && productListEntry.gstRate !== undefined && productListEntry.gstRate !== null) {
+    catalogueRate = productListEntry.gstRate;
+  }
+  
   const storedRate = parseFloat(item.tax_rate);
-  const catalogueRate = entry?.tax_rate;
-  // Fallback: 1. Stored invoice item GST (if > 0), 2. Catalogue GST, 3. Default based on category
   const finalTaxRate = (storedRate > 0) 
     ? storedRate 
     : (catalogueRate !== undefined && catalogueRate !== null ? catalogueRate : (item.category === 'Retail' ? 18 : 5));
-
-  // Authoritative HSN from the explicitly provided Product List file, fallback to catalogue, then invoice
-  const productListHsn = (productListMap as Record<string, string>)[normalizedItemName];
 
   // OVERRIDE PRICE WITH CATALOGUE GST-INCLUSIVE PRICE (as requested)
   let correctedUnitPrice = parseFloat(item.unit_price) || 0;
@@ -143,7 +153,7 @@ export function enrichItemWithCatalogue(
   return {
     ...item,
     // Overlay current catalogue fields for display — stored financials untouched
-    hsn: productListHsn || entry?.hsn || item.hsn || 'Unassigned',
+    hsn: validHsn,
     item_code: entry?.item_code || item.item_code || '',
     category: entry?.category || item.category || 'Service',
     tax_rate: finalTaxRate,
