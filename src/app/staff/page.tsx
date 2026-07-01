@@ -542,6 +542,14 @@ export default function StaffPortal() {
               <span>Inventory</span>
             </Link>
 
+            <Link
+              href="/staff/reports"
+              className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.15em] border border-white/10 hover:border-white/30 px-4 py-2 bg-white/5 transition-all duration-300 rounded-none"
+            >
+              <History size={12} />
+              <span>Transaction Report</span>
+            </Link>
+
             {/* Admin-only: escape back to Admin Portal */}
             {userRole === "admin" && (
               <Link
