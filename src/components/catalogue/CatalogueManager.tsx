@@ -523,7 +523,7 @@ export default function CatalogueManager({ portalType, pageTitle }: CatalogueMan
                           <td className="py-3 text-white font-medium">{item.name}</td>
                           <td className="py-3 text-ivory/60 text-[10px] pr-8">{item.item_code || "-"}</td>
                           <td className="py-3 text-ivory/60 pr-8">{getTaxInfo(item).hsn}</td>
-                          <td className="py-3 text-ivory/80">₹{item.price.toFixed(2)}</td>
+                          <td className="py-3 text-ivory/80">₹{(item.price / (1 + getTaxInfo(item).gstDecimal)).toFixed(2)}</td>
                           <td className="py-3 text-ivory/40">{getTaxInfo(item).gstLabel}</td>
                           <td className="py-3 text-white font-semibold">₹{item.price.toFixed(2)}</td>
                           <td className="py-3 text-right">
