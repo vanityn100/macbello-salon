@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { formatGst } from "@/lib/gst";
+import { formatGst, normalizeGst } from "@/lib/gst";
 import { validateAndCalculateServiceStatus } from "@/lib/validations/serviceStatus";
 import { logError } from '@/lib/logger';
 import { getSupabaseAdmin } from "@/lib/supabase";
@@ -131,7 +131,7 @@ export async function POST(req: Request) {
         price: Number(price),
         branch: null, // Retail products are globally defined
         hsn: hsn || "999729",
-        tax_rate: Number(gstRate) / 100,
+        tax_rate: normalizeGst(Number(gstRate), "Retail"), // Always store as integer 5 or 18, never as 0.05/0.18
         item_code: finalItemCode,
         status: validatedStatus === 'active' ? 'OUT OF STOCK' : validatedStatus,
         current_stock: 0,

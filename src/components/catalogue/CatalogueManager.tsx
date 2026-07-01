@@ -156,8 +156,9 @@ export default function CatalogueManager({ portalType, pageTitle }: CatalogueMan
     try {
       const url = "/api/billing/admin";
       const gstPercent = parseFloat(gstRate) / 100;
-      // Round taxable price to 2 decimal places to prevent floating point drift/truncation
-      const taxablePrice = Math.round((priceNum / (1 + gstPercent)) * 100) / 100;
+      
+      const taxablePrice = Math.round(priceNum * 100) / 100;
+
       const payload = editingId 
         ? { action: "edit_service", id: editingId, name, price: taxablePrice, category, itemCode, hsn, taxRate: gstPercent }
         : { action: "create_service", name, price: taxablePrice, category, itemCode, hsn, taxRate: gstPercent };
@@ -201,7 +202,7 @@ export default function CatalogueManager({ portalType, pageTitle }: CatalogueMan
   const handleEditInit = (item: ServiceItem) => {
     setEditingId(item.id);
     setName(item.name);
-    setPrice((item.price * (1 + getTaxInfo(item).gstDecimal)).toFixed(2));
+    setPrice(item.price.toFixed(2));
     setCategory(item.category);
     setItemCode(item.item_code || "");
     setHsn(item.hsn || "");
@@ -524,7 +525,7 @@ export default function CatalogueManager({ portalType, pageTitle }: CatalogueMan
                           <td className="py-3 text-ivory/60 pr-8">{getTaxInfo(item).hsn}</td>
                           <td className="py-3 text-ivory/80">₹{item.price.toFixed(2)}</td>
                           <td className="py-3 text-ivory/40">{getTaxInfo(item).gstLabel}</td>
-                          <td className="py-3 text-white font-semibold">₹{(item.price * (1 + getTaxInfo(item).gstDecimal)).toFixed(2)}</td>
+                          <td className="py-3 text-white font-semibold">₹{item.price.toFixed(2)}</td>
                           <td className="py-3 text-right">
                             <div className="inline-flex gap-2">
                               <button

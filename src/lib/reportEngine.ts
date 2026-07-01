@@ -122,18 +122,19 @@ export function enrichItemWithCatalogue(
   // 1. Match with Product List (MASTER reference)
   const productListEntry = (productMasterExt as Record<string, { hsn: string, gstRate: number }>)[normalizedItemName];
 
-  // 2. Determine HSN (Product List > Catalogue > NEVER INVOICE unless it's a Service)
+  // 2. Determine HSN — Product List > Catalogue > Invoice (Services only as fallback)
   let validHsn = "Unmatched";
   if (productListEntry && productListEntry.hsn) {
     validHsn = String(productListEntry.hsn).trim();
   } else if (entry && entry.hsn) {
     validHsn = String(entry.hsn).trim();
   } else if (item.category === 'Service' && item.hsn) {
-    // Only trust invoice item.hsn for Services if not found in catalogue (to avoid breaking custom services)
+    // Only trust invoice item.hsn for Services if not found in catalogue
     validHsn = String(item.hsn).trim();
   }
 
-  // 3. Determine GST Rate (Product List > Catalogue > Invoice > Category Fallback)
+  // 3. Determine GST Rate for display — Product List > Catalogue > Invoice stored value > Category Fallback
+  //    NOTE: This is used only for HSN/GST report grouping display. It does NOT affect stored financials.
   let catalogueRate = entry?.tax_rate;
   if (productListEntry && productListEntry.gstRate !== undefined && productListEntry.gstRate !== null) {
     catalogueRate = productListEntry.gstRate;
@@ -144,40 +145,21 @@ export function enrichItemWithCatalogue(
     ? catalogueRate 
     : ((storedRate > 0) ? storedRate : (item.category === 'Retail' ? 18 : 5));
 
-  // OVERRIDE PRICE WITH CATALOGUE GST-INCLUSIVE PRICE (as requested)
-  let correctedUnitPrice = parseFloat(item.unit_price) || 0;
-  let correctedLineTotal = parseFloat(item.line_total) || 0;
-  
-  if (entry?.price !== undefined && entry?.price !== null) {
-    const catExclusive = parseFloat(String(entry.price));
-    if (!isNaN(catExclusive)) {
-       // Normalize rate for calculation
-       let calcRate = finalTaxRate;
-       if (calcRate > 0 && calcRate <= 1) calcRate *= 100;
-       else if (calcRate >= 100) calcRate /= 100;
-       calcRate = Math.round(calcRate);
-       
-       const catInclusive = Math.round(catExclusive * (1 + (calcRate / 100)) * 100) / 100;
-       // If the reported unit price differs from the current catalogue inclusive price, force it to match
-       if (Math.abs(correctedUnitPrice - catInclusive) > 0.01) {
-           correctedUnitPrice = catInclusive;
-           correctedLineTotal = correctedUnitPrice * (item.quantity || 1);
-       }
-    }
-  }
-
+  // FINANCIAL VALUES ARE NEVER OVERRIDDEN.
+  // unit_price, line_total, quantity, discount, cgst, sgst, igst are always taken
+  // from the stored invoice record exactly as charged to the customer at billing time.
   return {
     ...item,
-    // Overlay current catalogue fields for display — stored financials untouched
-    hsn: validHsn,
-    item_code: entry?.item_code || item.item_code || '',
-    category: entry?.category || item.category || 'Service',
-    tax_rate: finalTaxRate,
-    unit_price: correctedUnitPrice,
-    line_total: correctedLineTotal,
-    catalogue_price: entry?.price,
+    // Non-financial catalogue enrichment only — for display purposes
+    hsn:        validHsn,
+    item_code:  entry?.item_code || item.item_code || '',
+    category:   entry?.category  || item.category  || 'Service',
+    tax_rate:   finalTaxRate,
+    // Expose live catalogue price as a reference field only (used nowhere in financial calculations)
+    catalogue_price: entry?.price ?? null,
   };
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Core Aggregation Engine
@@ -273,51 +255,49 @@ export function aggregateInvoices(
       continue;
     }
 
-    // ── Enrich items with current catalogue data & override prices ───────────
+    // ── Enrich items with live catalogue (non-financial fields only) ──────────
     const enrichedItems = rawItems.map((it: any) => enrichItemWithCatalogue(it, catalogue));
 
-    // RECALCULATE Invoice Totals dynamically based on the updated item prices
-    let dynamicInclusiveTotal = 0;
-    enrichedItems.forEach((it: any) => {
-      dynamicInclusiveTotal += (parseFloat(it.line_total) || 0);
-    });
+    // Use stored invoice totals exactly as recorded at billing time.
+    // These were calculated by the billing engine and must not be recalculated here.
+    // grandTotal, subtotal, taxTotal are already set from the stored invoice above.
 
     // We must respect the original absolute discount and points redeemed
     const totalDeductions = discount + pointsRedeemed;
-    
-    // The new grand total is the new inclusive total minus deductions
-    grandTotal = Math.max(0, dynamicInclusiveTotal - totalDeductions);
-    
-    // Proportion for distributing discount
-    const proportion = (dynamicInclusiveTotal > 0 && totalDeductions > 0)
-      ? 1 - (totalDeductions / dynamicInclusiveTotal)
-      : 1;
 
-    // Dynamically recalculate invoice subtotal and tax total based on proportional items
-    subtotal = 0;
-    taxTotal = 0;
-    
-    // We compute the true taxable base for the invoice
+    // Inclusive total from stored line_totals (sum of what was billed per item)
+    let storedInclusiveTotal = 0;
     enrichedItems.forEach((it: any) => {
-       const lineTot = parseFloat(it.line_total) || 0;
-       const discInc = lineTot * proportion;
-       let rate = parseFloat(it.tax_rate) || 0;
-       if (rate > 0 && rate <= 1) rate = rate * 100;
-       else if (rate >= 100) rate = rate / 100;
-       rate = Math.round(rate);
-       const tDec = rate / 100;
-       
-       const itmTaxable = discInc / (1 + tDec);
-       const itmTax = discInc - itmTaxable;
-       
-       subtotal += itmTaxable;
-       taxTotal += itmTax;
+      storedInclusiveTotal += (parseFloat(it.line_total) || 0);
     });
 
-    // Update global counters with the dynamically corrected invoice totals
-    totalSales += grandTotal;
-    totalTaxable += subtotal;
-    totalGstCollected += taxTotal;
+    // Proportion for distributing discount across items
+    // If the invoice has no stored line totals (e.g., old format), fall back to no discount distribution.
+    const proportion = (storedInclusiveTotal > 0 && totalDeductions > 0)
+      ? 1 - (totalDeductions / storedInclusiveTotal)
+      : 1;
+
+    // Recalculate subtotal and taxTotal from stored item line_totals + stored tax rates
+    // (this correctly handles historical tax rate anomalies per item)
+    subtotal = 0;
+    taxTotal = 0;
+    enrichedItems.forEach((it: any) => {
+      const lineTot = parseFloat(it.line_total) || 0;
+      const discInc = lineTot * proportion;
+      let rate = parseFloat(it.tax_rate) || 0;
+      if (rate > 0 && rate <= 1) rate = rate * 100;
+      else if (rate >= 100) rate = rate / 100;
+      rate = Math.round(rate);
+      const tDec = rate / 100;
+      subtotal  += discInc / (1 + tDec);
+      taxTotal  += discInc - (discInc / (1 + tDec));
+    });
+
+    // Update global counters with the stored invoice totals
+    totalSales          += grandTotal;
+    totalTaxable        += subtotal;
+    totalGstCollected   += taxTotal;
+
 
     // Update Branch summary
     if (!branchMap[invBranch]) {

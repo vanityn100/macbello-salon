@@ -179,7 +179,7 @@ export default function StaffProductsPage() {
     try {
       const gstRateVal = parseFloat(createData.gstRate) || 0;
       const inclusivePrice = parseFloat(createData.price) || 0;
-      const taxablePrice = inclusivePrice / (1 + (gstRateVal / 100));
+      const taxablePrice = inclusivePrice;
 
       const res = await fetch("/api/inventory", {
         method: "POST",

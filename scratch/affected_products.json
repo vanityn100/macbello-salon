@@ -1,0 +1,4776 @@
+[
+  {
+    "id": "99c39e10-dbb9-4a2b-9ea7-da5e9c2978be",
+    "name": "PEDICURE BALANCE PAYMENT OF 02/02/2026",
+    "stored_price": 666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 700
+  },
+  {
+    "id": "3c78b082-dd46-4851-88c8-7714a37567b9",
+    "name": "FLO W ONE SHAMPOO 300ML",
+    "stored_price": 1440.95,
+    "tax_rate": 5,
+    "intended_sale_price": 1513
+  },
+  {
+    "id": "b630798b-18e7-439e-a70b-d626916742ad",
+    "name": "HYDRATING",
+    "stored_price": 559.32,
+    "tax_rate": 18,
+    "intended_sale_price": 660
+  },
+  {
+    "id": "75f30d51-26b8-475f-b0ae-ea7770d6a055",
+    "name": "MK REPL CONDITIONER 500ML*2",
+    "stored_price": 3474.58,
+    "tax_rate": 18,
+    "intended_sale_price": 4100
+  },
+  {
+    "id": "66826d05-6b37-4e63-8e2c-ed242c5a27e3",
+    "name": "KEUNE BOND FUSION PHASE 2 500ML",
+    "stored_price": 2711.86,
+    "tax_rate": 18,
+    "intended_sale_price": 3199.99
+  },
+  {
+    "id": "78483812-13ab-486d-95ab-ee6efb641850",
+    "name": "AZV NIGHT RECOVERY ELIXIR SERUM",
+    "stored_price": 483.05,
+    "tax_rate": 18,
+    "intended_sale_price": 570
+  },
+  {
+    "id": "7bd756e0-eb10-4782-aa21-0d3c979ae495",
+    "name": "NATURES ADVANCED DTAN",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "555bfdb7-1512-47bf-a995-8dac538b0174",
+    "name": "BASE COLOR",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "eb92cefa-6960-4454-8025-4fc542b27378",
+    "name": "BASE COLOR AMMONIAFREE ROOT TOUCH UP- .Ladies",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "5f2b13d3-4b9e-4353-ab7e-9bb712a61508",
+    "name": "BASE COLOR NORMAL ROOT TOUCH UP-Ladies.",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "eedafa6f-6b71-40e6-858f-cabcaf2266c8",
+    "name": "BC  BONACURE MOISTURE SHAMPOO",
+    "stored_price": 974.58,
+    "tax_rate": 5,
+    "intended_sale_price": 1023.31
+  },
+  {
+    "id": "0458b00b-0e24-4f6e-b5f4-a529cc77aeab",
+    "name": "BC BONACURE MOISTUREB CONDITIONER",
+    "stored_price": 932.2,
+    "tax_rate": 5,
+    "intended_sale_price": 978.81
+  },
+  {
+    "id": "219102d8-ecc0-489f-8ec5-71c91a97a220",
+    "name": "BEARD COLOR",
+    "stored_price": 380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 400
+  },
+  {
+    "id": "13a03ffa-5907-4fad-9097-28f6f1ff0d7c",
+    "name": "BLACK COLOR",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "090df964-d284-4cb3-ad17-eae6e3cf6bef",
+    "name": "BLACK HEAD REMOVAL",
+    "stored_price": 142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 150
+  },
+  {
+    "id": "b59b91b9-65b7-4b57-b96c-19fd76e7f3f8",
+    "name": "BLACK HENNA -FULL HAIR",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "ff9c9f33-2802-4b7f-a42b-a99098d84d84",
+    "name": "BLACK HENNA Ladies",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "5f389527-a3d5-47dd-b550-e98bfdf6d206",
+    "name": "BLACK HENNA ROOT TOUCH UP",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "f6883da8-232b-4092-bf7f-3fc9f34f88d6",
+    "name": "ALGA PEDICURE",
+    "stored_price": 333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 350
+  },
+  {
+    "id": "c9464d1b-9f53-4227-b846-df86c71f6f9f",
+    "name": "HAIR SETTING GENTS",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "b5f538f4-0c05-47d4-90ce-c6dfee200200",
+    "name": "BLOW DRY OFFER PRICE",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "a8d8b1ad-534c-4592-88e7-3b1294e8bb11",
+    "name": "BLOW DRY SETTING WITH IRONING",
+    "stored_price": 714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 750
+  },
+  {
+    "id": "9f13b46e-dccd-4460-a190-ab89ed5e16f3",
+    "name": "BOTOX HAIR SPA  - PROTIEN SPA  .",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "e37be71e-09a9-4c0e-a71a-0c5df279f4bb",
+    "name": "BOTOX  - FLORATIVE  -SHORT HAIR",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "b708e0aa-4d05-4019-83e0-b4077ca037b6",
+    "name": "FULL LEG- (RICCA-Liposiable-Biosoft/O3+).",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "0dc4ef11-5f35-499d-8e3a-38b17dca6913",
+    "name": "FULL PLEAT SAREE (10/05/26)",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "3e729d90-8dc7-43f7-88e4-8a829e680ad5",
+    "name": "FULL PLEAT SAREE(11/05/26)",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "f3b33c7a-86d5-4df5-9a45-339590c4170f",
+    "name": "GEL POLISH REMOVAL",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "5fa5e9e0-6afb-42e2-a8f8-b1e36127fd66",
+    "name": "GENTS - HAIR  POMMING",
+    "stored_price": 3333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 3500
+  },
+  {
+    "id": "1e735361-8550-49df-9566-fe7398d6711d",
+    "name": "GENTS HAIR  POMMING",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "8baac068-15d9-4d4f-b52a-822a70634bc2",
+    "name": "shampoo",
+    "stored_price": 423.73,
+    "tax_rate": 18,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "698f5d9d-67ff-43df-a33d-4534f8208862",
+    "name": "facial",
+    "stored_price": 1200,
+    "tax_rate": 5,
+    "intended_sale_price": 1260
+  },
+  {
+    "id": "57d29686-9189-43ed-88f0-b941ca988167",
+    "name": "Gents Hair color Ammonia Free - Long Hair",
+    "stored_price": 1142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 1200
+  },
+  {
+    "id": "574a0886-00ce-41ad-bc37-ad0bfac96c58",
+    "name": "Gents Hair Perming",
+    "stored_price": 3333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 3500
+  },
+  {
+    "id": "e320788c-38c8-4907-a335-24904c607294",
+    "name": "GENTS HAIRSETTING",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "2890a0bd-d45c-4960-9720-a412d14c9fbb",
+    "name": "GLOBAL  HIGHLIGHTS",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "2a00262c-103a-40d6-ae84-ab38bafa2e75",
+    "name": "GLOBAL  HIGHLIGHTS.",
+    "stored_price": 6190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 6500
+  },
+  {
+    "id": "53fc7b8c-d042-4bc5-9467-b542a96248ef",
+    "name": "GLOBAL  HIGHLIGHTS.,",
+    "stored_price": 5714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 6000
+  },
+  {
+    "id": "0aadba43-589b-4baf-9127-ed0af445133b",
+    "name": "GLOBAL  HIGHLIGHTS..",
+    "stored_price": 6666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 7000
+  },
+  {
+    "id": "663b5cb9-15cc-40df-9dd5-fc55cf3175c7",
+    "name": "GLOBAL COLOR  OMBRE",
+    "stored_price": 4285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 4500
+  },
+  {
+    "id": "ac3a19e5-5969-4643-a08a-7bb55225ef0a",
+    "name": "GLOBAL COLOR - LADIES",
+    "stored_price": 6666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 7000
+  },
+  {
+    "id": "c45ed851-6dcb-4c34-bd4e-c0aa7222e09a",
+    "name": "GLOBAL COLOR - LADIES.",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "9838eb97-20e2-4b59-a73c-87361400b81f",
+    "name": "GLOBAL COLOR LADIES",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "f1620080-c355-4dd3-a19c-2ed6cbc6f2d6",
+    "name": "GLOBAL NORMAL COLOR -GENTS AMMONIA FREE",
+    "stored_price": 857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 900
+  },
+  {
+    "id": "b2f32ee5-e4d0-4636-9701-7ce95af7988f",
+    "name": "GOLD CLEANUP O3+",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "365a1432-fad0-41d0-93b6-6c02ac2050e1",
+    "name": "KRONE ANTI-DANDRFF CONTRL CLANSER 200 ML",
+    "stored_price": 357.14,
+    "tax_rate": 5,
+    "intended_sale_price": 375
+  },
+  {
+    "id": "325611ba-216d-4ed0-b5c5-eeb3c6d07079",
+    "name": "AUNTY  MAKEUP , SAREE & HAIR SETTING",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "ccdf9692-8115-493e-ad3e-49076447f61b",
+    "name": "KRONE PRO ANTI-DANDRFF TONIC 100 ML",
+    "stored_price": 423.73,
+    "tax_rate": 18,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "382d7e92-6fe7-4a5e-93f0-548b9e31ef3b",
+    "name": "RG SUN SCREEN SPF30 55ML",
+    "stored_price": 343.22,
+    "tax_rate": 18,
+    "intended_sale_price": 405
+  },
+  {
+    "id": "be43cf98-d008-455b-8c12-023da4a30392",
+    "name": "KRONE ANTI DANDRUFF CONTROL MASQUE 500 ML",
+    "stored_price": 724.58,
+    "tax_rate": 18,
+    "intended_sale_price": 855
+  },
+  {
+    "id": "24297a18-9ae9-4a08-9447-bb2ed3cb18cc",
+    "name": "RG SUN SCREEN LOTION SPF15",
+    "stored_price": 283.9,
+    "tax_rate": 18,
+    "intended_sale_price": 335
+  },
+  {
+    "id": "62d801ff-264f-4117-b858-b40d9f998904",
+    "name": "KEUNE CARE VITAL NUTRITION MASK 250 ML",
+    "stored_price": 2203.39,
+    "tax_rate": 18,
+    "intended_sale_price": 2600
+  },
+  {
+    "id": "cd15ecc2-5a27-4b2d-9dbf-0c6261bf4bf7",
+    "name": "MK MAJESTIC REPL SHAMPOO 300ML",
+    "stored_price": 1614.29,
+    "tax_rate": 5,
+    "intended_sale_price": 1695
+  },
+  {
+    "id": "206596c8-cf04-41cd-8422-6425582748d3",
+    "name": "MK MAJESTIC REPL CONDTIONER 300ML",
+    "stored_price": 1525.42,
+    "tax_rate": 18,
+    "intended_sale_price": 1800
+  },
+  {
+    "id": "4e3109a9-7db9-447a-8c42-ba6c79609476",
+    "name": "Hair Coloring",
+    "stored_price": 2095.24,
+    "tax_rate": 5,
+    "intended_sale_price": 2200
+  },
+  {
+    "id": "1ee8f329-e57c-462b-a018-e7eb05eb4601",
+    "name": "IRONING SETTING",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "8279f524-32d6-4049-aa44-8bd3d064de64",
+    "name": "Hair Ironing",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "7a4dec50-c910-4ed2-b745-565d1ff43f20",
+    "name": "Hair Ironing -Long",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "1c3938f5-3f38-49ce-a18b-ec60c2d33772",
+    "name": "Hair Smoothening Sachwarkopf",
+    "stored_price": 9523.81,
+    "tax_rate": 5,
+    "intended_sale_price": 10000
+  },
+  {
+    "id": "f0ee830b-4ccd-4274-a2e5-e490347db511",
+    "name": "JAPANESE FULL BODY POLISH/AUYRVEDIC MASSAGE- ALGA Gold",
+    "stored_price": 7619.05,
+    "tax_rate": 5,
+    "intended_sale_price": 8000
+  },
+  {
+    "id": "85fa8c29-3542-4df0-8014-34411f025ffd",
+    "name": "JAPANESE FULL BODY POLISH/AUYRVEDIC MASSAGE- ALGA Luxury",
+    "stored_price": 9523.81,
+    "tax_rate": 5,
+    "intended_sale_price": 10000
+  },
+  {
+    "id": "579282ac-9ef7-4150-9025-c4f10012a349",
+    "name": "GOLD CLEANUP SHEHANAZ,",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "a5e4d0cb-3588-450d-b8ea-c6ae5e393abd",
+    "name": "GOLD FACIAL",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "040d5b38-42fe-4f15-9fdd-dcb8e4d17db7",
+    "name": "GROOM  MAKEUP HD",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "174e8018-4484-418b-a5ae-fc188575b6a3",
+    "name": "GROOM AIR BRUSH MAKEUP",
+    "stored_price": 7619.05,
+    "tax_rate": 5,
+    "intended_sale_price": 8000
+  },
+  {
+    "id": "652a96d4-fec7-4785-9319-eb7088eeefaa",
+    "name": "GUEST LOOK MOTHER  & 2 BROTHERS COMBO",
+    "stored_price": 7142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 7500
+  },
+  {
+    "id": "25c9c13f-c432-471a-b776-ea8b109596c8",
+    "name": "HAIR ACCESSORIES",
+    "stored_price": 285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 300
+  },
+  {
+    "id": "df4038d8-67ce-433b-9cec-daa4407bcdc9",
+    "name": "Hair color Ammonia Free Kuene Full Hair.",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "decbdb4f-0409-4920-ae95-92e8dea44b36",
+    "name": "HAIR CUT & COLOR GENTS",
+    "stored_price": 428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 450
+  },
+  {
+    "id": "b495af3a-8937-4601-8eaf-9396e50d4e68",
+    "name": "HAIR CUT , BEARD & COLOR",
+    "stored_price": 1142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 1200
+  },
+  {
+    "id": "c6ec6ed4-acd0-4b2d-8a82-ad5a832286c6",
+    "name": "HAIR CUT ,BEARD & COLOR",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "7965ba82-4ca7-4888-b3ee-ed6e1fdcfecc",
+    "name": "HAIR CUT --KIDS",
+    "stored_price": 238.1,
+    "tax_rate": 5,
+    "intended_sale_price": 250.01
+  },
+  {
+    "id": "4b1cd344-df71-4b30-b6b5-aab4d6506291",
+    "name": "HAIR CUT GENTS",
+    "stored_price": 285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 300
+  },
+  {
+    "id": "89a8fe4f-d8cf-4c3a-9446-35b7d1a14d8d",
+    "name": "HAIR CUT KIDS",
+    "stored_price": 380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 400
+  },
+  {
+    "id": "09a4dbb8-4f9b-4fde-b5fb-e8802b03e29e",
+    "name": "HAIR CUT LADIES",
+    "stored_price": 380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 400
+  },
+  {
+    "id": "8997d943-c2eb-4bdc-b7c2-ba3f8f99e7f4",
+    "name": "HAIR PERMING - LADIES",
+    "stored_price": 5714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 6000
+  },
+  {
+    "id": "435bc948-5328-4226-af03-1796943ff571",
+    "name": "HAIR SETTING",
+    "stored_price": 619.05,
+    "tax_rate": 5,
+    "intended_sale_price": 650
+  },
+  {
+    "id": "28d085bc-c967-4821-b676-b44083f700d8",
+    "name": "HAIR SETTING  - GENTS",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "5d775202-4cb7-4317-b367-348edd275aff",
+    "name": "HAIR SETTING - GENTS",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "99e1c487-59f8-4a98-a03e-78b7aa59a972",
+    "name": "HAIR SETTING - LADIES",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "5bc66095-0b8a-4568-97e1-41c67d864110",
+    "name": "HAIR SETTING - LADIES.",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "468109d8-dfa0-423a-8d58-3c16a77defb0",
+    "name": "HAIR SETTING LADIES",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "e72888d9-2bab-446e-9962-74bd1395dd1a",
+    "name": "HAIR SETTING- GENTS",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "d71484d4-aa85-43c7-a686-79703afb3e93",
+    "name": "KIDS MAKE UP AND IRONING SETTING",
+    "stored_price": 1666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 1750
+  },
+  {
+    "id": "460a4fb9-726d-47a0-8867-8b64053b9efc",
+    "name": "KOREAN OXY  SKIN BRIGHTENING GLASS FACIAL O3+ PROFESSIONAL HYDRA FACIAL",
+    "stored_price": 6190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 6500
+  },
+  {
+    "id": "d64da8fd-a999-406d-aa20-66c503947120",
+    "name": "hair gel",
+    "stored_price": 635.59,
+    "tax_rate": 18,
+    "intended_sale_price": 750
+  },
+  {
+    "id": "8e695167-16d6-41a0-89e3-a48b1238ad3d",
+    "name": "Dandruff Hair mask",
+    "stored_price": 300,
+    "tax_rate": 5,
+    "intended_sale_price": 315
+  },
+  {
+    "id": "75b85504-6347-4cf6-9544-671b31189447",
+    "name": "anti hair",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "4e1a640b-a11b-4f0e-abc3-e9ad2886a8c7",
+    "name": "NORMAL HAIR CUT & BEARD",
+    "stored_price": 238.1,
+    "tax_rate": 5,
+    "intended_sale_price": 250.01
+  },
+  {
+    "id": "57a5b505-bf31-4ad3-bbf5-e57468813c26",
+    "name": "HAIR WASH",
+    "stored_price": 47.62,
+    "tax_rate": 5,
+    "intended_sale_price": 50
+  },
+  {
+    "id": "812e5d84-e0f1-4445-9a26-0709fd1179bd",
+    "name": "HAIR WASH  .",
+    "stored_price": 95.24,
+    "tax_rate": 5,
+    "intended_sale_price": 100
+  },
+  {
+    "id": "3eb00daa-7fa0-4602-8981-3b3d4cec860e",
+    "name": "HAIR WASH AND SETTING",
+    "stored_price": 619.05,
+    "tax_rate": 5,
+    "intended_sale_price": 650
+  },
+  {
+    "id": "09271398-2e83-46e8-97cd-e7bb770b51a0",
+    "name": "HAIRCUT",
+    "stored_price": 285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 300
+  },
+  {
+    "id": "ccc0d60e-61d3-4826-92ab-95431bf83373",
+    "name": "HALF HAND  DTAN",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "0d8b89df-c961-418d-b90c-4ef8980bd1a0",
+    "name": "HALF HAND - O3+ DTAN",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "243858ba-39f0-4855-8a4f-941aba1e5938",
+    "name": "HALF LEG -WAXING",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "150be6bb-9c9a-4d88-b3a3-6cfc901c5ee7",
+    "name": "HALF LEG WAXING",
+    "stored_price": 380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 400
+  },
+  {
+    "id": "16715ae3-2a50-483a-8c16-e9a51e63ad1d",
+    "name": "HD MAKE UP",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "a74c05d2-5851-4c6e-85aa-c4749217bdcd",
+    "name": "HD MAKEUP LADIES",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "a5bb7c31-2de4-44f4-808f-a044fc71b7d1",
+    "name": "HD MAKEUP-GENTS",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "d442208f-9f1e-4e0f-a92b-e1718c09e1cd",
+    "name": "HEAD MASSAGE - GENTS",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "e38caf1f-d863-41a3-a5cd-10ed2df82065",
+    "name": "HIGHLIGHT  WITH BLEACH",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "aa293f9a-8d67-4c82-8be9-2260e08a9b71",
+    "name": "HIGHLIGHT PER STREAK(Kuene/Schwarzkopf).",
+    "stored_price": 333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 350
+  },
+  {
+    "id": "041701de-a0a3-459c-81b8-368460ac8d04",
+    "name": "HIGHLIGHT PER STREAK.",
+    "stored_price": 285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 300
+  },
+  {
+    "id": "b5000eda-89a4-4121-be2c-cf067c8a6276",
+    "name": "HIGHLIGHTS",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "e123ca38-a360-4bbf-86a0-75047c569abe",
+    "name": "HIGHLIGHTS  GLOBAL",
+    "stored_price": 8571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 9000
+  },
+  {
+    "id": "a363d97f-1907-4881-99c3-c2f413f498e1",
+    "name": "HIGHLIGHTS PER STREAKS..",
+    "stored_price": 380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 400
+  },
+  {
+    "id": "514e7f58-38a7-4c58-9604-8263ab20bf8b",
+    "name": "HYRONIC SOLUTION SERUM",
+    "stored_price": 1398.31,
+    "tax_rate": 5,
+    "intended_sale_price": 1468.23
+  },
+  {
+    "id": "d11b5c13-bda8-4db7-98eb-2e4ae027fd17",
+    "name": "IRONING SETTING -LADIES",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "5d4c8ea6-70a5-43c9-aca6-aa791bb4a6f8",
+    "name": "IRONING SETTING -LADIES.",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "848d5031-38bb-4233-9109-7f97fe9a5075",
+    "name": "IRONING SETTING KIDS",
+    "stored_price": 619.05,
+    "tax_rate": 5,
+    "intended_sale_price": 650
+  },
+  {
+    "id": "b84e5b35-454e-44c1-863d-bcb5df4c2169",
+    "name": "IRONING SETTING.",
+    "stored_price": 619.05,
+    "tax_rate": 5,
+    "intended_sale_price": 650
+  },
+  {
+    "id": "f1a21a65-d8dd-4cc9-80d8-6d9295ef9040",
+    "name": "KANPAKI HYDRA BOOST SERUM",
+    "stored_price": 898.31,
+    "tax_rate": 5,
+    "intended_sale_price": 943.23
+  },
+  {
+    "id": "9a72941e-e4fd-4f48-aa5a-ea9e8ab7b182",
+    "name": "KANPEKI CLEANSER",
+    "stored_price": 813.56,
+    "tax_rate": 5,
+    "intended_sale_price": 854.24
+  },
+  {
+    "id": "10e205ff-f92e-4888-8579-478a3630d492",
+    "name": "KANPEKI UNDEREYE GEL",
+    "stored_price": 898.31,
+    "tax_rate": 5,
+    "intended_sale_price": 943.23
+  },
+  {
+    "id": "5a314ca3-0a0e-4902-bc09-531124100a44",
+    "name": "kEUENE DERMA ACTIVATOR",
+    "stored_price": 1822.03,
+    "tax_rate": 5,
+    "intended_sale_price": 1913.13
+  },
+  {
+    "id": "944c811e-a067-4e5c-aff6-3d75897ad689",
+    "name": "KIDS MAKE UP AND IRONING SETTING.",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "495e2dec-9702-42e9-9d11-e36017f6712c",
+    "name": "KIDS HAIR CUT",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "ba6ff30d-f822-42f7-bfcd-43070dc2d365",
+    "name": "KIDS HAIR CUT.",
+    "stored_price": 333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 350
+  },
+  {
+    "id": "eca44bd3-696e-4b37-a4e4-6511e71a6b6b",
+    "name": "KIDS HAIRCUT",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "53620cc0-7e61-4d52-8e48-f58a084d2ca7",
+    "name": "KRONE ANTI DANDRUFF HAIR TONIC",
+    "stored_price": 423.73,
+    "tax_rate": 5,
+    "intended_sale_price": 444.92
+  },
+  {
+    "id": "03b9be8b-3df0-4f77-9cbf-b9c9daea3e0d",
+    "name": "KRONE DANDRUFF HAIR MASK",
+    "stored_price": 266.95,
+    "tax_rate": 5,
+    "intended_sale_price": 280.3
+  },
+  {
+    "id": "bbada523-9823-41ac-a3b8-876b17e11d64",
+    "name": "KRONE DANDRUFF SHAMPOO",
+    "stored_price": 317.8,
+    "tax_rate": 5,
+    "intended_sale_price": 333.69
+  },
+  {
+    "id": "7d741820-6860-40f9-9b22-90ba66c0cfe4",
+    "name": "KUENE VITAL NUTRITIONAL M,ASK",
+    "stored_price": 1588.98,
+    "tax_rate": 5,
+    "intended_sale_price": 1668.43
+  },
+  {
+    "id": "890e11e2-64a1-4a2b-8504-2ea0ec224a78",
+    "name": "LADIES - HAIR CUT",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "d4073686-d885-4468-8820-f3d96aa06cdb",
+    "name": "LADIES COLOR",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "f9303996-0b40-4e37-8deb-76b3009e92b5",
+    "name": "LADIES HAIR CUT",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "43a3d9e8-5614-4eca-9921-2fb2e9e50cd7",
+    "name": "LAUXARY GOLD FACIAL  -O3+ PROFESSIONAL - AGELOCK",
+    "stored_price": 8095.24,
+    "tax_rate": 5,
+    "intended_sale_price": 8500
+  },
+  {
+    "id": "49187836-c17b-4fef-bb65-17bf4d82b280",
+    "name": "MAKE UP HD -LADIES",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "cc18e2d0-0f1e-4ceb-ae85-e730ba35d2f6",
+    "name": "MAKEUP   - LADIES",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "04134537-eea8-4781-8be1-896089f8a70c",
+    "name": "MAKEUP (10/05/26)",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "97fac019-0e27-4901-b7e7-c3ded185f99f",
+    "name": "MAKEUP -GENTS",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "2d59c1a2-ad64-43a7-bfb8-276518f4de45",
+    "name": "MIXED FRUIT FACIAL",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "db634330-11f1-4f15-8c33-8c0488fc3611",
+    "name": "MK ADVANCED  BOTOX --LONG  HAIR",
+    "stored_price": 14285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 15000
+  },
+  {
+    "id": "5910fc60-1f47-4d34-afa1-ca2d1b93226a",
+    "name": "MK ADVANCED  HAIR BOTOX --LONG",
+    "stored_price": 14285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 15000
+  },
+  {
+    "id": "6cb2c696-77e0-41eb-b799-4546fd72afb1",
+    "name": "MK ADVANCED HAIR BOTOX.,",
+    "stored_price": 9047.62,
+    "tax_rate": 5,
+    "intended_sale_price": 9500
+  },
+  {
+    "id": "e12fcf07-635a-4c40-a382-159315916202",
+    "name": "MK REPL. SHAMPOO WITH ARGAN OIL 500ML",
+    "stored_price": 3241.53,
+    "tax_rate": 18,
+    "intended_sale_price": 3825.01
+  },
+  {
+    "id": "c75683b9-ea9f-4487-b1c3-6b1d12860dfe",
+    "name": "7 X  ADVANCE  TREATMENT",
+    "stored_price": 8571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 9000
+  },
+  {
+    "id": "cce0286d-b221-4f62-9911-fd184a3909d3",
+    "name": "HIGHLIGHT PER STREAK(Kuene/Schwarzkopf)",
+    "stored_price": 428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 450
+  },
+  {
+    "id": "62d4062f-2101-4c85-8588-643c79e23825",
+    "name": "MK ADVANCED HAIR BOTOX.,.",
+    "stored_price": 8571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 9000
+  },
+  {
+    "id": "9afb8a8a-25d0-4287-b6d0-99ffa9972e32",
+    "name": "MK BOTOX ROOT TOUCH UP",
+    "stored_price": 4285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 4500
+  },
+  {
+    "id": "95d320a3-3178-4c4c-ae62-147845ebbd63",
+    "name": "MK BOTOX SHORT HAIR",
+    "stored_price": 5714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 6000
+  },
+  {
+    "id": "75e42d08-f959-4057-8de2-2fed7f0954be",
+    "name": "MK PROTEIN THERAPY",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "4cdaf6c5-739c-488f-9d3b-31d7542d5124",
+    "name": "MK PROTEIN THERAPY - GENTS",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "7679c725-5d62-46bb-95ee-10266366df59",
+    "name": "MOLES REMOVAL",
+    "stored_price": 95.24,
+    "tax_rate": 5,
+    "intended_sale_price": 100
+  },
+  {
+    "id": "4757a532-8eb6-4de2-9924-e5ed13374e4b",
+    "name": "MOROCCAN GOLD FACIAL",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "09d03f9d-3b41-4c85-aac0-a44b0578f9fe",
+    "name": "MOTHER  FULL HAIR COLOR",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "49ea240f-fcc1-4fe1-9ae7-8b57e3a81d5c",
+    "name": "MOTHER AIR BRUSH MAKEUP",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "e4af6944-8d32-40f3-8d81-b8a676d944fb",
+    "name": "MOTHER HAIR (02/01/2026)",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "8e8b7c5a-818f-4b1d-bf2b-9162b94b80cc",
+    "name": "MOTHER HD MAKEUP",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "03adde2f-44a0-4176-ad64-e3fdab4609b0",
+    "name": "MOTHER HD MAKEUP (01/01/2026)",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "5b8f80a2-38a8-4fda-859d-447fbed7ed59",
+    "name": "MOTHER HD MAKEUP(02/01/2026)",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "775439f0-5c86-4fb7-9293-a7ae7163bf7e",
+    "name": "MOTHER MAKEUP & SAREE FOR 2 FUNCTION",
+    "stored_price": 5714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 6000
+  },
+  {
+    "id": "c0de4eed-f492-4eec-9529-06ecbd16d77f",
+    "name": "MOTHER MAKEUP & SAREE FOR 2 FUNCTION.",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "7b2532a6-beed-4dc7-8129-ef4b8f54bae7",
+    "name": "NAIL ART..",
+    "stored_price": 285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 300
+  },
+  {
+    "id": "321b8bbe-bd14-459d-ba3e-d95aaea168ec",
+    "name": "NAILS",
+    "stored_price": 428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 450
+  },
+  {
+    "id": "1e16d3ad-f2b4-42ae-9653-10a1e93d67ff",
+    "name": "NAILS  FILING.",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "feb08335-89a8-4ab4-847d-e2779a7731bc",
+    "name": "NAILS FILING.",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "09b67bd2-00d7-4333-96dc-4dc7d1ae1807",
+    "name": "NAILS REFILLING",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "5514c41b-e604-494e-a9ff-6bddb057ebdf",
+    "name": "NANOPLAS",
+    "stored_price": 3333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 3500
+  },
+  {
+    "id": "6c87d5c5-f2a2-44a8-84c0-77fd0d3d91c4",
+    "name": "NANOPLASTIA CROWN AREA",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "46ff1746-6ed7-457a-9f30-5866f4213e1d",
+    "name": "NANOPLASTIA HAIR TREATMENT -FLORA ACTIVE",
+    "stored_price": 9047.62,
+    "tax_rate": 5,
+    "intended_sale_price": 9500
+  },
+  {
+    "id": "932b0788-e039-4b9c-be5f-4acbee6cb13d",
+    "name": "NANOPLASTIA HAIR TREATMENT -Flora Active(W One)-Medium,",
+    "stored_price": 11428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 12000
+  },
+  {
+    "id": "4c293cc9-5850-4d18-a1f1-4a7b3327cde7",
+    "name": "NANOPLASTIA HAIR TREATMENT -Flora Active(W One)-Short.",
+    "stored_price": 8571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 9000
+  },
+  {
+    "id": "09a7635a-bd40-45d2-bdc5-454598c4f7dc",
+    "name": "NANOPLASTIA HAIR TREATMENT -Flora Active(W One)-SHORT..",
+    "stored_price": 6666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 7000
+  },
+  {
+    "id": "84cf1a6b-fa13-4eda-84e0-3dc4a036927c",
+    "name": "NECK DTAN  -  RAAGA DTAN",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "be37227e-928d-4352-9e29-4cd6d2e07046",
+    "name": "NORMAL  POLISH",
+    "stored_price": 380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 400
+  },
+  {
+    "id": "209fae4a-d4d5-400d-8f82-48528b9603f4",
+    "name": "NORMAL D TAN FACIAL",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "4e25e5f9-9cf3-43e3-978f-a2649a9aab34",
+    "name": "NORMAL FACIAL",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "aec3c3bb-b35c-4c8c-a0aa-3780af7fdb3a",
+    "name": "NORMAL HAIR SPA -LADIES",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "c4e3ed68-21d9-4d31-973a-0ab019208ecb",
+    "name": "NORMAL POLISH",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "ae9b9032-1eff-4e1a-8e3a-53ae7fd47184",
+    "name": "NORMAL SAREE",
+    "stored_price": 666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 700
+  },
+  {
+    "id": "8c8d9d82-570b-47e7-83a5-9931899149c0",
+    "name": "NORMAL TOUCH UP  -  GENTS",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "6274c8a5-f591-4377-ab44-47236d9f1dfe",
+    "name": "NOSE WAXING (RICCA-Liposiable-Biosoft/O3+)",
+    "stored_price": 285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 300
+  },
+  {
+    "id": "081fb7ef-6a6a-48db-89ef-e4c9f2c71ebe",
+    "name": "O3+ AGE LOCK  MARINE PLANT HYDROXY HYDRA FACIAL.",
+    "stored_price": 5238.1,
+    "tax_rate": 5,
+    "intended_sale_price": 5500.01
+  },
+  {
+    "id": "7a430cd2-8933-47d3-b705-21ba779b1375",
+    "name": "O3+ D-TAN FACIAL",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "bc4fb661-f5de-41af-8f41-dfe3d02570ca",
+    "name": "O3+ DTAN FACIAL",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "f0b0d085-f775-4cde-ab1a-0b0eb8c1698a",
+    "name": "O3+ DTAN FACIAL .",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "e4be6b88-335c-4601-8e14-0f557173894d",
+    "name": "O3+ LUMINOUS GEL PEEL",
+    "stored_price": 2966.1,
+    "tax_rate": 5,
+    "intended_sale_price": 3114.41
+  },
+  {
+    "id": "083a3b60-c61a-4e2d-a84a-fa51c52dd2ec",
+    "name": "O3+ NORMAL  GOLD FACIAL",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "a4aa2e7d-ab85-402d-befa-cd7104415b54",
+    "name": "O3+ NORMAL GOLD FACIAL",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "85584c89-d42e-4ae3-974e-ff9dae57cc66",
+    "name": "O3+ PROFESSIONAL  WHITENING SERUM",
+    "stored_price": 1694.92,
+    "tax_rate": 5,
+    "intended_sale_price": 1779.67
+  },
+  {
+    "id": "fa79d28d-3f42-4866-9d06-3b7097a868a3",
+    "name": "O3+ PROFESSIONAL DAY CREAM SPF 30",
+    "stored_price": 889.83,
+    "tax_rate": 5,
+    "intended_sale_price": 934.32
+  },
+  {
+    "id": "fa4a3ada-1d31-4812-a96e-7445a2c7647f",
+    "name": "O3+ PROFESSIONAL NIGHT REPAIR CREAM",
+    "stored_price": 809.32,
+    "tax_rate": 5,
+    "intended_sale_price": 849.79
+  },
+  {
+    "id": "1d3ec1d0-56a3-4d58-bcf0-0bc8b16053eb",
+    "name": "O3+ Professional Skin Glow Facial",
+    "stored_price": 6190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 6500
+  },
+  {
+    "id": "a567df13-872d-4fef-b933-6838179dcf69",
+    "name": "O3+ PROFESSIONAL WHITENING MASK",
+    "stored_price": 1694.92,
+    "tax_rate": 5,
+    "intended_sale_price": 1779.67
+  },
+  {
+    "id": "3ed4b56d-1d80-4ff2-b4c5-a302046f75e7",
+    "name": "French Luxury Pedicure",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "0240a77a-4ab2-407c-8d53-5872c8a7d53e",
+    "name": "FACE  WAXING.",
+    "stored_price": 76.19,
+    "tax_rate": 5,
+    "intended_sale_price": 80
+  },
+  {
+    "id": "a1f1b54d-4513-40e3-ac60-a8ff64c6dcbc",
+    "name": "BOTOX TREATMENT -(Flora Activa)-Medium",
+    "stored_price": 6190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 6500
+  },
+  {
+    "id": "4a156f0a-c9eb-4ee7-a12c-e92b6f8c317c",
+    "name": "OLAPEX/BOND FUSION TREATMENT(KUENE)-Ladies.",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "2e89a39f-db31-420c-a13a-694f3184439e",
+    "name": "OLAPEX/BOND FUSION TREATMENT(KUENE)-Ladies..",
+    "stored_price": 3333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 3500
+  },
+  {
+    "id": "51217921-7824-4d0d-bb8b-5e6d6008c627",
+    "name": "OMBRE .",
+    "stored_price": 4285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 4500
+  },
+  {
+    "id": "51e36584-a810-41b7-aa42-75ce8c4543f9",
+    "name": "OSIS+ CURL JAM DEFINING GEL",
+    "stored_price": 1271.19,
+    "tax_rate": 5,
+    "intended_sale_price": 1334.75
+  },
+  {
+    "id": "38f0b742-dde9-43e0-9093-8d06e6004b68",
+    "name": "OSIS+ CURL RICH CURL CREAM",
+    "stored_price": 1101.69,
+    "tax_rate": 5,
+    "intended_sale_price": 1156.77
+  },
+  {
+    "id": "cb618b08-659e-4900-85f8-bc85078d4c84",
+    "name": "OSIS+ EXTRA STRONG  MOUSSE",
+    "stored_price": 1016.95,
+    "tax_rate": 5,
+    "intended_sale_price": 1067.8
+  },
+  {
+    "id": "fee26401-01ca-4c74-8a51-f0016cb73556",
+    "name": "OSIS+ MOUSSE",
+    "stored_price": 1142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 1200
+  },
+  {
+    "id": "b0956311-a438-4b4f-b2ae-9f929c29a37b",
+    "name": "PEARL FACIAL",
+    "stored_price": 1714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 1800
+  },
+  {
+    "id": "9462c33c-2de6-446f-a6ad-c3c393a1cd6d",
+    "name": "PEDICURE & MANICURE COMBO FOR KIDS",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "be9437c5-4a19-4120-81d5-b84fcb3cc636",
+    "name": "PROTEIN SPA",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "f36db4c5-a1bc-4c5b-9a00-114e86677083",
+    "name": "PROTEIN THERAPY -MK",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "18b7a168-227d-4d34-aa0a-91b89912e665",
+    "name": "RAAGA  SPF 30",
+    "stored_price": 343.22,
+    "tax_rate": 5,
+    "intended_sale_price": 360.38
+  },
+  {
+    "id": "5bede392-6590-4eea-9e02-211137faaa4f",
+    "name": "RAAGA ADVANCED DTAN 02/02/2026",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "7304bb75-7359-4f08-a3d3-564813f0ff0b",
+    "name": "RAAGA PROFESSIONAL  REFRESHING FACE WASH",
+    "stored_price": 275.42,
+    "tax_rate": 5,
+    "intended_sale_price": 289.19
+  },
+  {
+    "id": "da41c76c-b734-470c-af11-720b09337e78",
+    "name": "RAAGA RADIANT TONE GLOW TONIC",
+    "stored_price": 317.8,
+    "tax_rate": 5,
+    "intended_sale_price": 333.69
+  },
+  {
+    "id": "904d89dd-1a83-41bf-8a31-47d11efc554d",
+    "name": "RAAGA SPF 15  SUN SCREEM",
+    "stored_price": 283.9,
+    "tax_rate": 5,
+    "intended_sale_price": 298.09
+  },
+  {
+    "id": "65db9f2b-2d54-475c-afa0-bdf4b1967d72",
+    "name": "ROOT TOUCH UP .",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "26fea216-8466-439d-888d-a89684911474",
+    "name": "ROOT TOUCH UP EAR TO EAR",
+    "stored_price": 714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 750
+  },
+  {
+    "id": "eed961cd-5ec9-4ce9-8aae-7ad7f69028f4",
+    "name": "SARA DIAMOND FACIAL",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "c13faed5-29b4-4265-be51-a4dc60a61faf",
+    "name": "SARA GOLD FACIAL",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "ef886e06-d222-4128-91cb-70bf024b96c8",
+    "name": "SAREE",
+    "stored_price": 714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 750
+  },
+  {
+    "id": "47d738cf-6c28-4b58-b26f-9de552701e04",
+    "name": "SAREE  FOR MOTHER & SISTER",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "9de02300-fbef-44dc-a200-273f35692f5e",
+    "name": "SAREE .",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "0531b7a5-5dcf-434f-983e-b72a89928107",
+    "name": "SAREE OPEN PLEATS",
+    "stored_price": 714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 750
+  },
+  {
+    "id": "b44a7f0a-f1e4-437f-8d6b-d79254e101fa",
+    "name": "Schwarkopf DEVELOPER 20VOL.",
+    "stored_price": 745.76,
+    "tax_rate": 5,
+    "intended_sale_price": 783.05
+  },
+  {
+    "id": "ae2a8e93-532e-44a0-8e47-377f0ee157eb",
+    "name": "SCHWARZKOPF SPA CREAM",
+    "stored_price": 559.32,
+    "tax_rate": 5,
+    "intended_sale_price": 587.29
+  },
+  {
+    "id": "de4c3b81-f2f8-4fcb-aedf-f1e5520cc41b",
+    "name": "SEASOUL AHA FOA CLEANSER",
+    "stored_price": 381.36,
+    "tax_rate": 5,
+    "intended_sale_price": 400.43
+  },
+  {
+    "id": "021795f0-7609-40cb-8693-e89fdb6c1cdd",
+    "name": "SEASOUL FACE MOISTURIZER",
+    "stored_price": 550.85,
+    "tax_rate": 5,
+    "intended_sale_price": 578.39
+  },
+  {
+    "id": "e4c26483-3d46-4284-b522-b00d6ae88180",
+    "name": "SEASOUL NIGHT RECOVERY SERUM",
+    "stored_price": 483.05,
+    "tax_rate": 5,
+    "intended_sale_price": 507.2
+  },
+  {
+    "id": "83ee3a3b-76cc-42ed-8547-9c44e34d4944",
+    "name": "SEASOUL SKIN CLARIFYING SERUM",
+    "stored_price": 529.66,
+    "tax_rate": 5,
+    "intended_sale_price": 556.14
+  },
+  {
+    "id": "0efd2387-ddcd-4d5b-9356-e16d93ee02a2",
+    "name": "SEASOUL ULTRA LIGHT UV DEFENSE SPF 50",
+    "stored_price": 466.1,
+    "tax_rate": 5,
+    "intended_sale_price": 489.41
+  },
+  {
+    "id": "8d176abd-3735-4aa4-bff6-fd865ebd094b",
+    "name": "SETTING SPRAY",
+    "stored_price": 592.37,
+    "tax_rate": 5,
+    "intended_sale_price": 621.99
+  },
+  {
+    "id": "2fc6d281-75bc-49fb-b937-7a0d1ef1892e",
+    "name": "SHAMPOO SALE",
+    "stored_price": 2118.64,
+    "tax_rate": 5,
+    "intended_sale_price": 2224.57
+  },
+  {
+    "id": "20f6696e-1e98-49fe-b8e4-1c8222add025",
+    "name": "SHINING SPRAY",
+    "stored_price": 1059.32,
+    "tax_rate": 5,
+    "intended_sale_price": 1112.29
+  },
+  {
+    "id": "cda1b083-3f75-4fb4-94e0-64e434125981",
+    "name": "SISTER  HD MAKEUP(02/01/2026)",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "701f9910-b5f7-42c2-b7af-d0c1ee55bc47",
+    "name": "SISTER AIR BRUSH MAKEUP",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "7703737b-a35f-4e69-86e7-61df6f29f48e",
+    "name": "SISTER HAIR (01/01/2026)",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "d10f1f96-44ea-4577-bfb9-6000741c30a9",
+    "name": "SISTER HAIR (02/01/2026)",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "6adb7ff8-4d6d-4cfa-81e5-19a6bf442acd",
+    "name": "SISTER HD MAKEUP(01/01/2026)",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "e38eeb77-7cdc-4e9c-9a9e-caa8234a6f01",
+    "name": "SISTER MAKEUP HD",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "3500f41d-db0f-4709-ab93-4dff2606243e",
+    "name": "SISTERS & MOTHER FACIAL",
+    "stored_price": 5142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 5400
+  },
+  {
+    "id": "c38fee19-23cd-442a-995e-75c57288288b",
+    "name": "SISTERS & MOTHER FACIAL.",
+    "stored_price": 4571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 4800
+  },
+  {
+    "id": "cfc74e73-04d3-495d-890c-79a5d654261a",
+    "name": "SISTERS , FATHER & MOTHER FACIAL",
+    "stored_price": 7428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 7800
+  },
+  {
+    "id": "acd4ca1a-71d0-46d0-865c-159ef78f02d9",
+    "name": "SISTERS , FATHER & MOTHER FACIAL .",
+    "stored_price": 9523.81,
+    "tax_rate": 5,
+    "intended_sale_price": 10000
+  },
+  {
+    "id": "b43964cf-8268-42a1-a68c-26ab8d43471f",
+    "name": "SISTERS HAIR SPA",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "ff0ab431-04e0-45ef-82cc-2a8c8d7ffe1f",
+    "name": "SOFTCARE SHAMPOO",
+    "stored_price": 762.71,
+    "tax_rate": 5,
+    "intended_sale_price": 800.85
+  },
+  {
+    "id": "976da46c-207c-4b96-bdc3-9d50bbc025d6",
+    "name": "STREAKS HAIR MASK",
+    "stored_price": 508.47,
+    "tax_rate": 5,
+    "intended_sale_price": 533.89
+  },
+  {
+    "id": "89d491b9-95b2-4d2e-98ec-6a3726067449",
+    "name": "STREAX HAIR SERUM",
+    "stored_price": 288.14,
+    "tax_rate": 5,
+    "intended_sale_price": 302.55
+  },
+  {
+    "id": "37522f2a-0014-4fcd-b70a-05677cad3940",
+    "name": "Normal haircut",
+    "stored_price": 114.29,
+    "tax_rate": 5,
+    "intended_sale_price": 120
+  },
+  {
+    "id": "b58ea37c-6969-4650-976b-14f758515511",
+    "name": "ddfgsdgd",
+    "stored_price": 1000,
+    "tax_rate": 18,
+    "intended_sale_price": 1180
+  },
+  {
+    "id": "797e6b46-92cb-4efe-b6a5-158250154ff2",
+    "name": "STYLE HAIR CUT",
+    "stored_price": 142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 150
+  },
+  {
+    "id": "eec9720a-1667-4549-8faa-a8ea3c505d9a",
+    "name": "STOMACH(RICCA-Liposiable-Biosoft/O3+)",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "c2115cc1-f9b8-4178-998d-98da93847ddc",
+    "name": "U CUT/V CUT",
+    "stored_price": 380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 400
+  },
+  {
+    "id": "0ea3cd34-5675-41b3-9000-5e8f2f884be9",
+    "name": "FULL CHIN -(RICCA -LIPOSIBLE-BIOSOFT/O3+)",
+    "stored_price": 142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 150
+  },
+  {
+    "id": "c429be7d-d309-4ab4-aa38-fd7090a980a0",
+    "name": "BOTIN LAMINATION HAIRTREATMENT(MK-Advanced Botox)-Medium",
+    "stored_price": 11428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 12000
+  },
+  {
+    "id": "6f6f552a-d33c-4829-8a0a-4b345fd6d887",
+    "name": "GOLD CLEAN UP With Power Mask-O3+Professional",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "9db08fbc-4aa0-4658-b95f-0a50a96e63bd",
+    "name": "UNDER ARM- (RICCA-Liposiable-Biosoft/O3+)",
+    "stored_price": 333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 350
+  },
+  {
+    "id": "b73fedaf-83e5-4f08-bfcb-cab986f32d4c",
+    "name": "GROOM SKIN & HAIR PACKAGE -  SKIN GLOW  FACIAL , DTAN PACK , HAIR SPA ,NORMAL PEDICURE & MANICURE  ,HAIR CUT & BEARD",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "48547713-e7ef-4dcb-a661-aa98661e8733",
+    "name": "STREAX HAIR SERUM.",
+    "stored_price": 271.19,
+    "tax_rate": 5,
+    "intended_sale_price": 284.75
+  },
+  {
+    "id": "89da2229-f0a8-418a-9183-d50db1f3e10f",
+    "name": "TRANSPORTATION COST",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "04a506fd-20e9-44c8-89a5-488530d1ad5b",
+    "name": "TRANSPORTATION COST  MALLAPPALLY",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "703291df-5fa2-4c51-bfe4-9b9cb17df92f",
+    "name": "TRANSPORTATION COST .",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "6a5d7013-0004-4073-82c1-d49dc569d4b2",
+    "name": "TRANSPORTATION COST FOR 3 DAYS",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "b648e13b-46d0-4e7d-8509-a5cd73df6f67",
+    "name": "TRANSPORTATION COST VYPIN",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "99281059-54ef-478b-aa3c-e0e06ba24414",
+    "name": "U CUT/V CUT WITH BANGS",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "82d0927c-62b2-4d14-87f6-630e1c6e37da",
+    "name": "U CUT/V CUT WITH FRAMES",
+    "stored_price": 428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 450
+  },
+  {
+    "id": "f2acffea-b672-418a-8b78-4bd88683007d",
+    "name": "UNDER ARM- (RICCA-Liposiable-Biosoft/O3+).",
+    "stored_price": 285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 300
+  },
+  {
+    "id": "f4c4986f-7c3f-436c-9317-c26c5db7304c",
+    "name": "UNDEREYE GEL",
+    "stored_price": 898.31,
+    "tax_rate": 5,
+    "intended_sale_price": 943.23
+  },
+  {
+    "id": "3513fad1-2dc6-40c6-a785-fc568333e0dd",
+    "name": "UPPER LIP BLEACH",
+    "stored_price": 95.24,
+    "tax_rate": 5,
+    "intended_sale_price": 100
+  },
+  {
+    "id": "dda52052-6832-4c81-8848-84df78cafa87",
+    "name": "UPPER LIP- (RICCA-Liposiable-Biosoft/O3+)",
+    "stored_price": 142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 150
+  },
+  {
+    "id": "e919da34-89d2-4303-8e4c-073dea28397b",
+    "name": "W ONE  CONDITIONER (1 LTR)",
+    "stored_price": 3016.1,
+    "tax_rate": 5,
+    "intended_sale_price": 3166.91
+  },
+  {
+    "id": "9c67fc1b-57a2-416a-ad25-0c594c1fa577",
+    "name": "W ONE NANOPLASTIA RETAIL CONDITIONER.",
+    "stored_price": 1440.68,
+    "tax_rate": 5,
+    "intended_sale_price": 1512.71
+  },
+  {
+    "id": "6e498470-65b4-4498-86d0-916a5b865811",
+    "name": "W ONE NANOPLASTIA RETAIL SHAMPOO& CONDITIONER -300 ML",
+    "stored_price": 2542.37,
+    "tax_rate": 5,
+    "intended_sale_price": 2669.49
+  },
+  {
+    "id": "bc8f6eb2-60f9-444d-9e45-d756db2b7f6d",
+    "name": "W ONE NANOPLASTIA RETAIL SHAMPOO.",
+    "stored_price": 1282.2,
+    "tax_rate": 5,
+    "intended_sale_price": 1346.31
+  },
+  {
+    "id": "e430ae22-a891-4b7f-9cb2-a337ec869c8d",
+    "name": "W ONE SHAMPOO & CONDITIONER (300 ML)",
+    "stored_price": 2666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 2800
+  },
+  {
+    "id": "fdf97cc4-2694-4b5b-9fea-e0da8dfbde9d",
+    "name": "W ONE SHAMPOO (1 LTR)",
+    "stored_price": 3389.83,
+    "tax_rate": 5,
+    "intended_sale_price": 3559.32
+  },
+  {
+    "id": "a87bb84c-b35e-4e9a-a7eb-eee104b03b69",
+    "name": "WOLF  CUT GENTS -",
+    "stored_price": 380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 400
+  },
+  {
+    "id": "be65f1d3-41b4-4382-a352-f5d97cfb0bfd",
+    "name": "WOLF CUT GENTS",
+    "stored_price": 238.1,
+    "tax_rate": 5,
+    "intended_sale_price": 250.01
+  },
+  {
+    "id": "7ea0b6f5-866c-4b7e-aa54-727d0090de32",
+    "name": "HAIR CUT & BEARD",
+    "stored_price": 209.52,
+    "tax_rate": 5,
+    "intended_sale_price": 220
+  },
+  {
+    "id": "68c6aae7-8bf8-45ca-966b-b09df0cfc1b5",
+    "name": "NORMAL HAIR CUT",
+    "stored_price": 114.29,
+    "tax_rate": 5,
+    "intended_sale_price": 120
+  },
+  {
+    "id": "9c2af516-24c1-4953-9ec2-7284616fb721",
+    "name": "ANTI DANDRUFF SPA- KUENE/Schwarzkopf",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "d6e56801-215c-4fcc-9cbd-99c2acc34b5b",
+    "name": "FULL  BACK((RICCA-Liposiable-Biosoft/O3+))",
+    "stored_price": 714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 750
+  },
+  {
+    "id": "d647d63e-9e4b-43ac-bfe5-ad18c8a1af31",
+    "name": "NORMAL NAIL ART WITH EXTENSION(Temporary)",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "e29d8951-ee2f-4b31-84c7-afee1343fa24",
+    "name": "O3+ AGE LOCK  MELADERM + GOJI BRIGH",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "f83603d7-c9c4-4858-8fbf-c2aded9dbcd3",
+    "name": "O3+ EXPERT CRYSAL SPA PREMIUM MANICURE",
+    "stored_price": 1142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 1200
+  },
+  {
+    "id": "5492ad90-9135-4e98-b792-1d6a3fe17674",
+    "name": "O3+ PROFESSIONAL SKIN GLOW",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "195d3af7-89fb-4573-823b-f0eb7dfa116e",
+    "name": "OLAPEX/BOND FUSION TREATMENT(KUENE)-Ladies",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "801de56d-00b4-4b00-9109-13264a7cd265",
+    "name": "AGE LOCK  MELADERM + GOJI BRIGH  TREATMENT HYDRA FACIAL",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "d6a83c9e-4b76-4d24-a19f-6aac1e894fce",
+    "name": "BASE COLOR AMMONIAFREE ROOT TOUCH UP-Ladies",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "021a0708-1020-42a3-8075-6bd8490840e9",
+    "name": "Beard Color Ammonia Free Kuene",
+    "stored_price": 428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 450
+  },
+  {
+    "id": "6fcbde20-735f-4eda-88a3-9e2c666d653f",
+    "name": "BLACK HENNA-Ladies-Medium Hair",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "1642bbf2-db2a-4722-8b1c-0e6020673233",
+    "name": "MAJESTIC REPL SHAMPOO 300ML",
+    "stored_price": 1614.29,
+    "tax_rate": 5,
+    "intended_sale_price": 1695
+  },
+  {
+    "id": "a6295a0e-6d93-4b9c-a938-444cb65b971b",
+    "name": "Haircut and beard",
+    "stored_price": 209.52,
+    "tax_rate": 5,
+    "intended_sale_price": 220
+  },
+  {
+    "id": "28b59a1c-70c9-4a07-b39d-de47027f0322",
+    "name": "GIRLS HAIR CUT",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "6eee858b-c240-4239-b257-6a1df1f93cf2",
+    "name": "GIRLS HAIR CUT.",
+    "stored_price": 380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 400
+  },
+  {
+    "id": "20606967-d38e-49ec-9ff4-9539f82764fe",
+    "name": "GENTS HAIR CUT",
+    "stored_price": 114.29,
+    "tax_rate": 5,
+    "intended_sale_price": 120
+  },
+  {
+    "id": "3f6851b3-81e1-49fe-9373-939c60f69736",
+    "name": "BLISFIS  GOLD PEAL RADIANT RITUAL  HAIR MASK",
+    "stored_price": 2161.02,
+    "tax_rate": 5,
+    "intended_sale_price": 2269.07
+  },
+  {
+    "id": "80540ee3-1a83-4106-944c-678847a8087d",
+    "name": "HAIR SPA -LADIES",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "520368a9-f857-469e-82c5-050753fe43ef",
+    "name": "BOTIN LAMINATION HAIRTREATMENT(MK-Advanced Botox)-Long",
+    "stored_price": 14285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 15000
+  },
+  {
+    "id": "1f03f90c-ec07-42db-a6de-e84080e3dd96",
+    "name": "BOTOX TREATMENT -(Flora Activa)-Long",
+    "stored_price": 8571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 9000
+  },
+  {
+    "id": "800ab707-5011-4375-b838-b42b60058ed6",
+    "name": "BRAZILAN BLOW OUT-Medium",
+    "stored_price": 8571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 9000
+  },
+  {
+    "id": "f515bdd5-d81e-4422-89ee-3a860033c568",
+    "name": "CC DERMA ICE FACIAL- Seasoul/KEPAKI - (12 Step)",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "4b51268d-5df7-460d-8e09-ae7a83c785a2",
+    "name": "FASHION COLOR AMMONIA FREE ROOT TOUCH UP-Ladies",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "21526f31-f8d3-49eb-8dfe-3db5abb54eba",
+    "name": "French Luxury MANICURE",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "10f38956-defd-49ec-b5b9-44d961ee3fc0",
+    "name": "FULL BACK-OXY DIAMOND BLEACH",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "d46b372d-52ca-4f1e-89f1-1d965eca6ac6",
+    "name": "FULL CHEST  (RICCA-Liposiable-Biosoft/O3+)",
+    "stored_price": 857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 900
+  },
+  {
+    "id": "7c01f75c-9344-451e-a79c-ef6db39a622e",
+    "name": "FULL FACE & NECK-OXY DIAMOND BLEACH",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "08013c72-8be4-4b89-ba24-3ca18b15e10f",
+    "name": "FULL HIGHLIGHT(With Cap)-BASE COLOR RATE",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "2ee58b1b-5dde-477f-96a1-ccfeb65a5b25",
+    "name": "GLOBAL AMMONIA FREE-Gents",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "50175240-54e5-4ecd-8df7-9d3776f8d2bf",
+    "name": "GOLD CLEANUP DR.BLOSSOM",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "f0ed1577-73db-42e7-b4d5-f3a2412b5524",
+    "name": "LUXURY DIAMOND FACIAL - O3+ PROFESSIONAL",
+    "stored_price": 6666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 7000
+  },
+  {
+    "id": "7813ce45-7034-45dc-8648-2b21fa62e9ec",
+    "name": "MIXED FRUITS VEDIC LINE PAPPAYA",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "3f0a8405-5256-4dae-b9de-d91c6976400b",
+    "name": "Nail Extention -1no.",
+    "stored_price": 238.1,
+    "tax_rate": 5,
+    "intended_sale_price": 250.01
+  },
+  {
+    "id": "e017d528-d3a5-43aa-b9bc-507fa563cc48",
+    "name": "SKIN GLOW /WHITENING TREATMENT HYDRA FACIAL",
+    "stored_price": 3333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 3500
+  },
+  {
+    "id": "515df0f5-b763-429e-872f-0120249de8cc",
+    "name": "STRAIGHTENING(Schwarzkopf)  -Medium",
+    "stored_price": 5714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 6000
+  },
+  {
+    "id": "61b7a646-4bdb-402b-861a-c2e07bf8a1fd",
+    "name": "UNDER EYE DARKNESS REMOVAL TREATMENT",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "a71281df-4e81-4022-9bbc-c4686a1480ee",
+    "name": "VITAL NUTRITIONAL HAIR SPA(KUENE)-Gents",
+    "stored_price": 1016.95,
+    "tax_rate": 5,
+    "intended_sale_price": 1067.8
+  },
+  {
+    "id": "15101cfb-f728-47bd-b288-771b34e899b5",
+    "name": "AGELOCK LUXURY GOLD HYDRA FACIAL",
+    "stored_price": 8095.24,
+    "tax_rate": 5,
+    "intended_sale_price": 8500
+  },
+  {
+    "id": "6e74c16b-b356-4499-8fc4-e07345203df7",
+    "name": "ANTI HAIR FALL SPA  SCHWARZKOPF..",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "839c4eff-601b-45fb-b394-38032597ec9a",
+    "name": "Beard Color Ammonia Free Kuene,",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "79427fe0-c49f-46d0-b47f-8bd0173eb520",
+    "name": "BOTOX HAIR SPA - PROTIEN SPA -LONG HAIR",
+    "stored_price": 2666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 2800
+  },
+  {
+    "id": "71f9cba4-4199-453b-a8de-b9594e294b55",
+    "name": "Full Hand (Ricca -Liposible Biosoft/O3+)",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "5781561b-ca5f-46f3-bc4e-b3bf57e3f482",
+    "name": "GLOBAL COLOR",
+    "stored_price": 6666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 7000
+  },
+  {
+    "id": "dba5caaa-85f8-492f-a797-514b43fa9160",
+    "name": "HAIR SETTING   GIRLS",
+    "stored_price": 380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 400
+  },
+  {
+    "id": "7309e01e-8803-4ab9-823a-d30b0ff2dea0",
+    "name": "HAIR SMOOTHENING - EAR TO EAR",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "1b3301f3-5f71-487c-91e4-21233416179f",
+    "name": "HAIR SMOOTHENING - EAR TO EAR.",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "e363c337-f75d-401b-83bc-e5d3e4d2eb1c",
+    "name": "HAIR WASH  ..",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "3b512e3c-a8f2-49dc-8dd5-3d43076cc668",
+    "name": "HENNA ROOT TOUCH UP",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "93377379-792f-49c8-ad19-392c181deb68",
+    "name": "KANPAKI HYDRA BOOST",
+    "stored_price": 898.31,
+    "tax_rate": 5,
+    "intended_sale_price": 943.23
+  },
+  {
+    "id": "2594736d-f56a-4e69-bfde-f7ddca6804fb",
+    "name": "LADIES HAIR CUT -CURLY HAIR",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "e242b9a2-8387-47d9-89c6-0bf495d086f0",
+    "name": "MOTHER HAIR (01/01/2026)",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "748511ea-1a5b-4492-8517-07319c527c51",
+    "name": "NAILS FILING",
+    "stored_price": 95.24,
+    "tax_rate": 5,
+    "intended_sale_price": 100
+  },
+  {
+    "id": "100eb927-142f-4453-8d73-c013bbb0061f",
+    "name": "NANOPLASTIA HAIR TREATMENT -FLORA ACTIVE LONG HAIR.",
+    "stored_price": 12380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 13000
+  },
+  {
+    "id": "6512fe39-2bfc-4910-a7c4-c3fdac7c722d",
+    "name": "NORMAL  MAKEUP & HAIRSETTING  - GENTS",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "99a38622-0b22-45f3-86ea-291f6285879e",
+    "name": "O3+  PROFESSIONAL  WHITENING  SERUM,",
+    "stored_price": 1016.95,
+    "tax_rate": 5,
+    "intended_sale_price": 1067.8
+  },
+  {
+    "id": "d1db1374-203e-4c93-9e15-0d5ac56229bb",
+    "name": "OLAPEX/BOND FUSION TREATMENT(KUENE)--Ladies",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "ce215cac-a8b1-492b-9d54-a664a1a2ac44",
+    "name": "Schwarkopf IGROA ZERO AMMO",
+    "stored_price": 466.1,
+    "tax_rate": 5,
+    "intended_sale_price": 489.41
+  },
+  {
+    "id": "1c214a8c-9057-42b8-a466-ed4f3c25f3de",
+    "name": "SISTER FULL PLEAT SAREE",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "db409f16-c1d4-43e6-a7f9-772cb3b37266",
+    "name": "UPPER LIP WAXING",
+    "stored_price": 47.62,
+    "tax_rate": 5,
+    "intended_sale_price": 50
+  },
+  {
+    "id": "22726acd-d9cf-4368-9ae0-15549b6c1af2",
+    "name": "shamp",
+    "stored_price": 476.19,
+    "tax_rate": 0.05,
+    "intended_sale_price": 476.43
+  },
+  {
+    "id": "43e66377-8ad5-46fa-944a-b880d66c679d",
+    "name": "KEUNE VITAL NUTRITION",
+    "stored_price": 1588.98,
+    "tax_rate": 5,
+    "intended_sale_price": 1668.43
+  },
+  {
+    "id": "67e5f2ce-a7ab-4dd4-b4a1-18290ca9b860",
+    "name": "HAIR SPA",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "98df7f34-68d2-4cf2-8766-db5463488677",
+    "name": "MK ADVANCED HAIR BOTOX.",
+    "stored_price": 12380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 13000
+  },
+  {
+    "id": "840f1afc-1453-4954-b78a-cb16e27826e0",
+    "name": "O3+ PROFESSIONAL BLUEBERRY DTAN ,",
+    "stored_price": 1313.56,
+    "tax_rate": 5,
+    "intended_sale_price": 1379.24
+  },
+  {
+    "id": "dcfc7378-46ea-4899-904b-a7cca558d026",
+    "name": "Style haircut",
+    "stored_price": 142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 150
+  },
+  {
+    "id": "05d5adf1-44d8-4c8e-9fda-751139fd2992",
+    "name": "Style haircut and beard",
+    "stored_price": 238.1,
+    "tax_rate": 5,
+    "intended_sale_price": 250.01
+  },
+  {
+    "id": "e234e0d4-da7f-45b6-aa09-e5ae38efefc6",
+    "name": "NORMAL HAIR SPA.",
+    "stored_price": 1523.81,
+    "tax_rate": 5,
+    "intended_sale_price": 1600
+  },
+  {
+    "id": "5f5d5c9b-c3db-4e5e-b761-5aa85384f087",
+    "name": "NANOPLASTIA CROWN AREA ,",
+    "stored_price": 4285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 4500
+  },
+  {
+    "id": "d3faea3a-1806-4b0b-b0b2-c697b93d422b",
+    "name": "MK Argan Oil Shampoo (300Ml)-1",
+    "stored_price": 1880.95,
+    "tax_rate": 18,
+    "intended_sale_price": 2219.52
+  },
+  {
+    "id": "bd76a253-e30b-4446-9e1c-656cbfeba6ed",
+    "name": "MK Argan Oil Shampoo-(1Ltr)",
+    "stored_price": 3642.86,
+    "tax_rate": 18,
+    "intended_sale_price": 4298.57
+  },
+  {
+    "id": "4ae2d480-558f-4fab-9213-bd552bef38d6",
+    "name": "MAKEUP(11/05/26)",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "6cd89484-4e38-4e35-a9cf-620604617ff6",
+    "name": "MK ADVANCED BOTOX - GENTS",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "99937e70-ba3c-49cc-b5dc-96356c217673",
+    "name": "SISTER FULL PLEAT SAREE(01/01/2026)",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "b5b5a103-b802-4c11-8bb3-2bd9e7d240f7",
+    "name": "NECK DTAN",
+    "stored_price": 857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 900
+  },
+  {
+    "id": "ca2fd18f-a185-47f8-a77e-ab8fa846c1ec",
+    "name": "GOLD MORROCAN VITAMIN C FACIAL- Seasoul/KEPAKI - (9 Step)",
+    "stored_price": 2095.24,
+    "tax_rate": 5,
+    "intended_sale_price": 2200
+  },
+  {
+    "id": "f54e93e4-fa7d-460a-8f61-5138ad812ee8",
+    "name": "REFILING NAILS",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "6528790f-fe38-4f37-83b8-0df22721dc8e",
+    "name": "NORMAL HAIR CUT,",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "bf485675-0f31-4e91-a134-5c81c547abba",
+    "name": "STREAX PRO SERUM",
+    "stored_price": 288.14,
+    "tax_rate": 18,
+    "intended_sale_price": 340.01
+  },
+  {
+    "id": "8217c78e-67b1-45fb-a55b-4ecf0f014df5",
+    "name": "STYLE HAIRCUT",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "15584117-59e5-48cc-81f0-36215269a187",
+    "name": "NORMAL HAIRCUT",
+    "stored_price": 142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 150
+  },
+  {
+    "id": "0ba7086f-41dd-4ceb-858c-1abb134d6726",
+    "name": "gel",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "d3ecf8d0-5413-42ca-9880-ba61f1c89ccd",
+    "name": "KRONE ANTI DANDRUFF CONTROL TONIC 100ML",
+    "stored_price": 423.73,
+    "tax_rate": 18,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "029959b0-ae7a-4ed6-9636-adba7b10e90e",
+    "name": "KEUNE LONG&STRONG LEAVE IN 100ML",
+    "stored_price": 3559.32,
+    "tax_rate": 18,
+    "intended_sale_price": 4200
+  },
+  {
+    "id": "27ed6234-eff7-4676-ae2c-eec0842a3875",
+    "name": "KEUNE BOND FUSION PHASE 3 200ML",
+    "stored_price": 1525.42,
+    "tax_rate": 18,
+    "intended_sale_price": 1800
+  },
+  {
+    "id": "31be07de-91ce-4ebb-8129-ec9260191db7",
+    "name": "AZV SUNSCREEN SPF 50",
+    "stored_price": 466.1,
+    "tax_rate": 18,
+    "intended_sale_price": 550
+  },
+  {
+    "id": "0d761b0a-0f83-4387-9573-59119d3486b9",
+    "name": "AZV MULTIVITAMIN POTION",
+    "stored_price": 466.1,
+    "tax_rate": 18,
+    "intended_sale_price": 550
+  },
+  {
+    "id": "b8ffeff7-4ab4-4901-a3a5-69a52ce7c5b4",
+    "name": "MK REPL. SHAMPOO WITH ARGAN OIL 500ML*2",
+    "stored_price": 3642.86,
+    "tax_rate": 5,
+    "intended_sale_price": 3825
+  },
+  {
+    "id": "ebeb6208-3ae5-4f37-a9c4-b6f3ca406a3e",
+    "name": "SSP PEEL OFF MASK ACTIVATED CHARCOAL & DEAD SEA MUD 400GM",
+    "stored_price": 1271.19,
+    "tax_rate": 18,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "02833301-f651-4f18-bd57-9f41e44b22d0",
+    "name": "SSP DERMA ICE ACNE CURE & CLARIFYFY FULL KIT",
+    "stored_price": 2949.15,
+    "tax_rate": 18,
+    "intended_sale_price": 3480
+  },
+  {
+    "id": "5146bd56-8710-49ce-ac1d-3acdc2abd58f",
+    "name": "MK Argan Shampoo (300Ml)",
+    "stored_price": 1880.95,
+    "tax_rate": 18,
+    "intended_sale_price": 2219.52
+  },
+  {
+    "id": "65908b70-d766-4a67-a3ff-2b068be09dcb",
+    "name": "STRX PRO SERUM",
+    "stored_price": 288.14,
+    "tax_rate": 18,
+    "intended_sale_price": 340.01
+  },
+  {
+    "id": "70d1a78c-4465-4c19-9d1b-f2da8aa81694",
+    "name": "BOTOX TREATMENT -(BRAZILAIN)- LONG",
+    "stored_price": 9047.62,
+    "tax_rate": 5,
+    "intended_sale_price": 9500
+  },
+  {
+    "id": "f1b69d1d-fd21-48a9-9dd2-c2d9d52d7088",
+    "name": "BRAZILIAN PROTEIN THERAPY - GENTS",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "77721fc3-fc0e-475f-b5e6-587c4e9c1cd3",
+    "name": "BRAZILIAN ROOT TOUCH UP",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "0eccea7a-ae3c-4072-9d07-facb118fdaf4",
+    "name": "BRIDE -  BRIDAL GLOW GOLD LUXUARY FACIAL , BODY POLISHING , PEDICURE & MANICURE , FULL HAND & HALF LEG WAXING , HAIR SPA",
+    "stored_price": 11333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 11900
+  },
+  {
+    "id": "be371ae2-3e35-4c97-9c11-f58f9752b9e8",
+    "name": "CADIVEU  NUTRI GLOW MIRACLE BOOSTER",
+    "stored_price": 1694.92,
+    "tax_rate": 5,
+    "intended_sale_price": 1779.67
+  },
+  {
+    "id": "6517367e-aa68-4e28-89c6-76fc5b17d15d",
+    "name": "CADIVEU NUTRI GLOW  NOURISHING LEAVE - IN",
+    "stored_price": 1694.92,
+    "tax_rate": 5,
+    "intended_sale_price": 1779.67
+  },
+  {
+    "id": "60a82984-641a-44ed-9875-300f16b9dea3",
+    "name": "CARBON LASER PEEL NECK",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "80014f2b-50ec-4737-b77a-321371b2509d",
+    "name": "03+  Scoop Boomb Ice Cream Pedicure",
+    "stored_price": 1714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 1800
+  },
+  {
+    "id": "8b9a9008-d5d4-462b-a515-80b418df973f",
+    "name": "03+ Pedi Expert Crystal Spa Premium",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "4a05286f-8f41-40d0-9d84-ca04e0ba58cb",
+    "name": "ACRYLIC NAIL ART WITH EXTENSION(Permanent)",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "cd1832f3-1682-40cd-b544-71b7e6a9d7f7",
+    "name": "MK REPL.SHAMPOO WITH ARGAN OIL 300ML-",
+    "stored_price": 1880.95,
+    "tax_rate": 5,
+    "intended_sale_price": 1975
+  },
+  {
+    "id": "8801002f-5b87-47b0-b539-8718d253968c",
+    "name": "CHIN/FULL CHIN",
+    "stored_price": 95.24,
+    "tax_rate": 5,
+    "intended_sale_price": 100
+  },
+  {
+    "id": "6b85506a-4d95-466b-905b-73a4558b91b3",
+    "name": "Chocolate Mint INSTANT GLOW FACIAL-Seasoul-",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "9b246185-062f-4546-bc3c-e7226e2e8fe0",
+    "name": "CRAMEL HIGHLIGHT",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "5d5623df-1329-4ac3-b80b-8e40b79ed575",
+    "name": "CURL SETTING",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "9cb298a1-b91f-4b69-aa94-f893b3f0e57c",
+    "name": "CYRO CARPET DNA FACIAL(ANTI AGENING FACIAL)- Seasoul/KEPAKI-(13 Step)",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "353e57b6-57cd-4496-b91f-99af698b1758",
+    "name": "D-TAN FACIALS",
+    "stored_price": 1714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 1800
+  },
+  {
+    "id": "3a5940ff-65db-4552-af32-8a50c30c0b1d",
+    "name": "DANDRUFF SCALP TREATMENT(BIOLAGE ADV)",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "e66502d3-6016-4838-af64-cfa41f03947b",
+    "name": "DIAMOND FACIAL - SHEHANAZ",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "9253243a-c91e-48ef-9f15-099c2a54d85b",
+    "name": "DRY & FRIZZY HAIR SPA SCHWARZKOPF",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "7d4b1ab4-df69-402e-a006-ce85d6f9ba75",
+    "name": "DRY & FRIZZY HAIR SPA- KUENE/Schwarzkopf",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "a4ff9d74-4e3b-48c3-86ff-9a75d0d1b8f8",
+    "name": "CHIN -(RICCA -LIPOSIBLE-BIOSOFT/O3+)",
+    "stored_price": 95.24,
+    "tax_rate": 5,
+    "intended_sale_price": 100
+  },
+  {
+    "id": "bd6026b9-2dff-49c1-a21a-86508765a302",
+    "name": "CHOCOLATE MINT FACIAL SEASOUL",
+    "stored_price": 1714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 1800
+  },
+  {
+    "id": "6921e0ef-7370-4c13-ab31-5e78e33b0244",
+    "name": "COLOR -GENTS",
+    "stored_price": 857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 900
+  },
+  {
+    "id": "dd56e2df-15ee-457a-be55-4e6c6b45755f",
+    "name": "COLOR -LADIES",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "3e8e7b82-5e35-47a8-ac02-0cc26ef702b6",
+    "name": "COLOR FULL HAIR",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "2cf545c4-793c-4641-87c4-08371f3fe550",
+    "name": "COLOR GENTS ROOT",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "7b162da1-b859-44aa-91fa-ca3161b8f022",
+    "name": "COLOR LADIES ..",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "b0c9f363-92da-47af-87f6-a8fcf8f63131",
+    "name": "COLOR LADIES/",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "076dbc63-86c0-49d1-8fe6-4977da8e85c3",
+    "name": "MK REPL.SHAMPOO WITH ARGAN OIL 300ML",
+    "stored_price": 1975,
+    "tax_rate": 18,
+    "intended_sale_price": 2330.5
+  },
+  {
+    "id": "3b140a40-a93b-4499-a1e6-affc79adf6ad",
+    "name": "COUSIN 2 FULL PLEAT SAREE(01/01/2026)",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "9fe1c7df-9a3a-499c-ba43-a4a9361be7d9",
+    "name": "COUSIN 2 HAIR (01/01/2026)",
+    "stored_price": 1714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 1800
+  },
+  {
+    "id": "24181f6b-8796-45a0-b6a8-9aba1263624d",
+    "name": "COUSIN 3 FULL PLEAT SAREE(01/01/2026)",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "6ea4a7c2-61ff-4e44-b8ad-50c615a07740",
+    "name": "COUSIN 3 HAIR (01/01/2026)",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "4d14df3e-2bd5-4570-acc5-32666ffe3f72",
+    "name": "COUSIN HAIR (01/01/2026)",
+    "stored_price": 1714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 1800
+  },
+  {
+    "id": "1abb3858-d0ac-4805-9e0f-3b8067cc731b",
+    "name": "COUSIN HAIR (02/01/2026)",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "9439ae3d-8790-424e-8ad0-73a1ee146bc5",
+    "name": "COUSIN SAREE(01/01/2026)",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "37e7f89e-417c-4e49-ab5e-ae81a4dde76a",
+    "name": "CROWN AREA   BASIC COLOR",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "f3b012e4-b9b2-4869-8e70-d4fde64fddbe",
+    "name": "CROWN AREA  COLOR",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "4e2d721f-29ad-4c37-919f-ae35941f5396",
+    "name": "Dandruff Hair Cleanser",
+    "stored_price": 357.14,
+    "tax_rate": 5,
+    "intended_sale_price": 375
+  },
+  {
+    "id": "19f32346-b9fb-4f9f-bc8c-fc7328779a72",
+    "name": "DANDRUFF HAIR CLEANSER,MASK &TONIC COMBO",
+    "stored_price": 847.46,
+    "tax_rate": 5,
+    "intended_sale_price": 889.83
+  },
+  {
+    "id": "153c5900-1213-4cd8-a5a8-5c3401319beb",
+    "name": "03+  pedilogix Spa Pedicure",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "c330d842-9fa3-4e82-886a-9243b73d2347",
+    "name": "FACE  WAXING",
+    "stored_price": 76.19,
+    "tax_rate": 5,
+    "intended_sale_price": 80
+  },
+  {
+    "id": "0e780cc9-6575-4828-8276-b21e6b4807d0",
+    "name": "BOTOX TREATMENT (MK-Advanced Botox)-Medium",
+    "stored_price": 9523.81,
+    "tax_rate": 5,
+    "intended_sale_price": 10000
+  },
+  {
+    "id": "f98e9bd3-0852-4ff0-b4f4-a01f9f74e505",
+    "name": "face wash",
+    "stored_price": 500,
+    "tax_rate": 5,
+    "intended_sale_price": 525
+  },
+  {
+    "id": "73bc866a-9cd6-4729-bf6c-f7d278a6ec41",
+    "name": "JAPANESE FULL BODY POLISH/AUYRVEDIC MASSAGE- ALGA Normal",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "9e934a97-e843-471e-9e69-dc407a5fbd80",
+    "name": "K ERA-SMOOTHENING HAIRTREATMENT-Long",
+    "stored_price": 14285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 15000
+  },
+  {
+    "id": "70d30455-bc6f-4f8f-b171-0ed6e816afdb",
+    "name": "K ERA-SMOOTHENING HAIRTREATMENT-Medium",
+    "stored_price": 11428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 12000
+  },
+  {
+    "id": "d4768185-bf87-43cb-aae7-bd9921dd5d20",
+    "name": "K ERA-SMOOTHENING HAIRTREATMENT-Short",
+    "stored_price": 7619.05,
+    "tax_rate": 5,
+    "intended_sale_price": 8000
+  },
+  {
+    "id": "3dd7f2cd-1c27-40d0-b646-5281905eca18",
+    "name": "KIDS HAIRCUT(UNDER 5)",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "a386670e-90ee-4fb1-8614-f09f1dddb541",
+    "name": "KOREAN GLASS SKIN TREATMENT- Seasoul/KEPAKI - (9 Step)",
+    "stored_price": 3333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 3500
+  },
+  {
+    "id": "976a1bc5-3db5-42dd-baee-9db18b56b6ef",
+    "name": "HAIR VOLUMIZE COFFE SPA",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "fee90472-a54f-4386-821c-1bfe6e7eb8b7",
+    "name": "HAIR WASH & NORMAL DRY",
+    "stored_price": 285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 300
+  },
+  {
+    "id": "ca85fed5-297d-41b9-80e8-1f3840a3ef13",
+    "name": "HAIR WASH AND BLOW DRY",
+    "stored_price": 285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 300
+  },
+  {
+    "id": "104fd38c-4260-4e5e-8570-a4f9013daeaf",
+    "name": "HAIR WASH WITH MASK",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "3efc300a-3299-496a-a92e-d19b55f46e73",
+    "name": "HALF HAND (RICCA-Liposiable-Biosoft/O3+)",
+    "stored_price": 285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 300
+  },
+  {
+    "id": "534e3b85-3fe6-423d-ae8b-0dfedf3bc4f0",
+    "name": "HEAD  MASSAGE  LADIES WITHOUT OIL",
+    "stored_price": 380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 400
+  },
+  {
+    "id": "efd9af8c-4724-44b7-b160-3c56c3de4f7a",
+    "name": "Head Full Shave",
+    "stored_price": 238.1,
+    "tax_rate": 5,
+    "intended_sale_price": 250.01
+  },
+  {
+    "id": "71067889-4d73-45f4-8014-f5c313e6620d",
+    "name": "Head Massage",
+    "stored_price": 380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 400
+  },
+  {
+    "id": "b88ade7e-2dc4-4456-a3aa-18a2806e1686",
+    "name": "HEAD OIL MASSAGE  LADIES",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "a2ad1b76-4700-4998-964c-dd2e46e8d94c",
+    "name": "HEAD OIL MASSAGE  LADIES OLIVE OIL",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "700f184b-f9a8-4cab-9ee0-b213867ec305",
+    "name": "Head Shave",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "336ad6b3-88c8-4523-bdfa-5db7c934973f",
+    "name": "HYDRA FACIAL - NORMAL 14+1",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "e812ee63-3ec2-4b2b-890e-46d2aaf43bf8",
+    "name": "Hydra facial Vitamin C",
+    "stored_price": 5714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 6000
+  },
+  {
+    "id": "142803de-9ff6-445b-8c38-8ccd3e074571",
+    "name": "DANDRUFF SCALP TREATMENT",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "02ea8ac4-18ab-4d56-b5c2-43d0288ff506",
+    "name": "DANDRUFF TREATMENT - HAIR CLEANSER,MASK &TONIC COMBO",
+    "stored_price": 2000,
+    "tax_rate": 5,
+    "intended_sale_price": 2100
+  },
+  {
+    "id": "677e5d9c-7499-4441-a824-c3cf1916034c",
+    "name": "DANDRUFF WASH",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "35bcbc78-4a9d-487a-b2e9-8e0c39221ea0",
+    "name": "DRY & FRIZZY HAIR SPA LOREAL",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "463d9ea9-72c3-42e9-a65b-8ec1b9d06c36",
+    "name": "DRY & FRIZZY HAIR SPA SCHWARZKOPF,",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "19450180-0c94-437d-be07-7392c57bd407",
+    "name": "NORMAL LA -FRESH CLEANUP",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "c8db4d37-e21d-4ff0-a93b-88de11779b40",
+    "name": "NORMAL SPA",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "db87ee4c-b1ed-42b9-be88-348cfa41ca77",
+    "name": "O3+  Bubble Gum Pedicure",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "19007947-6e1f-41c7-9646-d7cc0cd3c310",
+    "name": "O3+  BUBBLEGUM MANICURE",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "33be1da2-0f79-4551-861a-24ca09700882",
+    "name": "O3+ AGE LOCK  MARINE PLANT HYDROXY",
+    "stored_price": 3333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 3500
+  },
+  {
+    "id": "12cb860e-931b-4108-af06-5110150e46f6",
+    "name": "O3+ AGE LOCK  SEA WEED FAICIAL TREATMENT",
+    "stored_price": 3619.05,
+    "tax_rate": 5,
+    "intended_sale_price": 3800
+  },
+  {
+    "id": "57df7c47-ddda-4982-8a22-8247cff14dcb",
+    "name": "O3+ AGE LOCK  SKIN WHITENING TREATMENT",
+    "stored_price": 3619.05,
+    "tax_rate": 5,
+    "intended_sale_price": 3800
+  },
+  {
+    "id": "d8cdfef2-95fe-453c-b41d-53c5f3d4639e",
+    "name": "O3+ AGE LOCK  TIME EXPERT EGF",
+    "stored_price": 3571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 3750
+  },
+  {
+    "id": "e9006c30-c74b-4fe8-94c5-309716930183",
+    "name": "O3+ AGE LOCK SEBOXY TREATMENT",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "7808d410-5754-432a-b26d-2171452b7467",
+    "name": "O3+ PEDILOGIX SPA MANICURE",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "ac6d6a7d-a6a8-404a-b648-824455078231",
+    "name": "O3+ PROFESSIONAL ADVANCE BLUEBEERY DTAN",
+    "stored_price": 857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 900
+  },
+  {
+    "id": "e1c1610b-ee38-4537-b75d-130d02426ec6",
+    "name": "O3+ PROFESSIONAL ADVANCE CRANBERRY DTAN",
+    "stored_price": 857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 900
+  },
+  {
+    "id": "722e9624-cc46-42f9-84be-252055fe70be",
+    "name": "O3+ SCOOP BOMB ICE CREAM MANICURE",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "73930eb9-b145-4ef3-948e-f1b846ff7bb9",
+    "name": "O3+Agelock GOLD LUXURY FACE MASK WITH DTAN",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "b1a3db9a-2d0d-4eae-9265-8c068d1edc99",
+    "name": "OLAPEX/BOND FUSION TREATMENT(KUENE)-Gents",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "b07d6e78-30fc-4f0d-bb10-86cdd7edc1f5",
+    "name": "DRY & FRIZZY HAIR SPA SCHWARZKOPF.",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "74056918-dc2e-4cce-91ac-c8dcad4eb8ed",
+    "name": "DRY & FRIZZY HAIR SPA SCHWARZKOPF..",
+    "stored_price": 1523.81,
+    "tax_rate": 5,
+    "intended_sale_price": 1600
+  },
+  {
+    "id": "45fc7709-6e32-4d21-b622-4ea81e5f7e40",
+    "name": "DRY & FRIZZY HAIR SPA SCHWARZKOPF..,",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "d8f731a1-8282-4ef3-bc19-3951eac3ae73",
+    "name": "DTAN  HALF LEG",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "901c2511-dcd8-433d-b4fc-dddc76a624e2",
+    "name": "DTAN- FULL HAND",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "b94f3599-bb83-4e13-b443-5882b4deb330",
+    "name": "EAR  TO EAR NANOPLASTIA",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "756ee394-ccf9-461f-b19d-c1012aff7477",
+    "name": "EAR WAXING",
+    "stored_price": 285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 300
+  },
+  {
+    "id": "0ade2323-a096-4b76-9ad3-a026c6bfc245",
+    "name": "FACE FRAMES",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "56447af2-fd95-4ceb-876b-a1f2fc8f6108",
+    "name": "AGELOCK  SKIN POLISHING TREATMENT",
+    "stored_price": 625,
+    "tax_rate": 5,
+    "intended_sale_price": 656.25
+  },
+  {
+    "id": "aae09e55-cc9c-4e45-8bb4-81a69c5c3728",
+    "name": "FATHER HAIR COLOR",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "4421301c-d929-4939-9cea-7cdec909b06d",
+    "name": "FATHER HAIR COLOR.",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "70bc889e-6e5c-4e3a-87d0-39cc8f6fa788",
+    "name": "FEATHER CUT FOR KIDS",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "ecceee0a-9030-4350-a898-f87a2307ae04",
+    "name": "Feather Cut-Ladies",
+    "stored_price": 666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 700
+  },
+  {
+    "id": "5175ce49-edfd-4e30-8a5e-02bff23ec699",
+    "name": "FRENCH NAIL ART",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "b5bfb989-cc5f-49f6-8875-2fff9852bbeb",
+    "name": "FULL FACE  (RICCA-Liposiable-Biosoft/O3+).",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "be3a102e-f140-4123-8d7b-1b9c1893f77e",
+    "name": "FULL FACE  (RICCA-Liposiable-Biosoft/O3+)..",
+    "stored_price": 333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 350
+  },
+  {
+    "id": "3dd22340-e918-46ce-b8d1-9342453e3d70",
+    "name": "FULL FACE  BLEACH",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "3ef4468e-bc50-434a-8566-96679fa57072",
+    "name": "FULL FACE  BLEACH.",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "fa71682c-4be5-471f-8b16-78603503ffe9",
+    "name": "FULL FLEAT SAREE",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "4806bb3d-d2c9-4723-b707-71aee5eee3e4",
+    "name": "FULL FLEAT SAREE(01/01/2026)",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "55ea633a-1d4f-4c06-a627-1c0234c3a660",
+    "name": "FULL HAIR COLOR",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "4b23c359-e179-4996-acf7-b94aac786366",
+    "name": "LAYER CUT",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "4e8c07a6-8f42-42ca-8f59-41950a722a05",
+    "name": "7 X  ADVANCE  TREATMENT - GENTS",
+    "stored_price": 5714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 6000
+  },
+  {
+    "id": "f93a710e-3a4a-4a27-b921-8a59396ad54b",
+    "name": "WOLF CUT",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "92cd7e17-5e51-4cc3-98e3-86d34fd55c24",
+    "name": "7X HAIR SPA",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "8e81cfa0-93c2-44c0-80cf-8ba22d6e6d78",
+    "name": "ACRYLIC NAIL ART WITH EXTENSION(Permanent)  WITH ART",
+    "stored_price": 3333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 3500
+  },
+  {
+    "id": "a41b9bf8-c008-423b-b3d1-c6dbe9d64353",
+    "name": "AGE LOCK  SEBOXY   TREATMENT FACIAL",
+    "stored_price": 3177.97,
+    "tax_rate": 5,
+    "intended_sale_price": 3336.87
+  },
+  {
+    "id": "bab2f3f9-6f3b-4f7d-9a05-180d8cced24e",
+    "name": "AGELOCK CLEANSER",
+    "stored_price": 932.2,
+    "tax_rate": 5,
+    "intended_sale_price": 978.81
+  },
+  {
+    "id": "b006deb2-3af5-4d86-8a4b-c9d43a8b3d68",
+    "name": "AGELOCK DERMA CALM CLEANSER",
+    "stored_price": 889.83,
+    "tax_rate": 5,
+    "intended_sale_price": 934.32
+  },
+  {
+    "id": "3a1fa052-e202-4138-b5fe-0a53df478d41",
+    "name": "Advanced Botox MK",
+    "stored_price": 10476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 11000
+  },
+  {
+    "id": "26c494eb-6979-40bc-9c23-a6ac2c553767",
+    "name": "AGE LOCK  SEBOXY   TREATMENT HYDRA FACIAL",
+    "stored_price": 4523.81,
+    "tax_rate": 5,
+    "intended_sale_price": 4750
+  },
+  {
+    "id": "1f5e34fa-48ad-42de-929f-c11916dcb49d",
+    "name": "ANTI DANDRUFF SPA SCHWARZKOPF",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "d4b83e0f-8c25-43ea-a3f5-66f5f191df18",
+    "name": "ANTI HAIR FALL SPA  SCHWARZKOPF",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "3e8d4148-4e07-46b5-bf7e-30423937cefe",
+    "name": "ANTI HAIR THINNING SPA - KUENE/Schwarzkopf",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "c9941f2b-d759-4e9b-ad6e-c39d929be580",
+    "name": "Antidandruff Spa Kuene -Long Hair",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "1d0be571-01ff-48f6-88cb-5a4a9b904d89",
+    "name": "APO TIKIRI PREMIUM PEDICURE",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "85639c26-fdd2-4c69-ba5f-b9cb0af0ae18",
+    "name": "BALAYAGA",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "b56c91b8-3fc1-4ff6-a3a2-dc722bd25873",
+    "name": "BASE COLOR NORMAL ROOT TOUCH UP-Ladies",
+    "stored_price": 1142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 1200
+  },
+  {
+    "id": "75c379c3-9b26-4ae2-8f3b-5becaa872dcc",
+    "name": "BEARD",
+    "stored_price": 95.24,
+    "tax_rate": 5,
+    "intended_sale_price": 100
+  },
+  {
+    "id": "319f542e-6cee-467d-9bd8-3bf73e7b5bf9",
+    "name": "Beard Ammonia free color-Kuene",
+    "stored_price": 428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 450
+  },
+  {
+    "id": "8dd6bfb6-5b0e-4c63-80ca-69bfc96d7e63",
+    "name": "BLACK HENNA Ladies -Shot Hair",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "bc615b3b-5e15-4ae0-b863-c67875df6380",
+    "name": "BLACK HENNA-Gents",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "7c9acf9a-c678-4dfa-b853-e9ed463918b7",
+    "name": "BLACK HENNA-Ladies-Long Hair",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "e882046d-8f89-4267-be57-4ebc19f041d8",
+    "name": "BLACK MASK CHARCOAL CLEANUP",
+    "stored_price": 714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 750
+  },
+  {
+    "id": "2b888961-99ee-457d-8fd5-a3c92567cce3",
+    "name": "BLOW DRY SETTING",
+    "stored_price": 619.05,
+    "tax_rate": 5,
+    "intended_sale_price": 650
+  },
+  {
+    "id": "51fd1b7f-043d-47e5-ba8f-7bb3a13949d2",
+    "name": "BOB CUT",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "71936a1f-6753-492d-89f3-ac447d1b1141",
+    "name": "BOTIN LAMINATION HAIRTREATMENT(MK-Advanced Botox)-Short",
+    "stored_price": 9523.81,
+    "tax_rate": 5,
+    "intended_sale_price": 10000
+  },
+  {
+    "id": "188b4aee-6169-467f-803d-912e70bf1fd8",
+    "name": "BOTOX HAIR SPA  - PROTIEN SPA",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "73cfada6-39fb-47bf-b492-6dafb48e4223",
+    "name": "BOTOX TREATMENT (MK-Advanced Botox)-Long",
+    "stored_price": 11428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 12000
+  },
+  {
+    "id": "8a6a9100-5c3a-4328-85b7-3a91ef9955f3",
+    "name": "BOTOX TREATMENT (MK-Advanced Botox)-Short",
+    "stored_price": 7619.05,
+    "tax_rate": 5,
+    "intended_sale_price": 8000
+  },
+  {
+    "id": "4b4a0d0a-e61b-4244-8421-6eaf846dccf8",
+    "name": "BOTOX TREATMENT -(Brazilain)-Long",
+    "stored_price": 10476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 11000
+  },
+  {
+    "id": "6775d8e4-4c13-44e5-9399-e7daa330bf61",
+    "name": "BOTOX TREATMENT -(Brazilain)-Medium",
+    "stored_price": 7619.05,
+    "tax_rate": 5,
+    "intended_sale_price": 8000
+  },
+  {
+    "id": "4bf361b6-288e-49a1-83c3-b4d65e56e22f",
+    "name": "BOTOX TREATMENT -(Brazilain)-Short",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "4962e06e-a3c6-41ba-8cff-471ee904cef1",
+    "name": "NORMAL FACIALS",
+    "stored_price": 1142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 1200
+  },
+  {
+    "id": "8e470da7-34d4-4823-8f00-40af1e1232b4",
+    "name": "BOTOX TREATMENT -(Flora Activa)-Short",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "f0004921-d544-4a59-aeff-1998912ef6f5",
+    "name": "Brazilain Clean Up",
+    "stored_price": 714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 750
+  },
+  {
+    "id": "e874f354-d506-4ed8-b325-8ec6ef5f0a50",
+    "name": "BRAZILAN BLOW OUT-Long",
+    "stored_price": 11428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 12000
+  },
+  {
+    "id": "1cc1bb6f-bd56-4c64-9c45-d36558b341ee",
+    "name": "BRAZILAN BLOW OUT-Short",
+    "stored_price": 6666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 7000
+  },
+  {
+    "id": "cefc8167-961b-462d-919c-47b8060400e0",
+    "name": "BUTTER FLY CUT",
+    "stored_price": 666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 700
+  },
+  {
+    "id": "8a007422-b23a-4843-b949-bd33075317e9",
+    "name": "CHARCOAL FACIAL VLCC",
+    "stored_price": 1714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 1800
+  },
+  {
+    "id": "141542f8-ec2e-4fea-9078-41322c49b874",
+    "name": "EAR PIERCING",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "09178e89-7b09-459f-8331-0912a3fe473b",
+    "name": "Ear piercing with stud",
+    "stored_price": 238.1,
+    "tax_rate": 5,
+    "intended_sale_price": 250.01
+  },
+  {
+    "id": "773d2898-f212-47a2-a9a8-67b2c5c2fe4c",
+    "name": "EYE BROW",
+    "stored_price": 47.62,
+    "tax_rate": 5,
+    "intended_sale_price": 50
+  },
+  {
+    "id": "841b8e78-e188-4508-9799-77127ce120d0",
+    "name": "FASHION COLOR NORMAL ROOT TOUCH UP-Ladies",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "479c7712-a0c8-443f-b487-1766a10764fe",
+    "name": "RAAGA SPF 50 SUN SCREEM",
+    "stored_price": 444.92,
+    "tax_rate": 5,
+    "intended_sale_price": 467.17
+  },
+  {
+    "id": "289a24b8-0e03-49bd-a8d6-bbb4b24180c9",
+    "name": "Floractiva Botox",
+    "stored_price": 6666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 7000
+  },
+  {
+    "id": "bc5aad4e-b42c-4ae7-ae46-5f0f6bbc0a47",
+    "name": "FOREHEAD",
+    "stored_price": 28.57,
+    "tax_rate": 5,
+    "intended_sale_price": 30
+  },
+  {
+    "id": "95d858b3-e2ac-432a-9eb3-cb5bed58f2dd",
+    "name": "WHITENING/SKIN GLOW FACIAL- Seasoul(HYDRA)-(6 Step)",
+    "stored_price": 1714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 1800
+  },
+  {
+    "id": "4cebbc32-fc68-4246-a90e-d3ae3929a9e1",
+    "name": "FULL BACK(RICCA-Liposiable-Biosoft/O3+)",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "29c64799-f5d3-4fde-b73c-61203089de24",
+    "name": "FULL BACK-D-TAN",
+    "stored_price": 1142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 1200
+  },
+  {
+    "id": "c47929e1-f2f5-4b84-9917-38b030dec8e5",
+    "name": "FULL BODY(RICCA-Liposiable-Biosoft/O3+)",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "6d3c4c7f-f740-41b7-bc8b-d6bbebab5c2d",
+    "name": "FULL BODY-D-TAN",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "78df44cd-65b3-424e-b831-216168ed0fb3",
+    "name": "FULL BODY-OXY DIAMOND BLEACH",
+    "stored_price": 3333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 3500
+  },
+  {
+    "id": "65c1ec4a-b2c6-4499-a820-4cd063ed3f74",
+    "name": "FULL FACE",
+    "stored_price": 285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 300
+  },
+  {
+    "id": "2fc0cc94-39f7-49be-9fce-bf8c3b335e07",
+    "name": "FULL FACE  (RICCA-Liposiable-Biosoft/O3+)",
+    "stored_price": 285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 300
+  },
+  {
+    "id": "72420212-9c0d-474a-85f6-d22768496093",
+    "name": "FULL FACE & NECK-D-TAN",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "dd312278-585c-4398-9269-8ceaf272ccdb",
+    "name": "Full Hair Color Ammonia Free-Kuene",
+    "stored_price": 3333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 3500
+  },
+  {
+    "id": "bd7d0923-1489-4a64-a1e6-6859fb9331cd",
+    "name": "FULL HAND (RICCA-Liposiable-Biosoft/O3+)",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "d434fe34-cf19-4c4d-b37f-ab81c6f5a7de",
+    "name": "FULL HAND-D-TAN",
+    "stored_price": 847.46,
+    "tax_rate": 5,
+    "intended_sale_price": 889.83
+  },
+  {
+    "id": "2abc8434-c6c8-4372-8e8c-369fe731d0d4",
+    "name": "FULL HAND-OXY DIAMOND BLEACH",
+    "stored_price": 677.96,
+    "tax_rate": 5,
+    "intended_sale_price": 711.86
+  },
+  {
+    "id": "a3326932-1453-45a1-b848-c5f2f8271a22",
+    "name": "FULL LEG- (RICCA-Liposiable-Biosoft/O3+)",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "d0bb6b78-f2dc-4cfc-9f3e-b163802a1b7e",
+    "name": "FULL LEG-D-TAN",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "4f0f26e6-6ebb-4e0f-99c9-2af6e014b534",
+    "name": "FULL LEG-OXY DIAMOND BLEACH",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "9d67fe4b-2f4d-4590-a566-fa845291c0cb",
+    "name": "GEL NAIL POLISH",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "9e37601b-0884-4a09-8ec7-01a1c402c73e",
+    "name": "GLOBAL NORMAL COLOR-Gents",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "55870eaf-10ff-4aea-9097-63b0153973fc",
+    "name": "GOLD CLEANUP SHEHANAZ",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "091ceee5-eefb-4263-991e-8084df0b1972",
+    "name": "GOLD FACIAL - SEASOUL",
+    "stored_price": 2095.24,
+    "tax_rate": 5,
+    "intended_sale_price": 2200
+  },
+  {
+    "id": "4516a8eb-e052-41ed-9847-3d4700ad3e72",
+    "name": "GOLD FACIAL - SHEHANAZ",
+    "stored_price": 3333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 3500
+  },
+  {
+    "id": "7f851522-09ee-4125-a0c3-cdc52c85baa3",
+    "name": "GOLDEN ARGAN HAIR SPA-PROTEIN SPA",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "01a89dc6-1eb2-4226-b42e-87ad8381d026",
+    "name": "Hair color Ammonia Free Kuene Full Hair",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "5fd815b8-5c16-41e4-813d-c8477fdd0520",
+    "name": "Hair Color Global Ombre",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "cf97e949-d5f1-472f-ba6d-5357c84ac66a",
+    "name": "Luxury Goji Berry Mask with Dtan",
+    "stored_price": 2118.65,
+    "tax_rate": 5,
+    "intended_sale_price": 2224.58
+  },
+  {
+    "id": "5123f06f-26a2-4ccb-a457-7e453e311c90",
+    "name": "LUXURY GOLD FACIAL - O3+ PROFESSIONAL",
+    "stored_price": 5714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 6000
+  },
+  {
+    "id": "28d79321-7bb1-46d3-a121-aa08d8b2d4a2",
+    "name": "MIXED FRUIT - SEASOUL HYDRA FACIAL",
+    "stored_price": 2666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 2800
+  },
+  {
+    "id": "de2c6bea-404b-4469-8769-e1d661cb358b",
+    "name": "MIXED FRUIT- Dr.Blossoms-(6 Step)",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "b0f8b32f-f9ab-41b2-9eb9-caba3b1caf64",
+    "name": "MK Advanced Hair Botox",
+    "stored_price": 13333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 14000
+  },
+  {
+    "id": "f7196d07-f454-4409-8460-9a7fa01ee0bc",
+    "name": "Nail Art Work",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "5c88efab-a06b-4cf8-99f2-d8d08c390dd8",
+    "name": "Nail Art Work -1",
+    "stored_price": 714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 750
+  },
+  {
+    "id": "a6025a9c-5fcc-468e-9d33-243ab13aceb1",
+    "name": "Nail Extention Removal",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "b3006146-b1bd-4a39-b64e-2e4e028fedef",
+    "name": "NAIL POLISH REMOVAL",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "e3eabbf7-de7b-4226-9902-e20817cd1654",
+    "name": "NANOPLASTIA HAIR TREATMENT -Flora Active(W One)-Long",
+    "stored_price": 9523.81,
+    "tax_rate": 5,
+    "intended_sale_price": 10000
+  },
+  {
+    "id": "4af6eedf-8122-413b-a273-fc52a8d828ee",
+    "name": "NANOPLASTIA HAIR TREATMENT -Flora Active(W One)-Short",
+    "stored_price": 5714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 6000
+  },
+  {
+    "id": "c67ba744-cec1-4954-aa80-31fe1a652546",
+    "name": "Normal Clean Up",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "cf8fef2b-9c64-4208-aa9e-7ca94e47ed7e",
+    "name": "CHIN",
+    "stored_price": 38.1,
+    "tax_rate": 5,
+    "intended_sale_price": 40.01
+  },
+  {
+    "id": "05482b78-7a4e-4a6e-8d86-744f3f971868",
+    "name": "PEARL FACIAL - SEASOUL",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "656ae52f-fa94-4eb4-abd3-3535da0e33b8",
+    "name": "PIXIE CUT",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "8fe790fa-1866-44db-8fbb-e049f8838a7d",
+    "name": "PREMANENT BLOW DRY-(Schwarzkopf)-Long",
+    "stored_price": 8571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 9000
+  },
+  {
+    "id": "aeb9a69a-bef0-4619-b6bf-cb886997949a",
+    "name": "PREMANENT BLOW DRY-(Schwarzkopf)-Medium",
+    "stored_price": 6666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 7000
+  },
+  {
+    "id": "d8c556bb-a25e-4f1b-b541-7cb687c22318",
+    "name": "PREMANENT BLOW DRY-(Schwarzkopf)-Short",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "78dd1371-7351-4e67-a313-ec46793a812a",
+    "name": "RAAGA ADVANCED DTAN",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  },
+  {
+    "id": "7cd98003-acf5-422e-93e3-842f7f8d8fe4",
+    "name": "SEASOUL BRAZILIAN CLEANUP",
+    "stored_price": 714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 750
+  },
+  {
+    "id": "e8a2ba81-fe97-4446-a4fb-a3d0c41b7382",
+    "name": "Seasoul Dead Sea Mineral Pedicure",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "13f828c7-e698-42df-8cb6-a63bc4969913",
+    "name": "SILVER FACIAL - SEASOUL",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "468faf01-789b-45f4-9394-a066c874ae3a",
+    "name": "Straight Cut-Ladies",
+    "stored_price": 285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 300
+  },
+  {
+    "id": "0a8807b9-2bea-4ada-bb38-acd904c640ac",
+    "name": "STRAIGHTENING(Schwarzkopf)  -Long",
+    "stored_price": 7619.05,
+    "tax_rate": 5,
+    "intended_sale_price": 8000
+  },
+  {
+    "id": "1b8ba01d-48ec-4c54-8743-cd207982d05e",
+    "name": "STRAIGHTENING(Schwarzkopf)  -Short",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "0494f815-8593-42ad-b59b-2db4caab1335",
+    "name": "COLOR GENTS ,.",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "f6060bf9-9527-4153-af68-0708c0658d25",
+    "name": "sferf",
+    "stored_price": 111,
+    "tax_rate": 5,
+    "intended_sale_price": 116.55
+  },
+  {
+    "id": "3f3ecc6e-53db-4c47-ad2f-c8dc2e2bf5ef",
+    "name": "CADIVEU  NUTRI GLOW MIRACLE BOOSTER.",
+    "stored_price": 1694.92,
+    "tax_rate": 5,
+    "intended_sale_price": 1779.67
+  },
+  {
+    "id": "ac242b65-767b-4293-b224-38793f2d817f",
+    "name": "CADIVEU NUTRI GLOW  NOURISHING LEAVE - IN.",
+    "stored_price": 1694.92,
+    "tax_rate": 5,
+    "intended_sale_price": 1779.67
+  },
+  {
+    "id": "1b8cd390-53f2-4173-a93f-41ff5c34746c",
+    "name": "COLOR GENTS ,",
+    "stored_price": 238.1,
+    "tax_rate": 5,
+    "intended_sale_price": 250.01
+  },
+  {
+    "id": "8f706ccd-6210-4426-80e5-c6644285e436",
+    "name": "BRIDE AIRBRUSH MAKEUP & HAIR SETTING FOR 2 FUNCTIONS",
+    "stored_price": 38095.24,
+    "tax_rate": 5,
+    "intended_sale_price": 40000
+  },
+  {
+    "id": "09653e56-6b0a-465c-a572-5c8ae8f96de6",
+    "name": "CHIN.",
+    "stored_price": 28.57,
+    "tax_rate": 5,
+    "intended_sale_price": 30
+  },
+  {
+    "id": "c5168540-5ded-4f46-b790-836ee057fb6c",
+    "name": "BOTOX TREATMENT (MK-Advanced Botox)-Short Hair",
+    "stored_price": 6666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 7000
+  },
+  {
+    "id": "fb468f07-dff3-4dc6-b37b-4656610882d4",
+    "name": "SPA ANTI HAIRLOSS SERUM",
+    "stored_price": 745.76,
+    "tax_rate": 18,
+    "intended_sale_price": 880
+  },
+  {
+    "id": "78bb4e3a-3cd1-4f5e-94e3-738b7c13cea3",
+    "name": "SPA ANTI -DANDRUFF SERUM",
+    "stored_price": 745.76,
+    "tax_rate": 18,
+    "intended_sale_price": 880
+  },
+  {
+    "id": "ca7c791d-a8e5-439f-8e5b-182c26ec8a4e",
+    "name": "ENRICHING",
+    "stored_price": 559.32,
+    "tax_rate": 18,
+    "intended_sale_price": 660
+  },
+  {
+    "id": "f251454a-6153-4ac3-aac9-d6af17e8d13d",
+    "name": "O3+ PROFESSIONAL ADVANCED DTAN",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "39b81be2-b7db-4e0d-983c-7ee827bcca64",
+    "name": "AZV BRIGHTENING FACE WASH",
+    "stored_price": 296.61,
+    "tax_rate": 18,
+    "intended_sale_price": 350
+  },
+  {
+    "id": "b903fe40-11cb-4921-a70c-1829d6bd59b7",
+    "name": "FACIAL BALANCE PAYMENT OF 02/02/2026",
+    "stored_price": 285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 300
+  },
+  {
+    "id": "6627327c-2561-44da-9444-a73983141953",
+    "name": "FRENCH NAIL ART.",
+    "stored_price": 714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 750
+  },
+  {
+    "id": "95811ce6-0a56-4bad-949c-20090f8a7d3e",
+    "name": "ADVANCED-DANDRUFFSCALP TREATMENT(MEDISUITCALS)",
+    "stored_price": 250,
+    "tax_rate": 5,
+    "intended_sale_price": 262.5
+  },
+  {
+    "id": "e6f16dc7-094a-434b-8991-8c06807d6151",
+    "name": "FACE CLEANSING",
+    "stored_price": 95.24,
+    "tax_rate": 5,
+    "intended_sale_price": 100
+  },
+  {
+    "id": "849e37dc-fe2b-4f71-9f62-74181f32e5d5",
+    "name": "Alga pedicure",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "c880503c-326f-4b3e-be42-85699759366c",
+    "name": "KOREAN OXY  SKIN BRIGHTENING GLASS FACIAL O3+ PROFESSIONAL",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "79deb8c6-5c73-44e1-b7d5-86aced3647d6",
+    "name": "BALAYAGA  .",
+    "stored_price": 5714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 6000
+  },
+  {
+    "id": "d35c352d-e00f-4029-9b79-6f9923d27894",
+    "name": "BALAYAGA.",
+    "stored_price": 6666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 7000
+  },
+  {
+    "id": "6ae71e7a-e8a5-4468-b6e2-b689da6d8824",
+    "name": "BALAYAGA..",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "e5db6828-1bbb-4da2-a12d-8227137f92ad",
+    "name": "BEARD.",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "af113b2e-ef76-47e6-abbb-d7e5d08d5e98",
+    "name": "NORMAL FACIAL-  RAAGA (5 Step)",
+    "stored_price": 1142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 1200
+  },
+  {
+    "id": "1abfa2d8-f5f5-401e-9380-b125493fe81a",
+    "name": "NORMAL HAIR SPA",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "b2d530b5-e398-4506-b6d3-5e027d671099",
+    "name": "HAIR SETTING(11/05/26)",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "e961126f-27c8-43c1-adad-9823efaf3c61",
+    "name": "Under Eye darkness removal treatment-Agelock",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "1a6c5e47-8fa0-4774-b992-ce9cf81aeb68",
+    "name": "GROOM  MAKEUP HD  & HAIR SETTING FOR WEDDING",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "1a72cb9e-868c-464f-aa32-d6f574c8a993",
+    "name": "HAIR SETTING.",
+    "stored_price": 238.1,
+    "tax_rate": 5,
+    "intended_sale_price": 250.01
+  },
+  {
+    "id": "79cefc38-11d1-464d-b23a-988425dc556c",
+    "name": "HAIR SETTING (10/05/26)",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "6a7136cc-45e0-451a-8cf9-b2ce3ca35e46",
+    "name": "HAIR SETTING GENTS.",
+    "stored_price": 238.1,
+    "tax_rate": 5,
+    "intended_sale_price": 250.01
+  },
+  {
+    "id": "9ed9539e-98b2-46f5-8b9b-3009805703bd",
+    "name": "HAIR SETTING LADIES  .",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "c7c873d3-9ecc-40f0-9824-9cc49ec94586",
+    "name": "UPPER LIP",
+    "stored_price": 28.57,
+    "tax_rate": 5,
+    "intended_sale_price": 30
+  },
+  {
+    "id": "d5b57833-8cdd-46f5-a8fa-7ad53d2478c6",
+    "name": "KIDS HAIR SETTING AND MAKEUP.",
+    "stored_price": 1666.67,
+    "tax_rate": 5,
+    "intended_sale_price": 1750
+  },
+  {
+    "id": "95d23f0e-e99f-4222-bf26-aa944b1cf6ae",
+    "name": "KEUNE DERMA ACTIVATOR.",
+    "stored_price": 1809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 1900
+  },
+  {
+    "id": "738a7168-ba67-4bec-af5b-b7176c14bba7",
+    "name": "KEUNE DERMA ACTIVE LOTION",
+    "stored_price": 1440.68,
+    "tax_rate": 5,
+    "intended_sale_price": 1512.71
+  },
+  {
+    "id": "9d856ffd-9b09-4705-9dd2-762ee05b9021",
+    "name": "VEG PEEL CLEANUP",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "3f976a9c-bff9-4ce8-a2bf-bba4b11b5549",
+    "name": "KEUNE DERMA ACTIVATOR",
+    "stored_price": 1822.03,
+    "tax_rate": 5,
+    "intended_sale_price": 1913.13
+  },
+  {
+    "id": "4b20cae6-9411-4351-a724-6a7feb5747b4",
+    "name": "VITAL NUTRITIONAL HAIR SPA(KUENE)-Ladies",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "c604c462-0a16-4265-96a1-aeca7b1bfa48",
+    "name": "HAIR SPA.",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "56018514-a366-4a84-a734-fee64f8eaf1e",
+    "name": "MOTHERHAIR SETTING - ENGAGEMENT & NIGHT FUNCTION",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "4c4a45ae-1336-47ad-a226-070eaf166bf9",
+    "name": "MOTHER HAIR SETTING FOR 2 FUNCTION",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "c5788e1c-8673-49e1-8f0f-3c2d252adb0c",
+    "name": "MOTHER  HAIR SETTING - WEDDING",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "34631c30-63b1-415b-9f0b-4b8e26e407db",
+    "name": "MK CONDITIONER  -  500 ML",
+    "stored_price": 444.18,
+    "tax_rate": 5,
+    "intended_sale_price": 466.39
+  },
+  {
+    "id": "73169b7d-fbb9-4d5a-a959-1f6b652ba8ef",
+    "name": "MK REPLENSHING CONDITIONER",
+    "stored_price": 1278.19,
+    "tax_rate": 18,
+    "intended_sale_price": 1508.26
+  },
+  {
+    "id": "9a2418d1-590e-4877-8735-9930503f8ef4",
+    "name": "MK REPLENSHING SHAMPOO",
+    "stored_price": 1436.44,
+    "tax_rate": 5,
+    "intended_sale_price": 1508.26
+  },
+  {
+    "id": "886de360-00b2-4988-98cd-f6361ed141e0",
+    "name": "MK REPLENSHING COMDITIONER MK",
+    "stored_price": 1357.36,
+    "tax_rate": 18,
+    "intended_sale_price": 1601.68
+  },
+  {
+    "id": "9f6d608f-52d4-4cbc-bb79-f04a80f10bdf",
+    "name": "MOTHER HAIR SETTING - ENGAGEMENT & NIGHT FUNCTION",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "39fc464a-ffbb-4e41-96fb-b23c8227377c",
+    "name": "MK SHAMPOO  & CONDITIONER - 300 ML",
+    "stored_price": 3714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 3900
+  },
+  {
+    "id": "8e1b3823-0cc8-4642-93bb-262533c8fc5e",
+    "name": "MK Argan Oil Conditioner",
+    "stored_price": 3474.58,
+    "tax_rate": 18,
+    "intended_sale_price": 4100
+  },
+  {
+    "id": "4667bea5-96e9-4f33-8ffd-408a3a2bc07d",
+    "name": "MK SHAMPOO -  300ML",
+    "stored_price": 1779.66,
+    "tax_rate": 5,
+    "intended_sale_price": 1868.64
+  },
+  {
+    "id": "bcee90f8-7dd4-4524-b0aa-acf41c404087",
+    "name": "MK SHAMPOO -  500 ML",
+    "stored_price": 2538.14,
+    "tax_rate": 5,
+    "intended_sale_price": 2665.05
+  },
+  {
+    "id": "b53339da-7d89-42be-b1af-2dc450c84a2a",
+    "name": "MK SERUM",
+    "stored_price": 1860.17,
+    "tax_rate": 5,
+    "intended_sale_price": 1953.18
+  },
+  {
+    "id": "07bebb6f-ea8f-42c4-a4fb-7fddc39a23fc",
+    "name": "NANOPLASTIA CROWN AREA ,,",
+    "stored_price": 3333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 3500
+  },
+  {
+    "id": "609d62be-3f45-46dd-a540-b77a0cac04bf",
+    "name": "NANOPLASTIA HAIR TREATMENT -FLORA ACTIVE LONG HAIR...,",
+    "stored_price": 23809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 25000
+  },
+  {
+    "id": "5844cee5-73d7-4b8d-b481-2f5ee1504dfc",
+    "name": "NANOPLASTIA HAIR TREATMENT -FLORA ACTIVE LONG HAIR...",
+    "stored_price": 14285.71,
+    "tax_rate": 5,
+    "intended_sale_price": 15000
+  },
+  {
+    "id": "3fac0ba9-ea64-4591-99ea-3a93c454bf13",
+    "name": "NANOPLASTIA HAIR TREATMENT -FLORA ACTIVE LONG HAIR..",
+    "stored_price": 11428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 12000
+  },
+  {
+    "id": "f2515dba-fe24-4fe3-b716-9a64eebfa67c",
+    "name": "MK SHAMPOO & CONDITIONER",
+    "stored_price": 3220.34,
+    "tax_rate": 5,
+    "intended_sale_price": 3381.36
+  },
+  {
+    "id": "dc318d9a-9a98-48e1-aa13-268620deb372",
+    "name": "VITAMIN C FACIAL - O3+",
+    "stored_price": 3714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 3900
+  },
+  {
+    "id": "9278c36c-1e53-44ca-964a-a298136f68ad",
+    "name": "MK CONDITIONER - 300ML",
+    "stored_price": 1779.66,
+    "tax_rate": 5,
+    "intended_sale_price": 1868.64
+  },
+  {
+    "id": "ef68c947-c001-4181-8364-ad47a73aa4e9",
+    "name": "NORMAL HAIR SPA...",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "56ffec66-ad62-4f62-b5b1-a549241f990b",
+    "name": "QOD CONDITIONOR",
+    "stored_price": 1398.31,
+    "tax_rate": 5,
+    "intended_sale_price": 1468.23
+  },
+  {
+    "id": "1fb46f93-b28f-4f82-b3f4-aa0fb9d9d1cb",
+    "name": "QOD SHAMPOO",
+    "stored_price": 1398.31,
+    "tax_rate": 5,
+    "intended_sale_price": 1468.23
+  },
+  {
+    "id": "aebe3f4d-aee3-48ce-b936-34dd573401db",
+    "name": "QOD SHAMPOO (1 Ltr)",
+    "stored_price": 3432.2,
+    "tax_rate": 5,
+    "intended_sale_price": 3603.81
+  },
+  {
+    "id": "5850655f-a1f6-4d43-8068-464080f6c2d6",
+    "name": "QOD SHAMPOO & CONDITIONER",
+    "stored_price": 2118.64,
+    "tax_rate": 5,
+    "intended_sale_price": 2224.57
+  },
+  {
+    "id": "0f12e09a-fdfa-4baf-a69c-eedd0608f0a6",
+    "name": "QOD SHAMPOO.",
+    "stored_price": 1241.53,
+    "tax_rate": 5,
+    "intended_sale_price": 1303.61
+  },
+  {
+    "id": "1a088980-37c0-4164-8c0c-fa4c0b5efc66",
+    "name": "NORMAL HAIR WASH",
+    "stored_price": 190.48,
+    "tax_rate": 5,
+    "intended_sale_price": 200
+  },
+  {
+    "id": "894f1084-2888-417a-ae40-68c41f7cc29e",
+    "name": "NORMAL HAIRCUT & BEARD",
+    "stored_price": 238.1,
+    "tax_rate": 5,
+    "intended_sale_price": 250.01
+  },
+  {
+    "id": "2f88b442-5edb-48cd-a215-e1e165638cfc",
+    "name": "SISTER HAIR SETTING - WEDDING",
+    "stored_price": 2857.14,
+    "tax_rate": 5,
+    "intended_sale_price": 3000
+  },
+  {
+    "id": "b2bbc0e4-aa7a-4e95-9cf8-ce368e0429d3",
+    "name": "SISTER HAIR SETTING - ENGAGEMENT",
+    "stored_price": 2380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 2500
+  },
+  {
+    "id": "41e4ea4c-f809-411e-87d3-81809fa8360d",
+    "name": "W ONE NANOPLASTIA RETAIL SHAMPOO& CONDITIONER --300 ML",
+    "stored_price": 2118.64,
+    "tax_rate": 5,
+    "intended_sale_price": 2224.57
+  },
+  {
+    "id": "4266b630-24d1-4ace-a869-c4393f7db9c9",
+    "name": "SSP DEAD SEA AHA FOAM CLEANSER 100ML",
+    "stored_price": 381.36,
+    "tax_rate": 18,
+    "intended_sale_price": 450
+  },
+  {
+    "id": "09d56b77-f2be-473e-8416-425c4d90c8a6",
+    "name": "Mk Argan Oil Conditioner (300Ml)",
+    "stored_price": 1779.66,
+    "tax_rate": 18,
+    "intended_sale_price": 2100
+  },
+  {
+    "id": "fd48e2d3-75a1-434c-b595-4763a31ad3e0",
+    "name": "shampoo-",
+    "stored_price": 476.18,
+    "tax_rate": 5,
+    "intended_sale_price": 499.99
+  },
+  {
+    "id": "52119355-0f27-4bd0-8533-60c8d5ceb2b8",
+    "name": "SSP DEAD SEA DE-PIGMENTATION SERUM 30ML",
+    "stored_price": 588.98,
+    "tax_rate": 18,
+    "intended_sale_price": 695
+  },
+  {
+    "id": "b3a9ac52-ec00-4958-8c72-f7f668cfe962",
+    "name": "SSP DEAD SEA SKIN CLARIFYING SERUM 30ML",
+    "stored_price": 529.66,
+    "tax_rate": 18,
+    "intended_sale_price": 625
+  },
+  {
+    "id": "81f765f2-6b85-40ec-aa4f-9bf661594d8d",
+    "name": "WHITENING / SKIN GLOW FACIAL",
+    "stored_price": 1714.29,
+    "tax_rate": 5,
+    "intended_sale_price": 1800
+  },
+  {
+    "id": "79d13c42-ba6c-405d-9edb-ac2155c81469",
+    "name": "GP KERATIN REPAIR SHAMPOO 1000ML",
+    "stored_price": 1761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 1850
+  },
+  {
+    "id": "e94b38d9-b97d-4d8e-8147-c0c292c40b65",
+    "name": "FLO W ONE CONDITIONER 300ML",
+    "stored_price": 1440.68,
+    "tax_rate": 18,
+    "intended_sale_price": 1700
+  },
+  {
+    "id": "6fcf4f41-0fdd-44e2-a797-f0253ac57833",
+    "name": "BE QOD ARGAN CONDITIONER 300ML",
+    "stored_price": 1398.31,
+    "tax_rate": 18,
+    "intended_sale_price": 1650.01
+  },
+  {
+    "id": "dae85bab-7012-4a4e-a23c-5d0dff68335b",
+    "name": "KEUNE CARE VITAL NUTR SPA/CREAMBATH 1000ML",
+    "stored_price": 3898.31,
+    "tax_rate": 18,
+    "intended_sale_price": 4600.01
+  },
+  {
+    "id": "c7052bc6-9870-41f8-9a34-c9a3917b3880",
+    "name": "SSP K’S BACKWASH ACTIVATOR SHAMPOO 5000ML",
+    "stored_price": 1657.14,
+    "tax_rate": 5,
+    "intended_sale_price": 1740
+  },
+  {
+    "id": "fab27291-9942-46c0-93e1-9ec1ccf7ffa2",
+    "name": "SSP DEAD SEA OIL FREE HYDRATOR 50GM",
+    "stored_price": 508.47,
+    "tax_rate": 18,
+    "intended_sale_price": 599.99
+  },
+  {
+    "id": "7de6eeb5-31ac-458f-9e94-21952a02906f",
+    "name": "SSP DEAD SEA FACE MOISTURIZER 50GM",
+    "stored_price": 550.85,
+    "tax_rate": 18,
+    "intended_sale_price": 650
+  },
+  {
+    "id": "aa11a07d-786c-4ba1-9f2b-79d4ded2f55d",
+    "name": "MK REPL.CONDITIONER WITH ARGAN OIL 300ML",
+    "stored_price": 1779.66,
+    "tax_rate": 18,
+    "intended_sale_price": 2100
+  },
+  {
+    "id": "b850783d-4221-4b32-8fe9-39d09e467847",
+    "name": "BE QOD ARGAN SHAMPOO 300ML",
+    "stored_price": 1395.24,
+    "tax_rate": 5,
+    "intended_sale_price": 1465
+  },
+  {
+    "id": "78bffa9e-c2fd-4f59-b93d-1560afa40bdc",
+    "name": "KEUNE TC NO.1",
+    "stored_price": 444.92,
+    "tax_rate": 18,
+    "intended_sale_price": 525.01
+  },
+  {
+    "id": "cd898630-060f-4a91-ad09-b3cff995ff29",
+    "name": "KEUNE CARE DERMA ACTIVATE LOTION 75 ML",
+    "stored_price": 1822.03,
+    "tax_rate": 18,
+    "intended_sale_price": 2150
+  },
+  {
+    "id": "c408801e-27ac-41c6-879b-410802bd2aa7",
+    "name": "AZV LIGHTENING EYE SERUM",
+    "stored_price": 364.41,
+    "tax_rate": 18,
+    "intended_sale_price": 430
+  },
+  {
+    "id": "94a8613d-51b2-4f47-b253-fff9962746e4",
+    "name": "SSP K’S BACKWASH CONDITIONER 5000ML",
+    "stored_price": 2372.88,
+    "tax_rate": 18,
+    "intended_sale_price": 2800
+  },
+  {
+    "id": "0d208fb6-8150-4aa3-bd41-2e2b2ec06a07",
+    "name": "KRONE ANTI DANDRUFF CONTROL MASQUE 100ML",
+    "stored_price": 266.95,
+    "tax_rate": 18,
+    "intended_sale_price": 315
+  },
+  {
+    "id": "4154b893-effa-4bf0-9b1f-b60401df5bc0",
+    "name": "RG RADIANT TONE GLOW TONIC 100ML",
+    "stored_price": 317.8,
+    "tax_rate": 18,
+    "intended_sale_price": 375
+  },
+  {
+    "id": "f9d66bf9-effe-43d8-a8e8-1f83c4729ba6",
+    "name": "MAJESTIC REPL CONDTIONER 300ML",
+    "stored_price": 1525.42,
+    "tax_rate": 18,
+    "intended_sale_price": 1800
+  },
+  {
+    "id": "fb398faf-e98d-45d3-8b8d-47bfa4aed810",
+    "name": "GP KERATIN REPAIR MASK 500GM",
+    "stored_price": 1864.41,
+    "tax_rate": 18,
+    "intended_sale_price": 2200
+  },
+  {
+    "id": "255a6271-d0b2-40c3-9b9b-72c1a6c74537",
+    "name": "KEUNE CARE LONG&STRONG SHAMPOO 300ML",
+    "stored_price": 2095.24,
+    "tax_rate": 5,
+    "intended_sale_price": 2200
+  },
+  {
+    "id": "1932f624-17f9-4b87-a549-17493b047e7e",
+    "name": "KRONE ANTI DANDRUFF CONTROL CLEANSER 100ML",
+    "stored_price": 317.8,
+    "tax_rate": 18,
+    "intended_sale_price": 375
+  },
+  {
+    "id": "34c1bfa7-019b-4fb4-ab8c-3b2fdf8ccd8a",
+    "name": "KEUNE DEV 6% 20VOL 1000ML",
+    "stored_price": 830.51,
+    "tax_rate": 18,
+    "intended_sale_price": 980
+  },
+  {
+    "id": "9f018d2b-bd76-4ee3-a200-805118afe178",
+    "name": "AGELOCK FACE CLEANSER",
+    "stored_price": 932.2,
+    "tax_rate": 5,
+    "intended_sale_price": 978.81
+  },
+  {
+    "id": "b9adcb38-dd49-48d1-8391-0cc0c5552993",
+    "name": "AGELOCK GOJI MASQE",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "5c6ee0eb-6425-46e8-a610-ed80ea11ed7d",
+    "name": "MK REPL CONDITIONER 500ML",
+    "stored_price": 215.79,
+    "tax_rate": 18,
+    "intended_sale_price": 254.63
+  },
+  {
+    "id": "f303e891-8e3e-4e65-be6c-f123b2d62d8f",
+    "name": "NANOPLASTIA HAIR TREATMENT -Flora Active(W One)-Medium",
+    "stored_price": 7619.05,
+    "tax_rate": 5,
+    "intended_sale_price": 8000
+  },
+  {
+    "id": "9929659b-e4f0-4628-b5d2-b50bbf51d97c",
+    "name": "OMBRE",
+    "stored_price": 3809.52,
+    "tax_rate": 5,
+    "intended_sale_price": 4000
+  },
+  {
+    "id": "e94d4b80-e318-45e3-ac30-b61f3324a52f",
+    "name": "Power Glow Chemical Peel with Golden Peel-Off Mask-Agelock Pro",
+    "stored_price": 1904.76,
+    "tax_rate": 5,
+    "intended_sale_price": 2000
+  },
+  {
+    "id": "a763639f-2537-4efc-92a8-479c49a4b131",
+    "name": "Relaxing Head Massage",
+    "stored_price": 380.95,
+    "tax_rate": 5,
+    "intended_sale_price": 400
+  },
+  {
+    "id": "30a9791f-9cab-49d2-9a11-1fc666d6f9b5",
+    "name": "SISTERS MAKE UP & HAIR SETTING FOR 2 FUNCTION",
+    "stored_price": 13333.33,
+    "tax_rate": 5,
+    "intended_sale_price": 14000
+  },
+  {
+    "id": "df8f91c4-8344-46b3-9997-a94105d5ab7e",
+    "name": "KIDS HAIR SETTING AND MAKEUP",
+    "stored_price": 1428.57,
+    "tax_rate": 5,
+    "intended_sale_price": 1500
+  },
+  {
+    "id": "9aa3670d-669e-423e-b12d-81768daea1a7",
+    "name": "GROOM  MAKEUP HD  & HAIR SETTING FOR ENGAGEMENT",
+    "stored_price": 4761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 5000
+  },
+  {
+    "id": "ee569738-201c-4fd8-9623-0a123c268262",
+    "name": "QOD CONDITIONOR (1 Ltr)",
+    "stored_price": 3432.2,
+    "tax_rate": 5,
+    "intended_sale_price": 3603.81
+  },
+  {
+    "id": "7ada6b7b-32b2-4b27-b1d9-7aab703afb97",
+    "name": "AGELOCK HYDROBOOST",
+    "stored_price": 991.53,
+    "tax_rate": 5,
+    "intended_sale_price": 1041.11
+  },
+  {
+    "id": "9fdcf1e4-77a8-4222-a74d-033f70df732e",
+    "name": "AGELOCK HYDROMOIST",
+    "stored_price": 991.53,
+    "tax_rate": 5,
+    "intended_sale_price": 1041.11
+  },
+  {
+    "id": "4e7d0e7a-8300-4974-8254-231de6f4ad0c",
+    "name": "AGELOCK MELADERM SPF 30 GEL CREAM",
+    "stored_price": 775.42,
+    "tax_rate": 5,
+    "intended_sale_price": 814.19
+  },
+  {
+    "id": "1c1acc20-792a-42ec-b035-1301c0640180",
+    "name": "AGELOCK TIME EXPERT EGF",
+    "stored_price": 3571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 3750
+  },
+  {
+    "id": "7d4634c4-0fba-4b2e-89d8-9bd36da568f3",
+    "name": "AGELOCK VITAMIN -C BOOSTER SERUM",
+    "stored_price": 635.59,
+    "tax_rate": 5,
+    "intended_sale_price": 667.37
+  },
+  {
+    "id": "1f09fe28-da49-43ea-b865-2bbcacfe568e",
+    "name": "ALGA  MANICURE",
+    "stored_price": 1142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 1200
+  },
+  {
+    "id": "1c966ec9-2071-4e7f-948a-4cd9cb271d84",
+    "name": "AMMONIA FREE COLOR",
+    "stored_price": 466.1,
+    "tax_rate": 5,
+    "intended_sale_price": 489.41
+  },
+  {
+    "id": "6bf06814-f402-4812-b478-4e7fb967d6f2",
+    "name": "ANTI DANDRUFF HAIR SPA - GENTS",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "addea440-e990-4192-b3b9-a48835ac938b",
+    "name": "Anti Dandruff hair tonic",
+    "stored_price": 476.19,
+    "tax_rate": 5,
+    "intended_sale_price": 500
+  },
+  {
+    "id": "896d1c9e-61f2-49bf-93c4-c37d8f6359cb",
+    "name": "ANTI DANDRUFF SPA  LOREAL",
+    "stored_price": 952.38,
+    "tax_rate": 5,
+    "intended_sale_price": 1000
+  },
+  {
+    "id": "49ff4d43-7004-4ea3-b199-ef60a14bf5a1",
+    "name": "ANTI DANDRUFF SPA.",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "15036a05-c56f-41fc-95f3-f8cfd34116a4",
+    "name": "ANTI HAIR FALL SPA",
+    "stored_price": 1142.86,
+    "tax_rate": 5,
+    "intended_sale_price": 1200
+  },
+  {
+    "id": "4944f6d0-f65a-4712-bfc9-c3ec2b4dfad4",
+    "name": "ANTI HAIR FALL SPA.",
+    "stored_price": 761.9,
+    "tax_rate": 5,
+    "intended_sale_price": 800
+  },
+  {
+    "id": "8215f6e2-d16d-47f3-b436-ad59400f356e",
+    "name": "BACK DTAN",
+    "stored_price": 571.43,
+    "tax_rate": 5,
+    "intended_sale_price": 600
+  }
+]
