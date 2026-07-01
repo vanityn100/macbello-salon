@@ -1145,7 +1145,7 @@ export default function BillingModule() {
                           </span>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
-                          <span className="currency-value text-xs md:text-sm text-white font-medium">₹{Number(item.price).toFixed(2)} <span className="text-[9px] text-ivory/50 font-normal normal-case">(GST Included)</span></span>
+                          <span className="currency-value text-xs md:text-sm text-white font-medium">₹{(Number(item.price) * (1 + getTaxInfo(item).gstDecimal)).toFixed(2)} <span className="text-[9px] text-ivory/50 font-normal normal-case">(GST Included)</span></span>
                           <button
                             type="button"
                             onClick={() => {
