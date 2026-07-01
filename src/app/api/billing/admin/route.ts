@@ -1069,9 +1069,14 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ success: false, error: "Quantity must be positive integer." }, { status: 400 });
         }
 
-        // Catalogue price is already GST-inclusive — use it directly.
-        // DO NOT multiply by (1 + taxDecimal): that would add GST a second time.
-        const inclusivePrice = Math.round(parseFloat(dbItem.price) * 100) / 100;
+        let rawRate = parseFloat(dbItem.tax_rate) || 0;
+        if (rawRate > 0 && rawRate <= 1) rawRate = rawRate * 100;
+        else if (rawRate >= 100) rawRate = rawRate / 100;
+        const taxDecimal = Math.round(rawRate) / 100;
+
+        // The database stores the GST-Exclusive base price.
+        // The invoice engine expects the GST-Inclusive sale price.
+        const inclusivePrice = Math.round(parseFloat(dbItem.price) * (1 + taxDecimal) * 100) / 100;
         const lineTotal = Math.round(inclusivePrice * qty * 100) / 100;
 
         if (dbItem.category !== "Service") {

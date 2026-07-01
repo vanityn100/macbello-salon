@@ -192,17 +192,20 @@ export default function EditInvoiceModal({ invoiceId, sessionToken, onClose, onS
         pointsToRedeem,
         customerName,
         customerPhone,
-        items: cart.map(c => ({
-          item_name: c.item.name,
-          category: c.item.category,
-          quantity: c.quantity,
-          unit_price: c.unit_price ?? c.item.price,
-          tax_rate: c.item.tax_rate,
-          item_code: c.item.item_code,
-          hsn: c.item.hsn,
-          staff_contribution: c.staffContribution || "",
-          product_id: c.item.category === "Retail" ? c.item.id : null
-        }))
+        items: cart.map(c => {
+          const taxDecimal = getTaxInfo(c.item).gstDecimal;
+          return {
+            item_name: c.item.name,
+            category: c.item.category,
+            quantity: c.quantity,
+            unit_price: c.unit_price ?? (c.item.price * (1 + taxDecimal)),
+            tax_rate: c.item.tax_rate,
+            item_code: c.item.item_code,
+            hsn: c.item.hsn,
+            staff_contribution: c.staffContribution || "",
+            product_id: c.item.category === "Retail" ? c.item.id : null
+          };
+        })
       };
 
       const res = await fetch("/api/billing/admin", {
@@ -329,7 +332,7 @@ export default function EditInvoiceModal({ invoiceId, sessionToken, onClose, onS
                           <label className="block text-[10px] text-ivory/40 uppercase tracking-wider mb-1">Unit Price (₹)</label>
                           <input 
                             type="number" min="0" step="0.01"
-                            value={c.unit_price ?? c.item.price} 
+                            value={c.unit_price ?? (c.item.price * (1 + getTaxInfo(c.item).gstDecimal))} 
                             onChange={(e) => updatePrice(idx, parseFloat(e.target.value) || 0)}
                             className="w-full bg-black/50 border border-white/10 px-2 py-1.5 text-sm text-white focus:outline-none"
                           />
