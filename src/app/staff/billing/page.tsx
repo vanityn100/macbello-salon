@@ -285,9 +285,9 @@ export default function BillingModule() {
   const invoiceItemsInput = cart.map(c => ({
     category: c.item.category,
     quantity: c.quantity,
-    // Catalogue price is already GST-inclusive — pass it directly.
-    // DO NOT multiply by (1 + gstDecimal): that adds GST a second time.
-    unit_price: Math.round(c.item.price * 100) / 100,
+    // The database stores the GST-Exclusive base price. 
+    // The invoice engine expects the GST-Inclusive sale price.
+    unit_price: Math.round(c.item.price * (1 + getTaxInfo(c.item).gstDecimal) * 100) / 100,
     tax_rate: c.item.tax_rate
   }));
 
@@ -1197,7 +1197,7 @@ export default function BillingModule() {
                     <tbody>
                       {cart.map((cartItem) => {
                         const { item, quantity } = cartItem;
-                        const lineTotal = item.price * quantity;
+                        const lineTotal = item.price * (1 + getTaxInfo(item).gstDecimal) * quantity;
                         return (
                           <tr key={item.id} className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
                             <td className="py-3 font-medium text-white">{item.name}</td>
@@ -1224,7 +1224,7 @@ export default function BillingModule() {
                               />
                             </td>
                             <td className="metric-value py-3 font-medium">{quantity}</td>
-                            <td className="currency-value py-3">₹{Number(item.price).toFixed(2)}</td>
+                            <td className="currency-value py-3">₹{(Number(item.price) * (1 + getTaxInfo(item).gstDecimal)).toFixed(2)}</td>
                             <td className="metric-value py-3">
                               {getTaxInfo(item).gstLabel}
                               <span className="block text-[9px] text-ivory/45">
