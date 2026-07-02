@@ -186,5 +186,21 @@
   "GP KERATIN REPAIR MASK 500GM": {
     "hsn": "33059090",
     "gstRate": 18
+  },
+  "krone professional anti dandruff tonic": {
+    "hsn": "330510",
+    "gstRate": 18
+  },
+  "krone professional dandruff control hair cleanser": {
+    "hsn": "33059090",
+    "gstRate": 18
+  },
+  "krone professional dandruff control masque": {
+    "hsn": "999729",
+    "gstRate": 18
+  },
+  "raaga sun screen": {
+    "hsn": "33042000",
+    "gstRate": 5
   }
 }
